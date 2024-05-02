@@ -15,6 +15,7 @@ pub struct TweakTool {
 
 #[derive(Debug, Clone)]
 pub enum Message {
+    Home(pages::home::Message),
     Dock(pages::dock::Message),
     Panel(pages::panel::Message),
     ColorSchemes(pages::color_schemes::Message),
@@ -78,10 +79,9 @@ impl Application for TweakTool {
         let nav_page = self
             .nav_model
             .data::<NavPage>(entity)
-            .unwrap_or(&NavPage::Dock);
+            .unwrap_or(&NavPage::Home);
 
-        let page = nav_page.view();
-        widget::column::with_children(vec![page.into()])
+        widget::column::with_children(vec![nav_page.view().into()])
             .padding(spacing.space_xs)
             .width(Length::Fill)
             .height(Length::Fill)
@@ -95,12 +95,17 @@ impl Application for TweakTool {
     ) -> cosmic::iced::Command<app::Message<Self::Message>> {
         let mut commands = vec![];
         match message {
+            Message::Home(message) => match message {},
             Message::Dock(message) => commands.push(
                 pages::dock::Dock::default()
                     .update(message)
                     .map(cosmic::app::Message::App),
             ),
-            Message::Panel(message) => match message {},
+            Message::Panel(message) => commands.push(
+                pages::panel::Panel::default()
+                    .update(message)
+                    .map(cosmic::app::Message::App),
+            ),
             Message::ColorSchemes(message) => match message {},
         }
         Command::batch(commands)

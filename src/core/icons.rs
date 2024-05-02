@@ -34,6 +34,8 @@ impl IconCache {
             };
         }
 
+        bundle!("size-horizontally-symbolic", 18);
+        bundle!("view-switcher-symbolic", 18);
         bundle!("dock-bottom-symbolic", 18);
         bundle!("dock-top-symbolic", 18);
         bundle!("dark-mode-symbolic", 18);

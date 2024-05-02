@@ -1,13 +1,11 @@
-# COSMIC Application Template
+# COSMIC Tweak Tool
 
-A template for COSMIC applications.
+A tweaking tool for the COSMIC desktop.
 
 ## Getting Started
-To get started, click the "Use this template" button above. This will create a new repository in your account with the contents of this template.
+Clone this repository to your local machine and open it in your code editor.
 
-Once you have created a new repository from this template, you can clone it to your local machine and start developing your COSMIC application.
+Run `cargo run` in the terminal to build and run the application.
 
-## Development
-When you open the repository in your code editor, you will see a lot of comments in the code. These comments are there to help you get a basic understanding of what each part of the code does.
-
-Once you feel comfortable with it, refer back to the [COSMIC documentation](https://pop-os.github.io/libcosmic/cosmic/) for more information on how to build COSMIC applications.
+## License
+This project is licensed under the GPL-3.0 License - see the [LICENSE](LICENSE) file for details.

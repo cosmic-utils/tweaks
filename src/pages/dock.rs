@@ -11,6 +11,7 @@ pub struct Dock {
     pub dock_helper: Option<Config>,
     pub dock_config: Option<CosmicPanelConfig>,
     pub padding: u32,
+    pub spacing: u32,
 }
 
 impl Default for Dock {
@@ -24,10 +25,15 @@ impl Default for Dock {
             .clone()
             .and_then(|config| Some(config.padding))
             .unwrap_or(0);
+        let spacing = dock_config
+            .clone()
+            .and_then(|config| Some(config.spacing))
+            .unwrap_or(0);
         Self {
             dock_helper,
             dock_config,
             padding,
+            spacing,
         }
     }
 }
@@ -35,34 +41,50 @@ impl Default for Dock {
 #[derive(Debug, Clone)]
 pub enum Message {
     SetPadding(u32),
+    SetSpacing(u32),
 }
 
 impl Dock {
     pub fn view<'a>(&self) -> Element<'a, Message> {
         widget::container(
-            widget::settings::view_section("Dock").add(
-                widget::settings::item::builder(fl!("padding"))
-                    .description(fl!("padding-description"))
-                    .icon(icons::get_icon("resize-mode-symbolic", 18))
-                    .control(widget::slider(0..=28, self.padding, Message::SetPadding)),
-            ),
+            widget::settings::view_section("Dock")
+                .add(
+                    widget::settings::item::builder(fl!("padding"))
+                        .description(fl!("padding-description"))
+                        .icon(icons::get_icon("resize-mode-symbolic", 18))
+                        .control(widget::slider(0..=28, self.padding, Message::SetPadding)),
+                )
+                .add(
+                    widget::settings::item::builder(fl!("spacing"))
+                        .description(fl!("spacing-description"))
+                        .icon(icons::get_icon("size-horizontally-symbolic", 18))
+                        .control(widget::slider(0..=28, self.spacing, Message::SetSpacing)),
+                ),
         )
         .into()
     }
 
     pub fn update(&mut self, message: Message) -> Command<crate::app::Message> {
+        let Some(dock_helper) = &mut self.dock_helper else {
+            return cosmic::Command::none();
+        };
+        let Some(dock_config) = &mut self.dock_config else {
+            return cosmic::Command::none();
+        };
+
         match message {
             Message::SetPadding(padding) => {
                 self.padding = padding;
-                let Some(dock_helper) = &mut self.dock_helper else {
-                    return cosmic::Command::none();
-                };
-                let Some(dock_config) = &mut self.dock_config else {
-                    return cosmic::Command::none();
-                };
                 let update = dock_config.set_padding(dock_helper, self.padding);
                 if let Err(err) = update {
                     eprintln!("Error updating dock padding: {}", err);
+                }
+            }
+            Message::SetSpacing(spacing) => {
+                self.spacing = spacing;
+                let update = dock_config.set_spacing(dock_helper, self.spacing);
+                if let Err(err) = update {
+                    eprintln!("Error updating dock spacing: {}", err);
                 }
             }
         }
