@@ -56,7 +56,7 @@ impl Panel {
                         .icon(icons::get_icon("resize-mode-symbolic", 18))
                         .control(
                             widget::row::with_children(vec![
-                                widget::slider(0..=28, self.padding, Message::SetPadding).into(),
+                                widget::slider(0..=20, self.padding, Message::SetPadding).into(),
                                 widget::text::text(format!("{} px", self.padding)).into(),
                             ])
                             .spacing(spacing.space_xxs),

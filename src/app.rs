@@ -106,7 +106,11 @@ impl Application for TweakTool {
                     .update(message)
                     .map(cosmic::app::Message::App),
             ),
-            Message::ColorSchemes(message) => match message {},
+            Message::ColorSchemes(message) => match message {
+                pages::color_schemes::Message::ImportColorScheme(_) => todo!(),
+                pages::color_schemes::Message::SetColorScheme(_) => todo!(),
+                pages::color_schemes::Message::DeleteColorScheme(_) => todo!(),
+            },
         }
         Command::batch(commands)
     }
