@@ -1,45 +1,33 @@
 use cosmic::{
     app::{self, Core},
-    iced::{
-        alignment::{Horizontal, Vertical},
-        Command, Length,
-    },
-    widget, Application, Element,
+    iced::{Alignment, Command, Length},
+    widget::{self, segmented_button},
+    Application, Element,
 };
 
-use crate::fl;
+use crate::{core::nav::NavPage, fl, pages};
 
-/// This is the struct that represents your application.
-/// It is used to define the data that will be used by your application.
-#[derive(Clone, Default)]
-pub struct YourApp {
-    /// This is the core of your application, it is used to communicate with the Cosmic runtime.
-    /// It is used to send messages to your application, and to access the resources of the Cosmic runtime.
+#[derive(Default)]
+pub struct TweakTool {
     core: Core,
+    nav_model: segmented_button::SingleSelectModel,
 }
 
-/// This is the enum that contains all the possible variants that your application will need to transmit messages.
-/// This is used to communicate between the different parts of your application.
-/// If your application does not need to send messages, you can use an empty enum or `()`.
 #[derive(Debug, Clone)]
-pub enum Message {}
+pub enum Message {
+    Dock(pages::dock::Message),
+    Panel(pages::panel::Message),
+    ColorSchemes(pages::color_schemes::Message),
+}
 
-/// Implement the `Application` trait for your application.
-/// This is where you define the behavior of your application.
-///
-/// The `Application` trait requires you to define the following types and constants:
-/// - `Executor` is the executor that will be used to run your application.
-/// - `Flags` is the data that your application needs to use before it starts.
-/// - `Message` is the enum that contains all the possible variants that your application will need to transmit messages.
-/// - `APP_ID` is the unique identifier of your application.
-impl Application for YourApp {
+impl Application for TweakTool {
     type Executor = cosmic::executor::Default;
 
     type Flags = ();
 
     type Message = Message;
 
-    const APP_ID: &'static str = "com.example.YourApp";
+    const APP_ID: &'static str = "dev.edfloreshz.CosmicTweakTool";
 
     fn core(&self) -> &Core {
         &self.core
@@ -49,36 +37,72 @@ impl Application for YourApp {
         &mut self.core
     }
 
-    /// This is the header of your application, it can be used to display the title of your application.
     fn header_center(&self) -> Vec<Element<Self::Message>> {
         vec![widget::text::text(fl!("app-title")).into()]
     }
 
-    /// This is the entry point of your application, it is where you initialize your application.
-    ///
-    /// Any work that needs to be done before the application starts should be done here.
-    ///
-    /// - `core` is used to passed on for you by libcosmic to use in the core of your own application.
-    /// - `flags` is used to pass in any data that your application needs to use before it starts.
-    /// - `Command` type is used to send messages to your application. `Command::none()` can be used to send no messages to your application.
-    fn init(core: Core, _flags: Self::Flags) -> (Self, Command<app::Message<Self::Message>>) {
-        let example = YourApp { core };
-
-        (example, Command::none())
+    fn nav_model(&self) -> Option<&widget::nav_bar::Model> {
+        Some(&self.nav_model)
     }
 
-    /// This is the main view of your application, it is the root of your widget tree.
-    ///
-    /// The `Element` type is used to represent the visual elements of your application,
-    /// it has a `Message` associated with it, which dictates what type of message it can send.
-    ///
-    /// To get a better sense of which widgets are available, check out the `widget` module.
+    fn on_nav_select(
+        &mut self,
+        id: widget::nav_bar::Id,
+    ) -> cosmic::iced::Command<app::Message<Self::Message>> {
+        self.nav_model.activate(id);
+        Command::none()
+    }
+
+    fn init(core: Core, _flags: Self::Flags) -> (Self, Command<app::Message<Self::Message>>) {
+        let mut nav_model = segmented_button::SingleSelectModel::default();
+        for &nav_page in NavPage::all() {
+            let id = nav_model
+                .insert()
+                .icon(nav_page.icon())
+                .text(nav_page.title())
+                .data::<NavPage>(nav_page)
+                .id();
+
+            if nav_page == NavPage::Dock {
+                nav_model.activate(id);
+            }
+        }
+        let app = TweakTool { nav_model, core };
+
+        (app, Command::none())
+    }
+
     fn view(&self) -> Element<Self::Message> {
-        widget::container(widget::text::title1(fl!("welcome")))
+        let spacing = cosmic::theme::active().cosmic().spacing;
+        let entity = self.nav_model.active();
+        let nav_page = self
+            .nav_model
+            .data::<NavPage>(entity)
+            .unwrap_or(&NavPage::Dock);
+
+        let page = nav_page.view();
+        widget::column::with_children(vec![page.into()])
+            .padding(spacing.space_xs)
             .width(Length::Fill)
             .height(Length::Fill)
-            .align_x(Horizontal::Center)
-            .align_y(Vertical::Center)
+            .align_items(Alignment::Center)
             .into()
+    }
+
+    fn update(
+        &mut self,
+        message: Self::Message,
+    ) -> cosmic::iced::Command<app::Message<Self::Message>> {
+        let mut commands = vec![];
+        match message {
+            Message::Dock(message) => commands.push(
+                pages::dock::Dock::default()
+                    .update(message)
+                    .map(cosmic::app::Message::App),
+            ),
+            Message::Panel(message) => match message {},
+            Message::ColorSchemes(message) => match message {},
+        }
+        Command::batch(commands)
     }
 }

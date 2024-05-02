@@ -16,3 +16,6 @@ features = ["wayland", "wgpu"]
 [dependencies.i18n-embed]
 version = "0.14"
 features = ["fluent-system", "desktop-requester"]
+
+[dependencies.cosmic-panel-config]
+git = "https://github.com/pop-os/cosmic-panel"
