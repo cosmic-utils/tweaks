@@ -46,19 +46,33 @@ pub enum Message {
 
 impl Panel {
     pub fn view<'a>(&self) -> Element<'a, Message> {
+        let spacing = cosmic::theme::active().cosmic().spacing;
+
         widget::container(
             widget::settings::view_section("Panel")
                 .add(
                     widget::settings::item::builder(fl!("padding"))
                         .description(fl!("padding-description"))
                         .icon(icons::get_icon("resize-mode-symbolic", 18))
-                        .control(widget::slider(0..=28, self.padding, Message::SetPadding)),
+                        .control(
+                            widget::row::with_children(vec![
+                                widget::slider(0..=28, self.padding, Message::SetPadding).into(),
+                                widget::text::text(format!("{} px", self.padding)).into(),
+                            ])
+                            .spacing(spacing.space_xxs),
+                        ),
                 )
                 .add(
                     widget::settings::item::builder(fl!("spacing"))
                         .description(fl!("spacing-description"))
                         .icon(icons::get_icon("size-horizontally-symbolic", 18))
-                        .control(widget::slider(0..=28, self.spacing, Message::SetSpacing)),
+                        .control(
+                            widget::row::with_children(vec![
+                                widget::slider(0..=28, self.spacing, Message::SetSpacing).into(),
+                                widget::text::text(format!("{} px", self.spacing)).into(),
+                            ])
+                            .spacing(spacing.space_xxs),
+                        ),
                 ),
         )
         .into()
