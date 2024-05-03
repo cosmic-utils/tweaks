@@ -11,6 +11,9 @@ delete-color-scheme = Delete color scheme
 open-containing-folder = Open containing folder
 installed = Installed
 
+# Panel only
+show-panel = Show panel
+
 padding = Padding
 padding-description = Padding is the space between the contents and the borders of the dock or panel.
 
