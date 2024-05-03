@@ -43,7 +43,7 @@ pub fn view<'a>(color_scheme: &ColorScheme, selected: &ColorScheme) -> Element<'
                 )
                 .into(),
                 widget::tooltip::tooltip(
-                    icons::get_icon("cross-filled-large-symbolic", 14)
+                    icons::get_icon("user-trash-symbolic", 14)
                         .apply(widget::button)
                         .style(cosmic::theme::Button::Destructive)
                         .padding(spacing.space_xxs)

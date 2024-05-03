@@ -35,16 +35,14 @@ impl IconCache {
         }
 
         bundle!("size-horizontally-symbolic", 18);
-        bundle!("view-switcher-symbolic", 18);
         bundle!("dock-bottom-symbolic", 18);
         bundle!("dock-top-symbolic", 18);
         bundle!("dark-mode-symbolic", 18);
         bundle!("resize-mode-symbolic", 18);
-        bundle!("step-in-symbolic", 16);
         bundle!("arrow-into-box-symbolic", 16);
         bundle!("document-save-symbolic", 16);
         bundle!("symbolic-link-symbolic", 14);
-        bundle!("cross-filled-large-symbolic", 14);
+        bundle!("user-trash-symbolic", 14);
 
         Self { cache }
     }
