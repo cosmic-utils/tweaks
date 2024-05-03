@@ -1,8 +1,9 @@
 use cosmic::{
-    cosmic_config::{Config, CosmicConfigEntry},
+    cosmic_config::{self, Config, CosmicConfigEntry},
     widget, Command, Element,
 };
 use cosmic_panel_config::CosmicPanelConfig;
+use serde::{Deserialize, Serialize};
 
 use crate::{core::icons, fl};
 
@@ -12,6 +13,23 @@ pub struct Panel {
     pub panel_config: Option<CosmicPanelConfig>,
     pub padding: u32,
     pub spacing: u32,
+    pub show_panel: bool,
+    pub cosmic_panel_config: CosmicPanel,
+    pub cosmic_panel_config_helper: Option<Config>,
+}
+
+#[derive(
+    Debug,
+    Clone,
+    Default,
+    Deserialize,
+    Serialize,
+    PartialEq,
+    Eq,
+    cosmic_config::cosmic_config_derive::CosmicConfigEntry,
+)]
+pub struct CosmicPanel {
+    pub entries: Vec<String>,
 }
 
 impl Default for Panel {
@@ -21,6 +39,24 @@ impl Default for Panel {
             let panel_config = CosmicPanelConfig::get_entry(config_helper).ok()?;
             (panel_config.name == "Panel").then_some(panel_config)
         });
+        let (cosmic_panel_config_helper, cosmic_panel_config) =
+            match cosmic_config::Config::new("com.system76.CosmicPanel", 1) {
+                Ok(config_handler) => {
+                    let config = match CosmicPanel::get_entry(&config_handler) {
+                        Ok(ok) => ok,
+                        Err((errs, config)) => {
+                            eprintln!("errors loading config: {:?}", errs);
+                            config
+                        }
+                    };
+                    (Some(config_handler), config)
+                }
+                Err(err) => {
+                    eprintln!("failed to create config handler: {}", err);
+                    (None, CosmicPanel::default())
+                }
+            };
+
         let padding = panel_config
             .clone()
             .map(|config| config.padding)
@@ -29,11 +65,15 @@ impl Default for Panel {
             .clone()
             .map(|config| config.spacing)
             .unwrap_or(0);
+        let show_panel = cosmic_panel_config.entries.iter().any(|e| e == "Panel");
         Self {
             panel_helper,
             panel_config,
             padding,
             spacing,
+            show_panel,
+            cosmic_panel_config,
+            cosmic_panel_config_helper,
         }
     }
 }
@@ -42,6 +82,7 @@ impl Default for Panel {
 pub enum Message {
     SetPadding(u32),
     SetSpacing(u32),
+    ShowPanel(bool),
 }
 
 impl Panel {
@@ -50,6 +91,10 @@ impl Panel {
 
         widget::scrollable(
             widget::settings::view_section("Panel")
+                .add(
+                    widget::settings::item::builder(fl!("show-panel"))
+                        .toggler(self.show_panel, Message::ShowPanel),
+                )
                 .add(
                     widget::settings::item::builder(fl!("padding"))
                         .description(fl!("padding-description"))
@@ -99,6 +144,45 @@ impl Panel {
                 let update = panel_config.set_spacing(panel_helper, self.spacing);
                 if let Err(err) = update {
                     eprintln!("Error updating panel spacing: {}", err);
+                }
+            }
+            Message::ShowPanel(show) => {
+                if show {
+                    if !self
+                        .cosmic_panel_config
+                        .entries
+                        .iter()
+                        .any(|e| e == "Panel")
+                    {
+                        let mut entries = self.cosmic_panel_config.entries.clone();
+                        entries.push("Panel".to_owned());
+                        if let Some(helper) = &self.cosmic_panel_config_helper {
+                            let update = self.cosmic_panel_config.set_entries(helper, entries);
+                            if let Err(err) = update {
+                                eprintln!("Error updating cosmic panel entries: {}", err);
+                            } else {
+                                self.show_panel = false;
+                            }
+                        }
+                    }
+                } else {
+                    if let Some(i) = self
+                        .cosmic_panel_config
+                        .entries
+                        .iter()
+                        .position(|e| e == "Panel")
+                    {
+                        let mut entries = self.cosmic_panel_config.entries.clone();
+                        entries.remove(i);
+                        if let Some(helper) = &self.cosmic_panel_config_helper {
+                            let update = self.cosmic_panel_config.set_entries(helper, entries);
+                            if let Err(err) = update {
+                                eprintln!("Error updating cosmic panel entries: {}", err);
+                            } else {
+                                self.show_panel = true;
+                            }
+                        }
+                    }
                 }
             }
         }
