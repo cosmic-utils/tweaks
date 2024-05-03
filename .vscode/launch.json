@@ -7,15 +7,15 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'cosmic-tweak-tool'",
+            "name": "Debug executable 'cosmic-tweaks'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=cosmic-tweak-tool",
-                    "--package=cosmic-tweak-tool"
+                    "--bin=cosmic-tweaks",
+                    "--package=cosmic-tweaks"
                 ],
                 "filter": {
-                    "name": "cosmic-tweak-tool",
+                    "name": "cosmic-tweaks",
                     "kind": "bin"
                 }
             },
@@ -25,16 +25,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in executable 'cosmic-tweak-tool'",
+            "name": "Debug unit tests in executable 'cosmic-tweaks'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--bin=cosmic-tweak-tool",
-                    "--package=cosmic-tweak-tool"
+                    "--bin=cosmic-tweaks",
+                    "--package=cosmic-tweaks"
                 ],
                 "filter": {
-                    "name": "cosmic-tweak-tool",
+                    "name": "cosmic-tweaks",
                     "kind": "bin"
                 }
             },

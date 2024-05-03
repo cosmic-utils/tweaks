@@ -1,8 +1,8 @@
 <div class="center">
-    <img src="res/icons/hicolor/256x256/apps/dev.edfloreshz.CosmicTweakTool.svg"/>
+    <img src="res/icons/hicolor/256x256/apps/dev.edfloreshz.CosmicTweaks.svg"/>
 </div>
 
-# COSMIC Tweak Tool
+# COSMIC Tweaks
 
 A tweaking tool for the COSMIC desktop.
 

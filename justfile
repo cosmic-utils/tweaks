@@ -1,5 +1,5 @@
-name := 'cosmic-tweak-tool'
-export APPID := 'dev.edfloreshz.CosmicTweakTool'
+name := 'cosmic-tweaks'
+export APPID := 'dev.edfloreshz.CosmicTweaks'
 
 rootdir := ''
 prefix := '/usr'

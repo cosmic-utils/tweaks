@@ -8,7 +8,7 @@ use cosmic_config::cosmic_config_derive::CosmicConfigEntry;
 use cosmic_config::CosmicConfigEntry;
 use serde::{Deserialize, Serialize};
 
-pub const COLOR_SCHEME_CONFIG_ID: &str = "dev.edfloreshz.CosmicTweakTool.ColorScheme";
+pub const COLOR_SCHEME_CONFIG_ID: &str = "dev.edfloreshz.CosmicTweaks.ColorScheme";
 
 #[derive(Debug, Serialize, Clone, Default, Deserialize, PartialEq, CosmicConfigEntry)]
 #[version = 1]

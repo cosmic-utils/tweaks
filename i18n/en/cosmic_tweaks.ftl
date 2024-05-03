@@ -1,6 +1,6 @@
-app-title = COSMIC Tweak Tool
+app-title = COSMIC Tweaks
 app-description = A tool to customize your COSMIC desktop experience.
-welcome = Welcome to COSMIC Tweak Tool! ✨
+welcome = Welcome to COSMIC Tweaks! ✨
 
 home = Home
 dock = Dock
