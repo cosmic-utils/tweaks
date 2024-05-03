@@ -14,5 +14,13 @@ Clone this repository to your local machine and open it in your code editor.
 
 Run `cargo run` in the terminal to build and run the application.
 
+## Installation
+Clone this repository to your local machine and run:
+
+```bash
+just build-release
+sudo just install
+```
+
 ## License
 This project is licensed under the GPL-3.0 License - see the [LICENSE](LICENSE) file for details.
