@@ -7,46 +7,48 @@ use super::icons;
 #[derive(Clone, Copy, Default, Debug, Eq, PartialEq)]
 pub enum NavPage {
     #[default]
-    Home,
+    ColorSchemes,
     Dock,
     Panel,
-    Themes,
+}
+
+impl Default for &NavPage {
+    fn default() -> Self {
+        &NavPage::ColorSchemes
+    }
 }
 
 impl NavPage {
     pub fn title(&self) -> String {
         match self {
-            Self::Home => fl!("home"),
+            Self::ColorSchemes => fl!("color-schemes"),
             Self::Dock => fl!("dock"),
             Self::Panel => fl!("panel"),
-            Self::Themes => fl!("color-schemes"),
         }
     }
 
     pub fn icon(&self) -> Icon {
         match self {
-            Self::Home => icons::get_icon("view-switcher-symbolic", 18),
+            Self::ColorSchemes => icons::get_icon("dark-mode-symbolic", 18),
             Self::Dock => icons::get_icon("dock-bottom-symbolic", 18),
             Self::Panel => icons::get_icon("dock-top-symbolic", 18),
-            Self::Themes => icons::get_icon("dark-mode-symbolic", 18),
         }
     }
 
     pub fn view<'a>(&self) -> Element<'a, app::Message> {
         match self {
-            NavPage::Home => pages::home::view().map(app::Message::Home),
+            NavPage::ColorSchemes => pages::color_schemes::ColorSchemes::default()
+                .view()
+                .map(Box::new)
+                .map(app::Message::ColorSchemes),
             NavPage::Dock => pages::dock::Dock::default().view().map(app::Message::Dock),
             NavPage::Panel => pages::panel::Panel::default()
                 .view()
                 .map(app::Message::Panel),
-            NavPage::Themes => pages::color_schemes::ColorSchemes::default()
-                .view()
-                .map(Box::new)
-                .map(app::Message::ColorSchemes),
         }
     }
 
     pub fn all() -> &'static [Self] {
-        &[Self::Home, Self::Dock, Self::Panel, Self::Themes]
+        &[Self::ColorSchemes, Self::Dock, Self::Panel]
     }
 }

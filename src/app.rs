@@ -27,7 +27,6 @@ pub enum DialogPage {
 
 #[derive(Debug, Clone)]
 pub enum Message {
-    Home(pages::home::Message),
     Dock(pages::dock::Message),
     Panel(pages::panel::Message),
     ColorSchemes(Box<pages::color_schemes::Message>),
@@ -113,7 +112,7 @@ impl Application for TweakTool {
                 .data::<NavPage>(nav_page)
                 .id();
 
-            if nav_page == NavPage::Home {
+            if nav_page == NavPage::default() {
                 nav_model.activate(id);
             }
         }
@@ -131,10 +130,7 @@ impl Application for TweakTool {
     fn view(&self) -> Element<Self::Message> {
         let spacing = cosmic::theme::active().cosmic().spacing;
         let entity = self.nav_model.active();
-        let nav_page = self
-            .nav_model
-            .data::<NavPage>(entity)
-            .unwrap_or(&NavPage::Home);
+        let nav_page = self.nav_model.data::<NavPage>(entity).unwrap_or_default();
 
         widget::column::with_children(vec![nav_page.view()])
             .padding(spacing.space_xs)
@@ -150,7 +146,6 @@ impl Application for TweakTool {
     ) -> cosmic::iced::Command<app::Message<Self::Message>> {
         let mut commands = vec![];
         match message {
-            Message::Home(message) => match message {},
             Message::Dock(message) => commands.push(
                 pages::dock::Dock::default()
                     .update(message)

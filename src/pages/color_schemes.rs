@@ -299,7 +299,7 @@ impl ColorSchemes {
                         return Command::none();
                     };
 
-                    if let Err(e) = std::fs::write(path, &theme_builder) {
+                    if let Err(e) = std::fs::write(path, theme_builder) {
                         eprintln!("failed to write the file to the themes directory: {e}");
                     }
 
