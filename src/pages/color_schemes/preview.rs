@@ -95,6 +95,7 @@ pub fn card(theme: &Theme) -> cosmic::theme::Container {
     })
 }
 
+#[allow(dead_code)]
 pub fn standard_button(theme: &Theme) -> cosmic::theme::Button {
     let active_theme = theme.clone();
     let disabled_theme = theme.clone();

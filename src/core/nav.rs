@@ -41,6 +41,7 @@ impl NavPage {
                 .map(app::Message::Panel),
             NavPage::Themes => pages::color_schemes::ColorSchemes::default()
                 .view()
+                .map(Box::new)
                 .map(app::Message::ColorSchemes),
         }
     }

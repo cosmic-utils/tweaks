@@ -20,6 +20,7 @@ pub struct ColorScheme {
 }
 
 impl ColorScheme {
+    #[allow(dead_code)]
     pub const fn version() -> u64 {
         Self::VERSION
     }

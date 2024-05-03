@@ -222,10 +222,10 @@ impl ColorSchemes {
                 let Some(config) = &mut self.config else {
                     return Command::none();
                 };
-                if let Err(e) = config.set_name(&config_helper, self.selected.name.clone()) {
+                if let Err(e) = config.set_name(config_helper, self.selected.name.clone()) {
                     eprintln!("There was an error selecting the color scheme: {e}");
                 }
-                if let Err(e) = config.set_path(&config_helper, self.selected.path.clone()) {
+                if let Err(e) = config.set_path(config_helper, self.selected.path.clone()) {
                     eprintln!("There was an error selecting the color scheme: {e}");
                 }
                 if let Ok(theme) = &color_scheme.theme() {

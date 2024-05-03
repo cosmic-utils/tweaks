@@ -22,7 +22,7 @@ pub enum Message {
     Home(pages::home::Message),
     Dock(pages::dock::Message),
     Panel(pages::panel::Message),
-    ColorSchemes(pages::color_schemes::Message),
+    ColorSchemes(Box<pages::color_schemes::Message>),
 }
 
 impl Application for TweakTool {
@@ -113,7 +113,8 @@ impl Application for TweakTool {
             ),
             Message::ColorSchemes(message) => commands.push(
                 ColorSchemes::default()
-                    .update(message)
+                    .update(*message)
+                    .map(Box::new)
                     .map(Message::ColorSchemes)
                     .map(cosmic::app::Message::App),
             ),

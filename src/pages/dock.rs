@@ -22,10 +22,12 @@ impl Default for Dock {
             (panel_config.name == "Dock").then_some(panel_config)
         });
         let padding = dock_config
-            .clone().map(|config| config.padding)
+            .clone()
+            .map(|config| config.padding)
             .unwrap_or(0);
         let spacing = dock_config
-            .clone().map(|config| config.spacing)
+            .clone()
+            .map(|config| config.spacing)
             .unwrap_or(0);
         Self {
             dock_helper,
