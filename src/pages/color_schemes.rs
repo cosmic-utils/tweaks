@@ -7,17 +7,18 @@ use cosmic::{
     cosmic_config::{Config, CosmicConfigEntry},
     cosmic_theme::{Theme, ThemeBuilder, ThemeMode},
     iced::Length,
-    widget, Apply, Command, Element,
+    widget::{self, tooltip},
+    Apply, Command, Element,
 };
 
 mod config;
 mod preview;
 
 pub struct ColorSchemes {
+    selected: ColorScheme,
     color_schemes: Vec<ColorScheme>,
     config_helper: Option<Config>,
     config: Option<ColorScheme>,
-    selected: ColorScheme,
     theme_mode: ThemeMode,
     theme_builder_config: Option<Config>,
     theme_builder: ThemeBuilder,
@@ -71,10 +72,10 @@ impl Default for ColorSchemes {
         let selected = config.clone().unwrap_or_default();
         let color_schemes = Self::fetch_color_schemes().unwrap_or_default();
         Self {
+            selected,
             color_schemes,
             config_helper,
             config,
-            selected,
             theme_mode,
             theme_builder_config,
             theme_builder,
@@ -88,6 +89,7 @@ pub enum Message {
     ImportError,
     ImportFile(Arc<SelectedFiles>),
     ImportSuccess(Box<ThemeBuilder>),
+    SaveCurrentColorScheme(Option<String>),
     SetColorScheme(ColorScheme),
     DeleteColorScheme(ColorScheme),
     OpenContainingFolder(ColorScheme),
@@ -97,17 +99,33 @@ pub enum Message {
 impl ColorSchemes {
     pub fn view<'a>(&self) -> Element<'a, Message> {
         let spacing = cosmic::theme::active().cosmic().spacing;
+
         widget::column::with_children(vec![
             widget::row::with_children(vec![
                 widget::text::title3(fl!("color-schemes")).into(),
                 widget::horizontal_space(Length::Fill).into(),
-                icons::get_icon("step-in-symbolic", 16)
-                    .apply(widget::button)
-                    .padding(spacing.space_xxs)
-                    .on_press(Message::StartImport)
-                    .style(cosmic::theme::Button::Standard)
-                    .into(),
+                widget::tooltip::tooltip(
+                    icons::get_icon("arrow-into-box-symbolic", 16)
+                        .apply(widget::button)
+                        .padding(spacing.space_xxs)
+                        .on_press(Message::SaveCurrentColorScheme(None))
+                        .style(cosmic::theme::Button::Standard),
+                    fl!("save-current-color-scheme"),
+                    tooltip::Position::Bottom,
+                )
+                .into(),
+                widget::tooltip::tooltip(
+                    icons::get_icon("document-save-symbolic", 16)
+                        .apply(widget::button)
+                        .padding(spacing.space_xxs)
+                        .on_press(Message::StartImport)
+                        .style(cosmic::theme::Button::Standard),
+                    fl!("import-color-scheme"),
+                    tooltip::Position::Bottom,
+                )
+                .into(),
             ])
+            .spacing(spacing.space_xxs)
             .into(),
             widget::scrollable(widget::settings::view_section(fl!("installed")).add({
                 let themes: Vec<Element<Message>> = self
@@ -161,30 +179,34 @@ impl ColorSchemes {
                 let Ok(path) = f.to_file_path() else {
                     return Command::none();
                 };
-                let inner_path = path.clone();
+
+                let file = path.file_name().unwrap().to_str().unwrap().to_string();
+
+                let new_file = dirs::data_local_dir()
+                    .map(|dir| dir.join("themes/cosmic").join(file))
+                    .unwrap_or_default();
+
+                let color_scheme = ColorScheme {
+                    name: new_file.file_stem().unwrap().to_str().unwrap().to_string(),
+                    path: new_file.clone(),
+                    theme: Default::default(),
+                };
+
+                commands.push(self.update(Message::SetColorScheme(color_scheme.clone())));
+
+                let file_path = path.clone();
                 commands.push(Command::perform(
                     async move { tokio::fs::read_to_string(path).await },
                     move |res| {
-                        if let Some(b) = res.ok().and_then(|s| {
-                            if let Some(dir) = dirs::data_local_dir() {
-                                if inner_path.is_file() {
-                                    let file = inner_path
-                                        .file_name()
-                                        .unwrap()
-                                        .to_str()
-                                        .unwrap()
-                                        .to_string();
-                                    let dir = dir.join("themes/cosmic").join(file);
-                                    if !dir.exists() {
-                                        if let Err(e) = std::fs::write(dir, &s) {
-                                            eprintln!(
-                                                "failed to write the file to the themes directory: {e}"
-                                            );
-                                        }
-                                    }
+                        if let Some(b) = res.ok().and_then(|theme| {
+                            if file_path.is_file() && !new_file.exists() {
+                                if let Err(e) = std::fs::write(new_file, &theme) {
+                                    eprintln!(
+                                        "failed to write the file to the themes directory: {e}"
+                                    );
                                 }
                             }
-                            ron::de::from_str(&s).ok()
+                            ron::de::from_str(&theme).ok()
                         }) {
                             Message::ImportSuccess(Box::new(b))
                         } else {
@@ -228,8 +250,10 @@ impl ColorSchemes {
                 if let Err(e) = config.set_path(config_helper, self.selected.path.clone()) {
                     eprintln!("There was an error selecting the color scheme: {e}");
                 }
-                if let Ok(theme) = &color_scheme.theme() {
-                    commands.push(self.update(Message::ImportSuccess(Box::new(theme.clone()))))
+                if color_scheme.theme != ThemeBuilder::default() {
+                    if let Ok(theme) = &color_scheme.theme() {
+                        commands.push(self.update(Message::ImportSuccess(Box::new(theme.clone()))))
+                    }
                 }
             }
             Message::DeleteColorScheme(color_scheme) => {
@@ -252,6 +276,38 @@ impl ColorSchemes {
             }
             Message::ReloadColorSchemes => {
                 self.color_schemes = Self::fetch_color_schemes().unwrap_or_default();
+            }
+            Message::SaveCurrentColorScheme(name) => {
+                if let Some(name) = name {
+                    let path = dirs::data_local_dir()
+                        .map(|dir| dir.join("themes/cosmic").join(&name).with_extension("ron"))
+                        .unwrap_or_default();
+
+                    let color_scheme = ColorScheme {
+                        name,
+                        path: path.clone(),
+                        theme: self.theme_builder.clone(),
+                    };
+
+                    if path.exists() {
+                        eprintln!("The color scheme already exists.");
+                        return Command::none();
+                    }
+
+                    let Ok(theme_builder) = ron::to_string(&self.theme_builder) else {
+                        eprintln!("failed to serialize the theme builder");
+                        return Command::none();
+                    };
+
+                    if let Err(e) = std::fs::write(path, &theme_builder) {
+                        eprintln!("failed to write the file to the themes directory: {e}");
+                    }
+
+                    commands.push(self.update(Message::SetColorScheme(color_scheme)));
+                    commands.push(self.update(Message::ReloadColorSchemes))
+                } else {
+                    commands.push(self.update(Message::SaveCurrentColorScheme(None)))
+                }
             }
         }
         Command::batch(commands)

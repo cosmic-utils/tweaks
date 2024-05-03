@@ -41,6 +41,8 @@ impl IconCache {
         bundle!("dark-mode-symbolic", 18);
         bundle!("resize-mode-symbolic", 18);
         bundle!("step-in-symbolic", 16);
+        bundle!("arrow-into-box-symbolic", 16);
+        bundle!("document-save-symbolic", 16);
         bundle!("symbolic-link-symbolic", 14);
         bundle!("cross-filled-large-symbolic", 14);
 

@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 use cosmic::{
     app::{self, Core},
     iced::{Alignment, Command, Length},
@@ -11,10 +13,16 @@ use crate::{
     pages::{self, color_schemes::ColorSchemes},
 };
 
-#[derive(Default)]
 pub struct TweakTool {
     core: Core,
     nav_model: segmented_button::SingleSelectModel,
+    dialog_pages: VecDeque<DialogPage>,
+    dialog_text_input: widget::Id,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub enum DialogPage {
+    New(String),
 }
 
 #[derive(Debug, Clone)]
@@ -23,6 +31,11 @@ pub enum Message {
     Dock(pages::dock::Message),
     Panel(pages::panel::Message),
     ColorSchemes(Box<pages::color_schemes::Message>),
+    OpenSaveDialog,
+    DialogUpdate(DialogPage),
+    DialogComplete,
+    DialogCancel,
+    SaveNewColorScheme(String),
 }
 
 impl Application for TweakTool {
@@ -58,6 +71,38 @@ impl Application for TweakTool {
         Command::none()
     }
 
+    fn dialog(&self) -> Option<Element<Self::Message>> {
+        let dialog_page = match self.dialog_pages.front() {
+            Some(some) => some,
+            None => return None,
+        };
+
+        let spacing = cosmic::theme::active().cosmic().spacing;
+
+        let dialog = match dialog_page {
+            DialogPage::New(name) => widget::dialog(fl!("save-current-color-scheme"))
+                .primary_action(
+                    widget::button::suggested(fl!("save"))
+                        .on_press_maybe(Some(Message::DialogComplete)),
+                )
+                .secondary_action(
+                    widget::button::standard(fl!("cancel")).on_press(Message::DialogCancel),
+                )
+                .control(
+                    widget::column::with_children(vec![
+                        widget::text::body(fl!("color-scheme-name")).into(),
+                        widget::text_input("", name.as_str())
+                            .id(self.dialog_text_input.clone())
+                            .on_input(move |name| Message::DialogUpdate(DialogPage::New(name)))
+                            .into(),
+                    ])
+                    .spacing(spacing.space_xxs),
+                ),
+        };
+
+        Some(dialog.into())
+    }
+
     fn init(core: Core, _flags: Self::Flags) -> (Self, Command<app::Message<Self::Message>>) {
         let mut nav_model = segmented_button::SingleSelectModel::default();
         for &nav_page in NavPage::all() {
@@ -73,7 +118,12 @@ impl Application for TweakTool {
             }
         }
 
-        let app = TweakTool { nav_model, core };
+        let app = TweakTool {
+            nav_model,
+            core,
+            dialog_pages: VecDeque::new(),
+            dialog_text_input: widget::Id::unique(),
+        };
 
         (app, Command::none())
     }
@@ -111,13 +161,42 @@ impl Application for TweakTool {
                     .update(message)
                     .map(cosmic::app::Message::App),
             ),
-            Message::ColorSchemes(message) => commands.push(
-                ColorSchemes::default()
-                    .update(*message)
-                    .map(Box::new)
-                    .map(Message::ColorSchemes)
-                    .map(cosmic::app::Message::App),
-            ),
+            Message::ColorSchemes(message) => match *message {
+                pages::color_schemes::Message::SaveCurrentColorScheme(None) => {
+                    commands.push(self.update(Message::OpenSaveDialog))
+                }
+                _ => commands.push(
+                    ColorSchemes::default()
+                        .update(*message)
+                        .map(Box::new)
+                        .map(Message::ColorSchemes)
+                        .map(cosmic::app::Message::App),
+                ),
+            },
+            Message::SaveNewColorScheme(name) => {
+                commands.push(self.update(Message::ColorSchemes(Box::new(
+                    pages::color_schemes::Message::SaveCurrentColorScheme(Some(name)),
+                ))))
+            }
+            Message::OpenSaveDialog => {
+                self.dialog_pages.push_back(DialogPage::New(String::new()));
+                return widget::text_input::focus(self.dialog_text_input.clone());
+            }
+            Message::DialogUpdate(dialog_page) => {
+                self.dialog_pages[0] = dialog_page;
+            }
+            Message::DialogComplete => {
+                if let Some(dialog_page) = self.dialog_pages.pop_front() {
+                    match dialog_page {
+                        DialogPage::New(name) => {
+                            commands.push(self.update(Message::SaveNewColorScheme(name)))
+                        }
+                    }
+                }
+            }
+            Message::DialogCancel => {
+                self.dialog_pages.pop_front();
+            }
         }
         Command::batch(commands)
     }

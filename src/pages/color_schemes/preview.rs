@@ -1,8 +1,9 @@
+use crate::fl;
 use cosmic::{
     cosmic_theme::Theme,
     iced::{Alignment, Border, Color, Length},
     iced_core::Shadow,
-    widget::{self, button, container},
+    widget::{self, button, container, tooltip},
     Apply, Element,
 };
 
@@ -31,18 +32,26 @@ pub fn view<'a>(color_scheme: &ColorScheme, selected: &ColorScheme) -> Element<'
                     .style(card(&theme))
                     .into(),
                 widget::horizontal_space(Length::Fill).into(),
-                icons::get_icon("symbolic-link-symbolic", 14)
-                    .apply(widget::button)
-                    .style(cosmic::theme::Button::Link)
-                    .padding(spacing.space_xxs)
-                    .on_press(super::Message::OpenContainingFolder(color_scheme.clone()))
-                    .into(),
-                icons::get_icon("cross-filled-large-symbolic", 14)
-                    .apply(widget::button)
-                    .style(cosmic::theme::Button::Destructive)
-                    .padding(spacing.space_xxs)
-                    .on_press(super::Message::DeleteColorScheme(color_scheme.clone()))
-                    .into(),
+                widget::tooltip::tooltip(
+                    icons::get_icon("symbolic-link-symbolic", 14)
+                        .apply(widget::button)
+                        .style(cosmic::theme::Button::Link)
+                        .padding(spacing.space_xxs)
+                        .on_press(super::Message::OpenContainingFolder(color_scheme.clone())),
+                    fl!("open-containing-folder"),
+                    tooltip::Position::Bottom,
+                )
+                .into(),
+                widget::tooltip::tooltip(
+                    icons::get_icon("cross-filled-large-symbolic", 14)
+                        .apply(widget::button)
+                        .style(cosmic::theme::Button::Destructive)
+                        .padding(spacing.space_xxs)
+                        .on_press(super::Message::DeleteColorScheme(color_scheme.clone())),
+                    fl!("delete-color-scheme"),
+                    tooltip::Position::Bottom,
+                )
+                .into(),
             ])
             .align_items(Alignment::End)
             .spacing(spacing.space_xxs)
