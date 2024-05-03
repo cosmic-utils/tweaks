@@ -22,12 +22,10 @@ impl Default for Panel {
             (panel_config.name == "Panel").then_some(panel_config)
         });
         let padding = panel_config
-            .clone()
-            .and_then(|config| Some(config.padding))
+            .clone().map(|config| config.padding)
             .unwrap_or(0);
         let spacing = panel_config
-            .clone()
-            .and_then(|config| Some(config.spacing))
+            .clone().map(|config| config.spacing)
             .unwrap_or(0);
         Self {
             panel_helper,

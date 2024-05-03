@@ -86,7 +86,7 @@ impl Application for TweakTool {
             .data::<NavPage>(entity)
             .unwrap_or(&NavPage::Home);
 
-        widget::column::with_children(vec![nav_page.view().into()])
+        widget::column::with_children(vec![nav_page.view()])
             .padding(spacing.space_xs)
             .width(Length::Fill)
             .height(Length::Fill)
@@ -114,6 +114,7 @@ impl Application for TweakTool {
             Message::ColorSchemes(message) => commands.push(
                 ColorSchemes::default()
                     .update(message)
+                    .map(Message::ColorSchemes)
                     .map(cosmic::app::Message::App),
             ),
         }
