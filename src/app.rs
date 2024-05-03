@@ -5,7 +5,11 @@ use cosmic::{
     Application, Element,
 };
 
-use crate::{core::nav::NavPage, fl, pages};
+use crate::{
+    core::nav::NavPage,
+    fl,
+    pages::{self, color_schemes::ColorSchemes},
+};
 
 #[derive(Default)]
 pub struct TweakTool {
@@ -68,6 +72,7 @@ impl Application for TweakTool {
                 nav_model.activate(id);
             }
         }
+
         let app = TweakTool { nav_model, core };
 
         (app, Command::none())
@@ -106,11 +111,11 @@ impl Application for TweakTool {
                     .update(message)
                     .map(cosmic::app::Message::App),
             ),
-            Message::ColorSchemes(message) => match message {
-                pages::color_schemes::Message::ImportColorScheme(_) => todo!(),
-                pages::color_schemes::Message::SetColorScheme(_) => todo!(),
-                pages::color_schemes::Message::DeleteColorScheme(_) => todo!(),
-            },
+            Message::ColorSchemes(message) => commands.push(
+                ColorSchemes::default()
+                    .update(message)
+                    .map(cosmic::app::Message::App),
+            ),
         }
         Command::batch(commands)
     }

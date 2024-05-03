@@ -1,14 +1,19 @@
-use cosmic::cosmic_config::{self, Config};
+use cosmic::{
+    cosmic_config::{self, Config},
+    cosmic_theme::ThemeBuilder,
+};
 use cosmic_config::cosmic_config_derive::CosmicConfigEntry;
 use cosmic_config::CosmicConfigEntry;
 use serde::{Deserialize, Serialize};
 
 pub const COLOR_SCHEME_CONFIG_ID: &str = "dev.edfloreshz.CosmicTweakTool.ColorScheme";
 
-#[derive(Debug, Serialize, Clone, Default, Deserialize, CosmicConfigEntry)]
+#[derive(Debug, Serialize, Clone, Default, Deserialize, PartialEq, CosmicConfigEntry)]
 #[version = 1]
 pub struct ColorScheme {
     pub name: String,
+    #[serde(skip_serializing)]
+    pub theme: ThemeBuilder,
 }
 
 impl ColorScheme {

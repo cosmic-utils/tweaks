@@ -39,7 +39,9 @@ impl NavPage {
             NavPage::Panel => pages::panel::Panel::default()
                 .view()
                 .map(app::Message::Panel),
-            NavPage::Themes => pages::color_schemes::view().map(app::Message::ColorSchemes),
+            NavPage::Themes => pages::color_schemes::ColorSchemes::default()
+                .view()
+                .map(app::Message::ColorSchemes),
         }
     }
 

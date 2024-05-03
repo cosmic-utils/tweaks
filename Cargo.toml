@@ -1,11 +1,14 @@
 [package]
-name = "cosmic-app-template"
+name = "cosmic-tweak-tool"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+anyhow = "1.0.82"
+dirs = "5.0.1"
 i18n-embed-fl = "0.8"
 once_cell = "1.19.0"
+ron = "0.8.1"
 rust-embed = "8.3.0"
 
 [dependencies.libcosmic]

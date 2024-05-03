@@ -5,6 +5,7 @@ home = Home
 dock = Dock
 panel = Panel
 color-schemes = Color schemes
+color-schemes-error = Error loading color schemes
 
 padding = Padding
 padding-description = Padding is the space between the contents and the borders of the dock or panel.
