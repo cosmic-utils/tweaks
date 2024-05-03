@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>dev.edfloreshz.CosmicTweakTool</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-only</project_license>
+  <project_group>COSMIC</project_group>
+  <developer_name>System76</developer_name>
+  <update_contact>edfloreshz@proton.me</update_contact>
+  <url type="homepage">https://github.com/edfloreshz/cosmic-tweak-tool</url>
+  <url type="bugtracker">https://github.com/edfloreshz/cosmic-tweak-tool</url>
+  <name>COSMIC Tweak Tool</name>
+  <summary>A tweaking tool for the COSMIC desktop.</summary>
+  <description>
+    <p>Customize your COSMIC desktop beyond infinity.</p>
+    <ul>
+        <li>Built with Rust for exceptional performance and responsiveness.</li>
+    </ul>
+  </description>
+  <launchable type="desktop-id">dev.edfloreshz.CosmicTweakTool.desktop</launchable>
+  <icon type="remote" height="256" width="256">https://raw.githubusercontent.com/edfloreshz/cosmic-tweak-tool/master/res/icons/hicolor/256x256/apps/dev.edfloreshz.CosmicTweakTool.svg</icon>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/edfloreshz/cosmic-tweak-tool/main/res/screenshots/window-light.png</image>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/edfloreshz/cosmic-tweak-tool/main/res/screenshots/window-dark.png</image>
+    </screenshot>
+  </screenshots>
+  <provides>
+    <mimetypes>
+      <mimetype>text/plain</mimetype>
+    </mimetypes>
+    <binaries>
+      <binary>cosmic-tweak-tool</binary>
+    </binaries>
+  </provides>
+</component>

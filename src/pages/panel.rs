@@ -48,7 +48,7 @@ impl Panel {
     pub fn view<'a>(&self) -> Element<'a, Message> {
         let spacing = cosmic::theme::active().cosmic().spacing;
 
-        widget::container(
+        widget::scrollable(
             widget::settings::view_section("Panel")
                 .add(
                     widget::settings::item::builder(fl!("padding"))

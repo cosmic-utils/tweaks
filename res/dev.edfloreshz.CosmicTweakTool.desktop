@@ -1,0 +1,11 @@
+#TODO: more build-out, desktop actions, translations?
+[Desktop Entry]
+Name=COSMIC Tweak Tool
+Exec=cosmic-tweak-tool %F
+Terminal=false
+Type=Application
+StartupNotify=true
+Icon=dev.edfloreshz.CosmicTweakTool
+Categories=COSMIC;Utility;FileManager;
+Keywords=Folder;Manager;
+MimeType=inode/directory;

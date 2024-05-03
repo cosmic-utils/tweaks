@@ -1,4 +1,5 @@
 app-title = Herramienta de tweaks de COSMIC
+app-description = Una herramienta para personalizar la apariencia de COSMIC.
 welcome = Bienvenido a la Herramienta de tweaks de COSMIC! ✨
 
 home = Inicio

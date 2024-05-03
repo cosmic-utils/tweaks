@@ -68,7 +68,7 @@ impl Application for TweakTool {
                 .data::<NavPage>(nav_page)
                 .id();
 
-            if nav_page == NavPage::Dock {
+            if nav_page == NavPage::Home {
                 nav_model.activate(id);
             }
         }
