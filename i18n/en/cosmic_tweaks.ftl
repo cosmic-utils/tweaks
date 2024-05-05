@@ -18,7 +18,13 @@ padding = Padding
 padding-description = Padding is the space between the contents and the borders of the dock or panel.
 
 spacing = Spacing
-spacing-description = Spacing is the space between the icons in the dock or panel.
+spacing-description = Spacing is the space between the applets in the panel.
+
+applet-spacing = Applet spacing
+applet-spacing-description = Spacing is the space between the applets in the dock or panel.
+
+app-list-spacing = App list spacing
+app-list-spacing-description = Spacing is the space between the application icons in the dock or panel.
 
 save = Save
 cancel = Cancel
