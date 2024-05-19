@@ -127,22 +127,24 @@ impl ColorSchemes {
             ])
             .spacing(spacing.space_xxs)
             .into(),
-            widget::scrollable(widget::settings::view_section(fl!("installed")).add({
-                let themes: Vec<Element<Message>> = self
-                    .color_schemes
-                    .iter()
-                    .map(|color_scheme| preview::view(color_scheme, &self.selected))
-                    .collect();
+            widget::settings::view_section(fl!("installed"))
+                .add({
+                    let themes: Vec<Element<Message>> = self
+                        .color_schemes
+                        .iter()
+                        .map(|color_scheme| preview::view(color_scheme, &self.selected))
+                        .collect();
 
-                widget::flex_row(themes)
-                    .row_spacing(spacing.space_xs)
-                    .column_spacing(spacing.space_xs)
-                    .apply(widget::container)
-                    .padding([0, spacing.space_xxs])
-            }))
-            .into(),
+                    widget::flex_row(themes)
+                        .row_spacing(spacing.space_xs)
+                        .column_spacing(spacing.space_xs)
+                        .apply(widget::container)
+                        .padding([0, spacing.space_xxs])
+                })
+                .into(),
         ])
         .spacing(spacing.space_xxs)
+        .apply(widget::scrollable)
         .into()
     }
 
