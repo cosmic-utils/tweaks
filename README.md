@@ -14,6 +14,11 @@ Clone this repository to your local machine and open it in your code editor.
 
 Run `cargo run` in the terminal to build and run the application.
 
+## Dependencies
+- `cargo`
+- `just`
+- [`libcosmic`](https://github.com/pop-os/libcosmic?tab=readme-ov-file#building)
+
 ## Installation
 Clone this repository to your local machine and run:
 
