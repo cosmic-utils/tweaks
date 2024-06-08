@@ -1,4 +1,4 @@
-name := 'cosmic-tweaks'
+name := 'cosmic-ext-tweaks'
 export APPID := 'dev.edfloreshz.CosmicTweaks'
 
 rootdir := ''

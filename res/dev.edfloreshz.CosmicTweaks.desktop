@@ -1,7 +1,7 @@
 #TODO: more build-out, desktop actions, translations?
 [Desktop Entry]
-Name=COSMIC Tweaks
-Exec=cosmic-tweaks %F
+Name=Tweaks for COSMIC
+Exec=cosmic-ext-tweaks %F
 Terminal=false
 Type=Application
 StartupNotify=true

@@ -8,8 +8,8 @@
   <update_contact>edfloreshz@proton.me</update_contact>
   <url type="homepage">https://github.com/edfloreshz/cosmic-tweaks</url>
   <url type="bugtracker">https://github.com/edfloreshz/cosmic-tweaks</url>
-  <name>COSMIC Tweaks</name>
-  <summary>A tweaking tool for the COSMIC desktop.</summary>
+  <name>Tweaks for COSMIC</name>
+  <summary>A tweaking tool for the COSMIC™ desktop.</summary>
   <description>
     <p>Customize your COSMIC desktop beyond infinity.</p>
     <ul>
@@ -31,7 +31,7 @@
       <mimetype>text/plain</mimetype>
     </mimetypes>
     <binaries>
-      <binary>cosmic-tweaks</binary>
+      <binary>cosmic-ext-tweaks</binary>
     </binaries>
   </provides>
 </component>

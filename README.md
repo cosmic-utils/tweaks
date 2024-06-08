@@ -2,9 +2,9 @@
     <img src="res/icons/hicolor/256x256/apps/dev.edfloreshz.CosmicTweaks.svg" width="300"/>
 </div>
 
-# COSMIC Tweaks
+# Tweaks for COSMIC
 
-A tweaking tool for the COSMIC desktop.
+A tweaking tool for the COSMIC™ desktop.
 
 ![window-light.png](res/screenshots/window-light.png#gh-light-mode-only)
 ![window-dark.png](res/screenshots/window-dark.png#gh-dark-mode-only)

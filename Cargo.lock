@@ -1034,6 +1034,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "cosmic-ext-tweaks"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "ashpd",
+ "cosmic-panel-config",
+ "dirs",
+ "i18n-embed",
+ "i18n-embed-fl",
+ "libcosmic",
+ "once_cell",
+ "open",
+ "ron",
+ "rust-embed",
+ "serde",
+ "tokio",
+]
+
+[[package]]
 name = "cosmic-panel-config"
 version = "0.1.0"
 source = "git+https://github.com/pop-os/cosmic-panel#1495bfa2abc4057129c7c3b0e8530b3afd853204"
@@ -1085,25 +1104,6 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror",
-]
-
-[[package]]
-name = "cosmic-tweaks"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "ashpd",
- "cosmic-panel-config",
- "dirs",
- "i18n-embed",
- "i18n-embed-fl",
- "libcosmic",
- "once_cell",
- "open",
- "ron",
- "rust-embed",
- "serde",
- "tokio",
 ]
 
 [[package]]
