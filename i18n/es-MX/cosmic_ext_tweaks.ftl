@@ -1,4 +1,4 @@
-app-title = COSMIC Tweaks
+app-title = Tweaks para COSMIC
 app-description = Una herramienta para personalizar la apariencia de COSMIC.
 
 home = Inicio
