@@ -21,7 +21,7 @@ spacing = Spacing
 spacing-description = Spacing is the space between the icons in the dock or panel.
 
 border_radius = Border Radius
-border-radius-description = Radius for the dock.
+border-radius-description = Radius for the dock or panel.
 
 save = Save
 cancel = Cancel
