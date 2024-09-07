@@ -25,12 +25,12 @@ jobs:
     - name: rust-clippy-check
       uses: actions-rs/clippy-check@v1.0.7
       with:
-        token: $GITHUB_TOKEN
+        token: ${{ secrets.GITHUB_TOKEN }}
         toolchain: stable
         name: clippy
     - name: rust-rustfmt-check
       uses: mbrobbel/rustfmt-check@0.14.0
       with:
-        token: $GITHUB_TOKEN
+        token: ${{ secrets.GITHUB_TOKEN }}
         commit-message: "chore: format"
           
