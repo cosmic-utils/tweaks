@@ -1,9 +1,7 @@
-name: Rust
+name: Push
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
     branches: [ "main" ]
 
 env:
@@ -11,26 +9,21 @@ env:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
+    permissions:
+      checks: write
+      pull-requests: write
     steps:
     - name: Install depencencies
       run: sudo apt-get install -y libxkbcommon-dev
     - uses: actions/checkout@v4
     - name: Build
       run: cargo build --verbose
-    - name: Run tests
-      run: cargo test --verbose
-    - name: rust-clippy-check
-      uses: actions-rs/clippy-check@v1.0.7
+    - name: clippy
+      uses: auguwu/clippy-action@1.4.0
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        toolchain: stable
-        name: clippy
-    - name: rust-rustfmt-check
-      uses: mbrobbel/rustfmt-check@0.14.0
+    - name: format
+      uses: mbrobbel/rustfmt-check@master
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        commit-message: "chore: format"
-          
