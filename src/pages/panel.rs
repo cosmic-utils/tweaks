@@ -5,7 +5,13 @@ use cosmic::{
 use cosmic_panel_config::CosmicPanelConfig;
 use serde::{Deserialize, Serialize};
 
-use crate::{core::icons, fl};
+use crate::{
+    core::{
+        cosmic_panel_button_config::{CosmicPanelButtonConfig, IndividualConfig, Override},
+        icons,
+    },
+    fl,
+};
 
 #[derive(Debug)]
 pub struct Panel {
@@ -16,6 +22,9 @@ pub struct Panel {
     pub show_panel: bool,
     pub cosmic_panel_config: CosmicPanel,
     pub cosmic_panel_config_helper: Option<Config>,
+    pub cosmic_panel_button_config: CosmicPanelButtonConfig,
+    pub cosmic_panel_button_config_helper: Option<Config>,
+    pub force_icons: bool,
 }
 
 #[derive(
@@ -57,6 +66,27 @@ impl Default for Panel {
                 }
             };
 
+        let (cosmic_panel_button_config_helper, cosmic_panel_button_config) =
+            match cosmic_config::Config::new("com.system76.CosmicPanelButton", 1) {
+                Ok(config_handler) => {
+                    let config = match CosmicPanelButtonConfig::get_entry(&config_handler) {
+                        Ok(ok) => ok,
+                        Err((errs, config)) => {
+                            eprintln!("errors loading config for cosmic panel button: {:?}", errs);
+                            config
+                        }
+                    };
+                    (Some(config_handler), config)
+                }
+                Err(err) => {
+                    eprintln!(
+                        "failed to create config handler for cosmic panel button: {}",
+                        err
+                    );
+                    (None, CosmicPanelButtonConfig::default())
+                }
+            };
+
         let padding = panel_config
             .clone()
             .map(|config| config.padding)
@@ -66,6 +96,16 @@ impl Default for Panel {
             .map(|config| config.spacing)
             .unwrap_or(0);
         let show_panel = cosmic_panel_config.entries.iter().any(|e| e == "Panel");
+        let force_icons = cosmic_panel_button_config
+            .configs
+            .iter()
+            .find(|(e, _)| *e == "Panel")
+            .map(|(_, conf)| {
+                conf.force_presentation
+                    .as_ref()
+                    .is_some_and(|presentation| *presentation == Override::Icon)
+            })
+            .unwrap_or(false);
         Self {
             panel_helper,
             panel_config,
@@ -74,6 +114,9 @@ impl Default for Panel {
             show_panel,
             cosmic_panel_config,
             cosmic_panel_config_helper,
+            cosmic_panel_button_config,
+            cosmic_panel_button_config_helper,
+            force_icons,
         }
     }
 }
@@ -83,6 +126,7 @@ pub enum Message {
     SetPadding(u32),
     SetSpacing(u32),
     ShowPanel(bool),
+    ForceIcons(bool),
 }
 
 impl Panel {
@@ -94,6 +138,10 @@ impl Panel {
                 .add(
                     widget::settings::item::builder(fl!("show-panel"))
                         .toggler(self.show_panel, Message::ShowPanel),
+                )
+                .add(
+                    widget::settings::item::builder(fl!("force-icon-buttons-in-panel"))
+                        .toggler(self.force_icons, Message::ForceIcons),
                 )
                 .add(
                     widget::settings::item::builder(fl!("padding"))
@@ -144,6 +192,29 @@ impl Panel {
                 let update = panel_config.set_spacing(panel_helper, self.spacing);
                 if let Err(err) = update {
                     eprintln!("Error updating panel spacing: {}", err);
+                }
+            }
+            Message::ForceIcons(force) => {
+                let mut configs = self.cosmic_panel_button_config.configs.clone();
+                if let Some(inner_config) = configs.get_mut("Panel") {
+                    inner_config.force_presentation =
+                        if force { Some(Override::Icon) } else { None };
+                } else {
+                    configs.insert(
+                        "Panel".to_owned(),
+                        IndividualConfig {
+                            force_presentation: if force { Some(Override::Icon) } else { None },
+                        },
+                    );
+                }
+
+                if let Some(helper) = &self.cosmic_panel_button_config_helper {
+                    let update = self.cosmic_panel_button_config.set_configs(helper, configs);
+                    if let Err(err) = update {
+                        eprintln!("Error updating cosmic panel button configs: {}", err);
+                    } else {
+                        self.force_icons = force;
+                    }
                 }
             }
             Message::ShowPanel(show) => {
