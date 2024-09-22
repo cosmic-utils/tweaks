@@ -13,6 +13,7 @@ installed = Installed
 
 # Panel only
 show-panel = Show panel
+force-icon-buttons-in-panel = Force icon buttons in panel
 
 padding = Padding
 padding-description = Padding is the space between the contents and the borders of the dock or panel.
