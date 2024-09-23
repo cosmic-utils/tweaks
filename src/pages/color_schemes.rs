@@ -129,11 +129,8 @@ impl ColorSchemes {
             let element = widget::settings::section()
                 .title(fl!("available"))
                 .add({
-                    let themes: Vec<Element<Message>> = self
-                        .available
-                        .iter()
-                        .map(|color_scheme| preview::available(color_scheme))
-                        .collect();
+                    let themes: Vec<Element<Message>> =
+                        self.available.iter().map(preview::available).collect();
 
                     widget::flex_row(themes)
                         .row_spacing(spacing.space_xs)
@@ -213,7 +210,7 @@ impl ColorSchemes {
                         let themes: Vec<CosmicTheme> = response.json().await?;
                         let available = themes
                             .into_iter()
-                            .map(|theme| ColorScheme::from(theme))
+                            .map(ColorScheme::from)
                             .collect();
                         Ok(available)
                     },

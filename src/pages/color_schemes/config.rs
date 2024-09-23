@@ -39,7 +39,7 @@ impl ColorScheme {
             anyhow::bail!("No path for the theme")
         };
 
-        let file = std::fs::read_to_string(&path)?;
+        let file = std::fs::read_to_string(path)?;
         let theme: ThemeBuilder = ron::from_str(&file)?;
         Ok(theme)
     }

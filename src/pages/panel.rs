@@ -237,22 +237,20 @@ impl Panel {
                             }
                         }
                     }
-                } else {
-                    if let Some(i) = self
-                        .cosmic_panel_config
-                        .entries
-                        .iter()
-                        .position(|e| e == "Panel")
-                    {
-                        let mut entries = self.cosmic_panel_config.entries.clone();
-                        entries.remove(i);
-                        if let Some(helper) = &self.cosmic_panel_config_helper {
-                            let update = self.cosmic_panel_config.set_entries(helper, entries);
-                            if let Err(err) = update {
-                                eprintln!("Error updating cosmic panel entries: {}", err);
-                            } else {
-                                self.show_panel = true;
-                            }
+                } else if let Some(i) = self
+                    .cosmic_panel_config
+                    .entries
+                    .iter()
+                    .position(|e| e == "Panel")
+                {
+                    let mut entries = self.cosmic_panel_config.entries.clone();
+                    entries.remove(i);
+                    if let Some(helper) = &self.cosmic_panel_config_helper {
+                        let update = self.cosmic_panel_config.set_entries(helper, entries);
+                        if let Err(err) = update {
+                            eprintln!("Error updating cosmic panel entries: {}", err);
+                        } else {
+                            self.show_panel = true;
                         }
                     }
                 }
