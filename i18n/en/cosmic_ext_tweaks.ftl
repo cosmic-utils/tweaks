@@ -8,8 +8,12 @@ color-schemes = Color schemes
 color-schemes-error = Error loading color schemes
 import-color-scheme = Import color scheme
 delete-color-scheme = Delete color scheme
+install-color-scheme = Install color scheme
 open-containing-folder = Open containing folder
+open-link = Open link
 installed = Installed
+available = Available
+loading = Loading...
 
 # Panel only
 show-panel = Show panel

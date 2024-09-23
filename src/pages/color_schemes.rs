@@ -7,21 +7,27 @@ use cosmic::{
     cosmic_config::{Config, CosmicConfigEntry},
     cosmic_theme::{Theme, ThemeBuilder, ThemeMode},
     iced::Length,
+    prelude::CollectionWidget,
     widget::{self, tooltip},
     Apply, Command, Element,
 };
 
 mod config;
 mod preview;
+mod providers;
+
+use providers::cosmic_themes::CosmicTheme;
 
 pub struct ColorSchemes {
     selected: ColorScheme,
-    color_schemes: Vec<ColorScheme>,
+    installed: Vec<ColorScheme>,
+    available: Vec<ColorScheme>,
     config_helper: Option<Config>,
     config: Option<ColorScheme>,
     theme_mode: ThemeMode,
     theme_builder_config: Option<Config>,
     theme_builder: ThemeBuilder,
+    loading: bool,
 }
 
 impl Default for ColorSchemes {
@@ -70,15 +76,17 @@ impl Default for ColorSchemes {
             },
         );
         let selected = config.clone().unwrap_or_default();
-        let color_schemes = Self::fetch_color_schemes().unwrap_or_default();
+        let installed = Self::fetch_color_schemes().unwrap_or_default();
         Self {
             selected,
-            color_schemes,
+            installed,
+            available: vec![],
             config_helper,
             config,
             theme_mode,
             theme_builder_config,
             theme_builder,
+            loading: false,
         }
     }
 }
@@ -92,13 +100,49 @@ pub enum Message {
     SaveCurrentColorScheme(Option<String>),
     SetColorScheme(ColorScheme),
     DeleteColorScheme(ColorScheme),
+    InstallColorScheme(ColorScheme),
     OpenContainingFolder(ColorScheme),
+    OpenLink(Option<String>),
     ReloadColorSchemes,
+    FetchAvailableColorSchemes(ColorSchemeProvider),
+    SetAvailableColorSchemes(Vec<ColorScheme>),
+}
+
+#[derive(Debug, Clone)]
+pub enum ColorSchemeProvider {
+    CosmicThemes,
 }
 
 impl ColorSchemes {
     pub fn view<'a>(&self) -> Element<'a, Message> {
         let spacing = cosmic::theme::active().cosmic().spacing;
+
+        let loading: Option<Element<'a, Message>> = if self.loading {
+            Some(widget::text(fl!("loading")).into())
+        } else {
+            None
+        };
+
+        let available: Option<Element<'a, Message>> = if self.loading {
+            None
+        } else {
+            let element = widget::settings::view_section(fl!("available"))
+                .add({
+                    let themes: Vec<Element<Message>> = self
+                        .available
+                        .iter()
+                        .map(|color_scheme| preview::available(color_scheme))
+                        .collect();
+
+                    widget::flex_row(themes)
+                        .row_spacing(spacing.space_xs)
+                        .column_spacing(spacing.space_xs)
+                        .apply(widget::container)
+                        .padding([0, spacing.space_xxs])
+                })
+                .into();
+            Some(element)
+        };
 
         widget::column::with_children(vec![
             widget::row::with_children(vec![
@@ -130,9 +174,9 @@ impl ColorSchemes {
             widget::settings::view_section(fl!("installed"))
                 .add({
                     let themes: Vec<Element<Message>> = self
-                        .color_schemes
+                        .installed
                         .iter()
-                        .map(|color_scheme| preview::view(color_scheme, &self.selected))
+                        .map(|color_scheme| preview::installed(color_scheme, &self.selected))
                         .collect();
 
                     widget::flex_row(themes)
@@ -143,6 +187,8 @@ impl ColorSchemes {
                 })
                 .into(),
         ])
+        .push_maybe(loading)
+        .push_maybe(available)
         .spacing(spacing.space_xxs)
         .apply(widget::scrollable)
         .into()
@@ -151,6 +197,37 @@ impl ColorSchemes {
     pub fn update(&mut self, message: Message) -> Command<Message> {
         let mut commands = vec![];
         match message {
+            Message::FetchAvailableColorSchemes(provider) => {
+                self.loading = true;
+                commands.push(Command::perform(
+                    async {
+                        let url = match provider {
+                            ColorSchemeProvider::CosmicThemes => {
+                                "https://cosmic-themes.org/api/themes/?order=name&limit=100&offset=0"
+                            }
+                        };
+
+                        let response = reqwest::get(url).await?;
+                        let themes: Vec<CosmicTheme> = response.json().await?;
+                        let available = themes
+                            .into_iter()
+                            .map(|theme| ColorScheme::from(theme))
+                            .collect();
+                        Ok(available)
+                    },
+                    |res: Result<Vec<ColorScheme>, reqwest::Error>| match res {
+                        Ok(themes) => Message::SetAvailableColorSchemes(themes),
+                        Err(e) => {
+                            eprintln!("{e}");
+                            Message::SetAvailableColorSchemes(vec![])
+                        }
+                    },
+                ));
+            }
+            Message::SetAvailableColorSchemes(available) => {
+                self.loading = false;
+                self.available = available;
+            }
             Message::StartImport => commands.push(Command::perform(
                 async {
                     SelectedFiles::open_file()
@@ -190,7 +267,9 @@ impl ColorSchemes {
 
                 let color_scheme = ColorScheme {
                     name: new_file.file_stem().unwrap().to_str().unwrap().to_string(),
-                    path: new_file.clone(),
+                    path: Some(new_file.clone()),
+                    link: None,
+                    author: None,
                     theme: Default::default(),
                 };
 
@@ -260,24 +339,53 @@ impl ColorSchemes {
             }
             Message::DeleteColorScheme(color_scheme) => {
                 if self.selected.name == color_scheme.name {
-                    if let Some(color_scheme) = self.color_schemes.first() {
+                    if let Some(color_scheme) = self.installed.first() {
                         commands.push(self.update(Message::SetColorScheme(color_scheme.clone())));
                         commands.push(self.update(Message::ReloadColorSchemes));
                     }
                 }
-                std::fs::remove_file(&color_scheme.path).unwrap_or_else(|e| {
+                let Some(path) = color_scheme.path else {
+                    return Command::none();
+                };
+                std::fs::remove_file(&path).unwrap_or_else(|e| {
                     eprintln!("There was an error deleting the color scheme: {e}")
                 });
+                commands.push(self.update(Message::ReloadColorSchemes));
+            }
+            Message::InstallColorScheme(color_scheme) => {
+                let new_file = dirs::data_local_dir()
+                    .map(|dir| {
+                        dir.join("themes/cosmic")
+                            .join(&color_scheme.name)
+                            .with_extension("ron")
+                    })
+                    .unwrap_or_default();
+
+                if let Err(e) =
+                    std::fs::write(&new_file, ron::ser::to_string(&color_scheme.theme).unwrap())
+                {
+                    eprintln!("There was an error installing the color scheme: {e}");
+                }
+                commands.push(self.update(Message::ReloadColorSchemes));
+            }
+            Message::OpenLink(link) => {
+                if let Some(link) = link {
+                    open::that_detached(link)
+                        .unwrap_or_else(|e| eprintln!("There was an error opening the link: {e}"));
+                }
             }
             Message::OpenContainingFolder(color_scheme) => {
-                if let Some(path) = color_scheme.path.parent() {
+                let Some(path) = color_scheme.path else {
+                    return Command::none();
+                };
+                if let Some(path) = path.parent() {
                     if let Err(e) = open::that_detached(path) {
                         eprintln!("There was an error opening that color scheme: {e}")
                     }
                 }
             }
             Message::ReloadColorSchemes => {
-                self.color_schemes = Self::fetch_color_schemes().unwrap_or_default();
+                self.installed = Self::fetch_color_schemes().unwrap_or_default();
             }
             Message::SaveCurrentColorScheme(name) => {
                 if let Some(name) = name {
@@ -287,7 +395,9 @@ impl ColorSchemes {
 
                     let color_scheme = ColorScheme {
                         name,
-                        path: path.clone(),
+                        path: Some(path.clone()),
+                        link: None,
+                        author: None,
                         theme: self.theme_builder.clone(),
                     };
 
@@ -360,7 +470,13 @@ impl ColorSchemes {
                     .and_then(|name| name.to_str())
                     .map(|name| name.to_string())
                     .unwrap_or_default();
-                let color_scheme = ColorScheme { name, path, theme };
+                let color_scheme = ColorScheme {
+                    name,
+                    path: Some(path),
+                    link: None,
+                    author: None,
+                    theme,
+                };
                 color_schemes.push(color_scheme);
             }
         }
