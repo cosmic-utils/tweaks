@@ -126,7 +126,8 @@ impl ColorSchemes {
         let available: Option<Element<'a, Message>> = if self.loading {
             None
         } else {
-            let element = widget::settings::view_section(fl!("available"))
+            let element = widget::settings::section()
+                .title(fl!("available"))
                 .add({
                     let themes: Vec<Element<Message>> = self
                         .available
@@ -149,8 +150,8 @@ impl ColorSchemes {
                 widget::text::title3(fl!("color-schemes")).into(),
                 widget::horizontal_space(Length::Fill).into(),
                 widget::tooltip::tooltip(
-                    icons::get_icon("arrow-into-box-symbolic", 16)
-                        .apply(widget::button)
+                    icons::get_handle("arrow-into-box-symbolic", 16)
+                        .apply(widget::button::icon)
                         .padding(spacing.space_xxs)
                         .on_press(Message::SaveCurrentColorScheme(None))
                         .style(cosmic::theme::Button::Standard),
@@ -159,8 +160,8 @@ impl ColorSchemes {
                 )
                 .into(),
                 widget::tooltip::tooltip(
-                    icons::get_icon("document-save-symbolic", 16)
-                        .apply(widget::button)
+                    icons::get_handle("document-save-symbolic", 16)
+                        .apply(widget::button::icon)
                         .padding(spacing.space_xxs)
                         .on_press(Message::StartImport)
                         .style(cosmic::theme::Button::Standard),
@@ -171,7 +172,8 @@ impl ColorSchemes {
             ])
             .spacing(spacing.space_xxs)
             .into(),
-            widget::settings::view_section(fl!("installed"))
+            widget::settings::section()
+                .title(fl!("installed"))
                 .add({
                     let themes: Vec<Element<Message>> = self
                         .installed

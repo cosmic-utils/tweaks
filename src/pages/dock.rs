@@ -48,7 +48,8 @@ impl Dock {
     pub fn view<'a>(&self) -> Element<'a, Message> {
         let spacing = cosmic::theme::active().cosmic().spacing;
         widget::scrollable(
-            widget::settings::view_section("Dock")
+            widget::settings::section()
+                .title("Dock")
                 .add(
                     widget::settings::item::builder(fl!("padding"))
                         .description(fl!("padding-description"))
