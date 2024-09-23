@@ -134,7 +134,8 @@ impl Panel {
         let spacing = cosmic::theme::active().cosmic().spacing;
 
         widget::scrollable(
-            widget::settings::view_section("Panel")
+            widget::settings::section()
+                .title("Panel")
                 .add(
                     widget::settings::item::builder(fl!("show-panel"))
                         .toggler(self.show_panel, Message::ShowPanel),

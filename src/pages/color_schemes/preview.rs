@@ -18,7 +18,7 @@ pub fn installed<'a>(
     let theme = color_scheme.theme.clone().build();
     let spacing = cosmic::theme::active().cosmic().spacing;
     let color_scheme_name = color_scheme.name.clone();
-    widget::button(
+    widget::button::custom(
         widget::column::with_children(vec![
             widget::row::with_children(vec![
                 widget::horizontal_space(Length::Fill).into(),
@@ -36,8 +36,8 @@ pub fn installed<'a>(
                     .into(),
                 widget::horizontal_space(Length::Fill).into(),
                 widget::tooltip::tooltip(
-                    icons::get_icon("symbolic-link-symbolic", 14)
-                        .apply(widget::button)
+                    icons::get_handle("symbolic-link-symbolic", 14)
+                        .apply(widget::button::icon)
                         .style(cosmic::theme::Button::Link)
                         .padding(spacing.space_xxs)
                         .on_press(super::Message::OpenContainingFolder(color_scheme.clone())),
@@ -46,8 +46,8 @@ pub fn installed<'a>(
                 )
                 .into(),
                 widget::tooltip::tooltip(
-                    icons::get_icon("user-trash-symbolic", 14)
-                        .apply(widget::button)
+                    icons::get_handle("user-trash-symbolic", 14)
+                        .apply(widget::button::icon)
                         .style(cosmic::theme::Button::Destructive)
                         .padding(spacing.space_xxs)
                         .on_press(super::Message::DeleteColorScheme(color_scheme.clone())),
@@ -82,7 +82,7 @@ pub fn available<'a>(color_scheme: &ColorScheme) -> Element<'a, super::Message> 
         theme_caption.push(widget::text::caption(author.clone()).into());
     }
 
-    widget::button(
+    widget::button::custom(
         widget::column::with_children(vec![
             widget::column::with_children(theme_caption)
                 .width(Length::Fill)
@@ -98,8 +98,8 @@ pub fn available<'a>(color_scheme: &ColorScheme) -> Element<'a, super::Message> 
                     .into(),
                 widget::horizontal_space(Length::Fill).into(),
                 widget::tooltip::tooltip(
-                    icons::get_icon("symbolic-link-symbolic", 14)
-                        .apply(widget::button)
+                    icons::get_handle("symbolic-link-symbolic", 14)
+                        .apply(widget::button::icon)
                         .style(cosmic::theme::Button::Link)
                         .padding(spacing.space_xxs)
                         .on_press(super::Message::OpenLink(color_scheme.link.clone())),
@@ -108,8 +108,8 @@ pub fn available<'a>(color_scheme: &ColorScheme) -> Element<'a, super::Message> 
                 )
                 .into(),
                 widget::tooltip::tooltip(
-                    icons::get_icon("folder-download-symbolic", 14)
-                        .apply(widget::button)
+                    icons::get_handle("folder-download-symbolic", 14)
+                        .apply(widget::button::icon)
                         .style(cosmic::theme::Button::Suggested)
                         .padding(spacing.space_xxs)
                         .on_press(super::Message::InstallColorScheme(color_scheme.clone())),
