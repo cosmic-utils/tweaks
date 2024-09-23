@@ -10,7 +10,10 @@ use cosmic::{
 use crate::{
     core::nav::NavPage,
     fl,
-    pages::{self, color_schemes::ColorSchemes},
+    pages::{
+        self,
+        color_schemes::{ColorSchemeProvider, ColorSchemes},
+    },
 };
 
 pub struct TweakTool {
@@ -18,6 +21,7 @@ pub struct TweakTool {
     nav_model: segmented_button::SingleSelectModel,
     dialog_pages: VecDeque<DialogPage>,
     dialog_text_input: widget::Id,
+    color_schemes: ColorSchemes,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -117,14 +121,21 @@ impl Application for TweakTool {
             }
         }
 
-        let app = TweakTool {
+        let mut app = TweakTool {
             nav_model,
             core,
             dialog_pages: VecDeque::new(),
             dialog_text_input: widget::Id::unique(),
+            color_schemes: ColorSchemes::default(),
         };
 
-        (app, Command::none())
+        let commands = vec![app.update(Message::ColorSchemes(Box::new(
+            pages::color_schemes::Message::FetchAvailableColorSchemes(
+                ColorSchemeProvider::CosmicThemes,
+            ),
+        )))];
+
+        (app, Command::batch(commands))
     }
 
     fn view(&self) -> Element<Self::Message> {
@@ -132,7 +143,17 @@ impl Application for TweakTool {
         let entity = self.nav_model.active();
         let nav_page = self.nav_model.data::<NavPage>(entity).unwrap_or_default();
 
-        widget::column::with_children(vec![nav_page.view()])
+        let view = match nav_page {
+            NavPage::ColorSchemes => self
+                .color_schemes
+                .view()
+                .map(Box::new)
+                .map(Message::ColorSchemes),
+            NavPage::Dock => pages::dock::Dock::default().view().map(Message::Dock),
+            NavPage::Panel => pages::panel::Panel::default().view().map(Message::Panel),
+        };
+
+        widget::column::with_children(vec![view])
             .padding(spacing.space_xs)
             .width(Length::Fill)
             .height(Length::Fill)
@@ -161,7 +182,7 @@ impl Application for TweakTool {
                     commands.push(self.update(Message::OpenSaveDialog))
                 }
                 _ => commands.push(
-                    ColorSchemes::default()
+                    self.color_schemes
                         .update(*message)
                         .map(Box::new)
                         .map(Message::ColorSchemes)
