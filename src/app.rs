@@ -48,7 +48,7 @@ impl Application for TweakTool {
 
     type Message = Message;
 
-    const APP_ID: &'static str = "dev.edfloreshz.CosmicTweaks";
+    const APP_ID: &'static str = "dev.edfloreshz.Tweaks";
 
     fn core(&self) -> &Core {
         &self.core

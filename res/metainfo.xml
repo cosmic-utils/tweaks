@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-  <id>dev.edfloreshz.CosmicTweaks</id>
+  <id>dev.edfloreshz.Tweaks</id>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-only</project_license>
   <project_group>COSMIC</project_group>
@@ -16,8 +16,8 @@
         <li>Built with Rust for exceptional performance and responsiveness.</li>
     </ul>
   </description>
-  <launchable type="desktop-id">dev.edfloreshz.CosmicTweaks.desktop</launchable>
-  <icon type="remote" height="256" width="256">https://raw.githubusercontent.com/edfloreshz/cosmic-tweaks/master/res/icons/hicolor/256x256/apps/dev.edfloreshz.CosmicTweaks.svg</icon>
+  <launchable type="desktop-id">dev.edfloreshz.Tweaks.desktop</launchable>
+  <icon type="remote" height="256" width="256">https://raw.githubusercontent.com/edfloreshz/cosmic-tweaks/master/res/app_icon.svg</icon>
   <screenshots>
     <screenshot type="default">
       <image>https://raw.githubusercontent.com/edfloreshz/cosmic-tweaks/main/res/screenshots/window-light.png</image>

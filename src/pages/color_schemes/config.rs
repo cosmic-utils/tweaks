@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 
 use super::providers::cosmic_themes::CosmicTheme;
 
-pub const COLOR_SCHEME_CONFIG_ID: &str = "dev.edfloreshz.CosmicTweaks.ColorScheme";
+pub const COLOR_SCHEME_CONFIG_ID: &str = "dev.edfloreshz.Tweaks.ColorScheme";
 
 #[derive(Debug, Serialize, Clone, Default, Deserialize, PartialEq, CosmicConfigEntry)]
 #[version = 1]
