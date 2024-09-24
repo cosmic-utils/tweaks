@@ -1,11 +1,17 @@
-#TODO: more build-out, desktop actions, translations?
 [Desktop Entry]
 Name=Tweaks for COSMIC
+Name[fr]=Tweaks pour COSMIC
+GenericName = COSMIC tweaks
+Comment=Tweaks your COSMIC desktop environment
+Comment[fr]=Améliorez votre environnement de bureau COSMIC
+Keywords=Folder;Manager
+Keywords[fr]=ajustement
+
 Exec=cosmic-ext-tweaks %F
 Terminal=false
 Type=Application
 StartupNotify=true
 Icon=dev.edfloreshz.CosmicTweaks
-Categories=COSMIC;Utility;FileManager;
-Keywords=Folder;Manager;
-MimeType=inode/directory;
+Categories=COSMIC;Utility;Settings;DesktopSettings
+MimeType=inode/directory
+OnlyShowIn=COSMIC
