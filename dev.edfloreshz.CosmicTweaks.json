@@ -33,8 +33,9 @@
       ],
       "sources": [
         {
-          "type": "dir",
-          "path": "./"
+          "type": "git",
+          "url": "https://github.com/wiiznokes/tweaks",
+          "commit": "4cb499e960ff67aa5bd9c5495667bc93be3a3222"
         },
         "./cargo-sources.json"
       ]
