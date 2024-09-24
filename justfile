@@ -99,30 +99,3 @@ vendor-extract:
     rm -rf vendor
     tar pxf vendor.tar
 
-
-sources-gen:
-    python3 flatpak-builder-tools/cargo/flatpak-cargo-generator.py ./Cargo.lock -o cargo-sources.json
-
-# {
-#           "type": "git",
-#           "url": "https://github.com/edfloreshz/cosmic-tweaks.git",
-#           "commit": "c7edf380580dc682e1048661aed4c2b703e3c794"
-#         },
-
-uninstallf:
-    flatpak uninstall dev.edfloreshz.Tweaks -y || true
-
-# deps: flatpak-builder git-lfs
-build-and-install: uninstallf
-    flatpak-builder \
-        --force-clean \
-        --verbose \
-        --ccache \
-        --user --install \
-        --install-deps-from=flathub \
-        --repo=repo \
-        flatpak-out \
-        dev.edfloreshz.Tweaks.json
-
-runf:
-    flatpak run dev.edfloreshz.Tweaks
