@@ -11,14 +11,11 @@ bin-src := 'target' / 'release' / name
 bin-dst := base-dir / 'bin' / name
 
 desktop := APPID + '.desktop'
-desktop-src := 'res' / desktop
 desktop-dst := base-dir / 'share' / 'applications' / desktop
 
 metainfo := APPID + '.metainfo.xml'
-metainfo-src := 'res' / metainfo
 metainfo-dst := base-dir / 'share' / 'metainfo' / metainfo
 
-icons-src := 'res' / 'app_icon.svg'
 icons-dst := base-dir / 'share' / 'icons' / 'hicolor'
 
 # Default recipe which runs `just build-release`
@@ -63,9 +60,9 @@ run *args:
 # Installs files
 install:
     install -Dm0755 {{bin-src}} {{bin-dst}}
-    install -Dm0644 {{desktop-src}} {{desktop-dst}}
-    install -Dm0644 {{metainfo-src}} {{metainfo-dst}}
-    install -Dm0644 {{icons-src}} "{{icons-dst}}/scalable/apps/{{APPID}}.svg"
+    install -Dm0644 res/desktop_entry.desktop {{desktop-dst}}
+    install -Dm0644 res/metainfo.xml {{metainfo-dst}}
+    install -Dm0644 res/app_icon.svg "{{icons-dst}}/scalable/apps/{{APPID}}.svg"
 
 # Uninstalls installed files
 uninstall:
