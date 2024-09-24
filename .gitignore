@@ -12,3 +12,4 @@ target/
 /flatpak-builder-tools
 /.flatpak-builder
 /repo
+/flatpak-out
