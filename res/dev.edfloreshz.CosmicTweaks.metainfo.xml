@@ -26,6 +26,10 @@
       <image>https://raw.githubusercontent.com/edfloreshz/cosmic-tweaks/main/res/screenshots/window-dark.png</image>
     </screenshot>
   </screenshots>
+  <categories>
+    <category>Utility</category>
+    <category>COSMIC</category>
+  </categories>
   <provides>
     <mimetypes>
       <mimetype>text/plain</mimetype>
