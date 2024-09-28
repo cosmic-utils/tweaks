@@ -14,6 +14,7 @@ open-link = Open link
 installed = Installed
 available = Available
 loading = Loading...
+show-more = Show more
 
 # Panel only
 show-panel = Show panel

@@ -27,7 +27,15 @@ pub struct ColorSchemes {
     theme_mode: ThemeMode,
     theme_builder_config: Option<Config>,
     theme_builder: ThemeBuilder,
-    loading: bool,
+    status: Status,
+    pub limit: usize,
+    offset: usize,
+}
+
+pub enum Status {
+    Idle,
+    Loading,
+    LoadingMore,
 }
 
 impl Default for ColorSchemes {
@@ -86,7 +94,9 @@ impl Default for ColorSchemes {
             theme_mode,
             theme_builder_config,
             theme_builder,
-            loading: false,
+            status: Status::Idle,
+            limit: 15,
+            offset: 0,
         }
     }
 }
@@ -104,7 +114,7 @@ pub enum Message {
     OpenContainingFolder(ColorScheme),
     OpenLink(Option<String>),
     ReloadColorSchemes,
-    FetchAvailableColorSchemes(ColorSchemeProvider),
+    FetchAvailableColorSchemes(ColorSchemeProvider, usize),
     SetAvailableColorSchemes(Vec<ColorScheme>),
 }
 
@@ -117,29 +127,47 @@ impl ColorSchemes {
     pub fn view<'a>(&self) -> Element<'a, Message> {
         let spacing = cosmic::theme::active().cosmic().spacing;
 
-        let loading: Option<Element<'a, Message>> = if self.loading {
+        let loading: Option<Element<'a, Message>> = if let Status::Loading = self.status {
             Some(widget::text(fl!("loading")).into())
         } else {
             None
         };
 
-        let available: Option<Element<'a, Message>> = if self.loading {
-            None
-        } else {
-            let element = widget::settings::section()
-                .title(fl!("available"))
-                .add({
-                    let themes: Vec<Element<Message>> =
-                        self.available.iter().map(preview::available).collect();
+        let available: Option<Element<'a, Message>> = match self.status {
+            Status::Idle | Status::LoadingMore => Some(
+                widget::settings::section()
+                    .title(fl!("available"))
+                    .add({
+                        let themes: Vec<Element<Message>> =
+                            self.available.iter().map(preview::available).collect();
 
-                    widget::flex_row(themes)
-                        .row_spacing(spacing.space_xs)
-                        .column_spacing(spacing.space_xs)
-                        .apply(widget::container)
-                        .padding([0, spacing.space_xxs])
-                })
-                .into();
-            Some(element)
+                        widget::flex_row(themes)
+                            .row_spacing(spacing.space_xs)
+                            .column_spacing(spacing.space_xs)
+                            .apply(widget::container)
+                            .padding([0, spacing.space_xxs])
+                    })
+                    .into(),
+            ),
+            Status::Loading => None,
+        };
+
+        let show_more_button: Option<Element<'a, Message>> = match self.status {
+            Status::Idle => Some(
+                widget::button::text(fl!("show-more"))
+                    .on_press(Message::FetchAvailableColorSchemes(
+                        ColorSchemeProvider::CosmicThemes,
+                        self.limit,
+                    ))
+                    .style(cosmic::theme::Button::Standard)
+                    .into(),
+            ),
+            Status::LoadingMore => Some(
+                widget::button::text(fl!("loading"))
+                    .style(cosmic::theme::Button::Standard)
+                    .into(),
+            ),
+            Status::Loading => None,
         };
 
         widget::column::with_children(vec![
@@ -188,6 +216,7 @@ impl ColorSchemes {
         ])
         .push_maybe(loading)
         .push_maybe(available)
+        .push_maybe(show_more_button)
         .spacing(spacing.space_xxs)
         .apply(widget::scrollable)
         .into()
@@ -196,13 +225,21 @@ impl ColorSchemes {
     pub fn update(&mut self, message: Message) -> Command<Message> {
         let mut commands = vec![];
         match message {
-            Message::FetchAvailableColorSchemes(provider) => {
-                self.loading = true;
+            Message::FetchAvailableColorSchemes(provider, limit) => {
+                if self.offset == 0 {
+                    self.status = Status::Loading;
+                } else {
+                    self.status = Status::LoadingMore;
+                }
+                self.limit = limit;
+                self.offset = self.offset + self.limit;
+                let limit = self.limit.clone();
+                let offset = self.offset.clone();
                 commands.push(Command::perform(
-                    async {
+                    async move {
                         let url = match provider {
                             ColorSchemeProvider::CosmicThemes => {
-                                "https://cosmic-themes.org/api/themes/?order=name&limit=100&offset=0"
+                                format!("https://cosmic-themes.org/api/themes/?order=name&limit={}&offset={}", limit, offset)
                             }
                         };
 
@@ -223,9 +260,9 @@ impl ColorSchemes {
                     },
                 ));
             }
-            Message::SetAvailableColorSchemes(available) => {
-                self.loading = false;
-                self.available = available;
+            Message::SetAvailableColorSchemes(mut available) => {
+                self.status = Status::Idle;
+                self.available.append(&mut available);
             }
             Message::StartImport => commands.push(Command::perform(
                 async {

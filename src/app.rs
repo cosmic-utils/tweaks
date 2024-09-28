@@ -132,6 +132,7 @@ impl Application for TweakTool {
         let commands = vec![app.update(Message::ColorSchemes(Box::new(
             pages::color_schemes::Message::FetchAvailableColorSchemes(
                 ColorSchemeProvider::CosmicThemes,
+                app.color_schemes.limit,
             ),
         )))];
 
