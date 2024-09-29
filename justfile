@@ -1,22 +1,23 @@
 name := 'cosmic-ext-tweaks'
-export APPID := 'dev.edfloreshz.CosmicTweaks'
+appid := 'dev.edfloreshz.CosmicTweaks'
 
 rootdir := ''
-prefix := '/app'
+prefix := '/usr'
 
 base-dir := absolute_path(clean(rootdir / prefix))
-
 
 bin-src := 'target' / 'release' / name
 bin-dst := base-dir / 'bin' / name
 
-desktop := APPID + '.desktop'
-desktop-dst := base-dir / 'share' / 'applications' / desktop
+desktop := appid + '.desktop'
+desktop-src := 'res' / desktop
+desktop-dst := clean(rootdir / prefix) / 'share' / 'applications' / desktop
 
-metainfo := APPID + '.metainfo.xml'
-metainfo-dst := base-dir / 'share' / 'metainfo' / metainfo
+icons-src := 'res' / 'icons' / 'hicolor'
+icons-dst := clean(rootdir / prefix) / 'share' / 'icons' / 'hicolor'
 
-icons-dst := base-dir / 'share' / 'icons' / 'hicolor'
+icon-svg-src := icons-src / 'scalable' / 'apps' / 'icon.svg'
+icon-svg-dst := icons-dst / 'scalable' / 'apps' / appid + '.svg'
 
 # Default recipe which runs `just build-release`
 default: build-release
@@ -49,27 +50,19 @@ check *args:
 # Runs a clippy check with JSON message format
 check-json: (check '--message-format=json')
 
-dev *args:
-    cargo fmt
-    just run {{args}}
-
-# Run with debug logs
+# Run the application for testing purposes
 run *args:
-    env RUST_LOG=cosmic_tasks=info RUST_BACKTRACE=full cargo run --release {{args}}
+    env RUST_BACKTRACE=full cargo run --release {{args}}
 
 # Installs files
 install:
     install -Dm0755 {{bin-src}} {{bin-dst}}
-    install -Dm0644 res/desktop_entry.desktop {{desktop-dst}}
-    install -Dm0644 res/metainfo.xml {{metainfo-dst}}
-    install -Dm0644 res/app_icon.svg "{{icons-dst}}/scalable/apps/{{APPID}}.svg"
+    install -Dm0644 res/app.desktop {{desktop-dst}}
+    install -Dm0644 {{icon-svg-src}} {{icon-svg-dst}}
 
 # Uninstalls installed files
 uninstall:
-    rm {{bin-dst}}
-    rm {{desktop-dst}}
-    rm {{metainfo-dst}}
-    rm "{{icons-dst}}/scalable/apps/{{APPID}}.svg"
+    rm {{bin-dst}} {{desktop-dst}} {{icon-svg-dst}}
 
 # Vendor dependencies locally
 vendor:
@@ -95,4 +88,3 @@ vendor:
 vendor-extract:
     rm -rf vendor
     tar pxf vendor.tar
-
