@@ -8,3 +8,8 @@ target/
 
 # MSVC Windows builds of rustc generate these, which store debugging information
 *.pdb
+
+/flatpak-builder-tools
+/.flatpak-builder
+/repo
+/flatpak-out

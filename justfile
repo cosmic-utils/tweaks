@@ -2,31 +2,21 @@ name := 'cosmic-ext-tweaks'
 export APPID := 'dev.edfloreshz.CosmicTweaks'
 
 rootdir := ''
-prefix := '/usr'
-flatpak-prefix := '/app'
+prefix := '/app'
 
 base-dir := absolute_path(clean(rootdir / prefix))
-flatpak-base-dir := absolute_path(clean(rootdir / flatpak-prefix))
 
-export INSTALL_DIR := base-dir / 'share'
 
 bin-src := 'target' / 'release' / name
 bin-dst := base-dir / 'bin' / name
-flatpak-bin-dst := flatpak-base-dir / 'bin' / name
 
 desktop := APPID + '.desktop'
-desktop-src := 'res' / desktop
-desktop-dst := clean(rootdir / prefix) / 'share' / 'applications' / desktop
-flatpak-desktop-dst := clean(rootdir / flatpak-prefix) / 'share' / 'applications' / desktop
+desktop-dst := base-dir / 'share' / 'applications' / desktop
 
 metainfo := APPID + '.metainfo.xml'
-metainfo-src := 'res' / metainfo
-metainfo-dst := clean(rootdir / prefix) / 'share' / 'metainfo' / metainfo
-flatpak-metainfo-dst := clean(rootdir / flatpak-prefix) / 'share' / 'metainfo' / metainfo
+metainfo-dst := base-dir / 'share' / 'metainfo' / metainfo
 
-icons-src := 'res' / 'icons' / 'hicolor'
-icons-dst := clean(rootdir / prefix) / 'share' / 'icons' / 'hicolor'
-flatpak-icons-dst := clean(rootdir / flatpak-prefix) / 'share' / 'icons' / 'hicolor'
+icons-dst := base-dir / 'share' / 'icons' / 'hicolor'
 
 # Default recipe which runs `just build-release`
 default: build-release
@@ -70,29 +60,16 @@ run *args:
 # Installs files
 install:
     install -Dm0755 {{bin-src}} {{bin-dst}}
-    install -Dm0644 {{desktop-src}} {{desktop-dst}}
-    install -Dm0644 {{metainfo-src}} {{metainfo-dst}}
-    for size in `ls {{icons-src}}`; do \
-        install -Dm0644 "{{icons-src}}/$size/apps/{{APPID}}.svg" "{{icons-dst}}/$size/apps/{{APPID}}.svg"; \
-    done
-
-# Installs files
-flatpak:
-    install -Dm0755 {{bin-src}} {{flatpak-bin-dst}}
-    install -Dm0644 {{desktop-src}} {{flatpak-desktop-dst}}
-    install -Dm0644 {{metainfo-src}} {{flatpak-metainfo-dst}}
-    for size in `ls {{icons-src}}`; do \
-        install -Dm0644 "{{icons-src}}/$size/apps/{{APPID}}.svg" "{{flatpak-icons-dst}}/$size/apps/{{APPID}}.svg"; \
-    done
+    install -Dm0644 res/desktop_entry.desktop {{desktop-dst}}
+    install -Dm0644 res/metainfo.xml {{metainfo-dst}}
+    install -Dm0644 res/app_icon.svg "{{icons-dst}}/scalable/apps/{{APPID}}.svg"
 
 # Uninstalls installed files
 uninstall:
     rm {{bin-dst}}
     rm {{desktop-dst}}
     rm {{metainfo-dst}}
-    for size in `ls {{icons-src}}`; do \
-        rm "{{icons-dst}}/$size/apps/{{APPID}}.svg"; \
-    done
+    rm "{{icons-dst}}/scalable/apps/{{APPID}}.svg"
 
 # Vendor dependencies locally
 vendor:
@@ -118,3 +95,4 @@ vendor:
 vendor-extract:
     rm -rf vendor
     tar pxf vendor.tar
+

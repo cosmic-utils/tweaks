@@ -1,0 +1,16 @@
+[Desktop Entry]
+Name=Tweaks for COSMIC
+Name[fr]=Tweaks pour COSMIC
+GenericName = COSMIC tweaks
+Comment=Tweaks your COSMIC desktop environment
+Comment[fr]=Améliorez votre environnement de bureau COSMIC
+Keywords=Folder;Manager
+Keywords[fr]=ajustement
+
+Exec=cosmic-ext-tweaks
+Terminal=false
+Type=Application
+StartupNotify=true
+Icon=dev.edfloreshz.CosmicTweaks
+Categories=COSMIC;Utility;Settings;DesktopSettings
+OnlyShowIn=COSMIC
