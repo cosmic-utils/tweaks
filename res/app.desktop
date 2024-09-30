@@ -13,4 +13,3 @@ Type=Application
 StartupNotify=true
 Icon=dev.edfloreshz.CosmicTweaks
 Categories=Utility;Settings;DesktopSettings
-OnlyShowIn=COSMIC
