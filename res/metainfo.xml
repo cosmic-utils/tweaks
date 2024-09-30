@@ -1,41 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-
-<!-- https://docs.flathub.org/docs/for-app-authors/metainfo-guidelines -->
-
-
 <component type="desktop-application">
   <id>dev.edfloreshz.CosmicTweaks</id>
-
   <name>Tweaks for COSMIC</name>
   <summary>A tweaking tool for the COSMIC™ desktop</summary>
-
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-only</project_license>
-
   <project_group>COSMIC</project_group>
   <developer id="dev.edfloreshz">
     <name>edfloreshz</name>
   </developer>
   <update_contact>edfloreshz@proton.me</update_contact>
-
   <url type="homepage">https://github.com/cosmic-utils/tweaks</url>
   <url type="bugtracker">https://github.com/cosmic-utils/tweaks/issues</url>
-
   <content_rating type="oars-1.1" />
-
   <description>
     <p>Customize your COSMIC desktop beyond infinity!</p>
     <ul>
       <li>Built with Rust for exceptional performance and responsiveness.</li>
     </ul>
   </description>
-
   <launchable type="desktop-id">dev.edfloreshz.CosmicTweaks.desktop</launchable>
-
+  <releases>
+    <release version="0.1.0" date="2024-09-30">
+        <description>
+            <p>Initial release! 🎉</p>
+            <ul>
+                <li>Save current color scheme</li>
+                <li>Import existing color schemes</li>
+                <li>Download color schemes from cosmic-themes.org</li>
+                <li>Customize the panel and dock</li>
+            </ul>
+        </description>
+    </release>
+  </releases>
   <icon type="remote" height="256" width="256">
     https://raw.githubusercontent.com/cosmic-utils/tweaks/master/res/app_icon.svg</icon>
-
   <screenshots>
     <screenshot type="default">
       <image>
@@ -48,7 +47,8 @@
   </screenshots>
   <categories>
     <category>Utility</category>
-    <category>COSMIC</category>
   </categories>
-
+  <provides>
+    <id>com.system76.CosmicApplication</id>
+  </provides>
 </component>
