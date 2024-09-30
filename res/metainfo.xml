@@ -39,10 +39,12 @@
     <screenshot type="default">
       <image>
         https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/window-light.png</image>
+      <caption>Light mode</caption>
     </screenshot>
     <screenshot>
       <image>
         https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/window-dark.png</image>
+      <caption>Dark mode</caption>
     </screenshot>
   </screenshots>
   <categories>
