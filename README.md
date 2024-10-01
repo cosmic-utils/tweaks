@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="res/app_icon.svg" width="300"/>
+    <img src="res/icons/hicolor/scalable/apps/icon.svg" width="300"/>
 </div>
 
 # Tweaks for COSMIC
