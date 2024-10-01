@@ -107,6 +107,8 @@ impl Application for TweakTool {
     }
 
     fn init(core: Core, _flags: Self::Flags) -> (Self, Command<app::Message<Self::Message>>) {
+        log::info!("Starting Cosmic Tweak Tool...");
+
         let mut nav_model = segmented_button::SingleSelectModel::default();
         for &nav_page in NavPage::all() {
             let id = nav_model

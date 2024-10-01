@@ -54,14 +54,14 @@ impl Default for Panel {
                     let config = match CosmicPanel::get_entry(&config_handler) {
                         Ok(ok) => ok,
                         Err((errs, config)) => {
-                            eprintln!("errors loading config: {:?}", errs);
+                            log::error!("errors loading config: {:?}", errs);
                             config
                         }
                     };
                     (Some(config_handler), config)
                 }
                 Err(err) => {
-                    eprintln!("failed to create config handler: {}", err);
+                    log::error!("failed to create config handler: {}", err);
                     (None, CosmicPanel::default())
                 }
             };
@@ -72,14 +72,17 @@ impl Default for Panel {
                     let config = match CosmicPanelButtonConfig::get_entry(&config_handler) {
                         Ok(ok) => ok,
                         Err((errs, config)) => {
-                            eprintln!("errors loading config for cosmic panel button: {:?}", errs);
+                            log::error!(
+                                "errors loading config for cosmic panel button: {:?}",
+                                errs
+                            );
                             config
                         }
                     };
                     (Some(config_handler), config)
                 }
                 Err(err) => {
-                    eprintln!(
+                    log::error!(
                         "failed to create config handler for cosmic panel button: {}",
                         err
                     );
@@ -185,14 +188,14 @@ impl Panel {
                 self.padding = padding;
                 let update = panel_config.set_padding(panel_helper, self.padding);
                 if let Err(err) = update {
-                    eprintln!("Error updating panel padding: {}", err);
+                    log::error!("Error updating panel padding: {}", err);
                 }
             }
             Message::SetSpacing(spacing) => {
                 self.spacing = spacing;
                 let update = panel_config.set_spacing(panel_helper, self.spacing);
                 if let Err(err) = update {
-                    eprintln!("Error updating panel spacing: {}", err);
+                    log::error!("Error updating panel spacing: {}", err);
                 }
             }
             Message::ForceIcons(force) => {
@@ -212,7 +215,7 @@ impl Panel {
                 if let Some(helper) = &self.cosmic_panel_button_config_helper {
                     let update = self.cosmic_panel_button_config.set_configs(helper, configs);
                     if let Err(err) = update {
-                        eprintln!("Error updating cosmic panel button configs: {}", err);
+                        log::error!("Error updating cosmic panel button configs: {}", err);
                     } else {
                         self.force_icons = force;
                     }
@@ -231,7 +234,7 @@ impl Panel {
                         if let Some(helper) = &self.cosmic_panel_config_helper {
                             let update = self.cosmic_panel_config.set_entries(helper, entries);
                             if let Err(err) = update {
-                                eprintln!("Error updating cosmic panel entries: {}", err);
+                                log::error!("Error updating cosmic panel entries: {}", err);
                             } else {
                                 self.show_panel = false;
                             }
@@ -248,7 +251,7 @@ impl Panel {
                     if let Some(helper) = &self.cosmic_panel_config_helper {
                         let update = self.cosmic_panel_config.set_entries(helper, entries);
                         if let Err(err) = update {
-                            eprintln!("Error updating cosmic panel entries: {}", err);
+                            log::error!("Error updating cosmic panel entries: {}", err);
                         } else {
                             self.show_panel = true;
                         }

@@ -91,14 +91,14 @@ impl Dock {
                 self.padding = padding;
                 let update = dock_config.set_padding(dock_helper, self.padding);
                 if let Err(err) = update {
-                    eprintln!("Error updating dock padding: {}", err);
+                    log::error!("Error updating dock padding: {}", err);
                 }
             }
             Message::SetSpacing(spacing) => {
                 self.spacing = spacing;
                 let update = dock_config.set_spacing(dock_helper, self.spacing);
                 if let Err(err) = update {
-                    eprintln!("Error updating dock spacing: {}", err);
+                    log::error!("Error updating dock spacing: {}", err);
                 }
             }
         }

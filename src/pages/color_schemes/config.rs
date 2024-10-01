@@ -19,7 +19,6 @@ pub struct ColorScheme {
     pub path: Option<PathBuf>,
     pub link: Option<String>,
     pub author: Option<String>,
-    #[serde(skip_serializing)]
     pub theme: ThemeBuilder,
 }
 

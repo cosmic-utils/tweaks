@@ -52,7 +52,7 @@ impl Default for ColorSchemes {
                 Ok(t) => t,
                 Err((errors, t)) => {
                     for e in errors {
-                        eprintln!("{e}");
+                        log::error!("{e}");
                     }
                     t
                 }
@@ -77,7 +77,7 @@ impl Default for ColorSchemes {
                 Ok(t) => t,
                 Err((errors, t)) => {
                     for e in errors {
-                        eprintln!("{e}");
+                        log::error!("{e}");
                     }
                     t
                 }
@@ -254,7 +254,7 @@ impl ColorSchemes {
                     |res: Result<Vec<ColorScheme>, reqwest::Error>| match res {
                         Ok(themes) => Message::SetAvailableColorSchemes(themes),
                         Err(e) => {
-                            eprintln!("{e}");
+                            log::error!("{e}");
                             Message::SetAvailableColorSchemes(vec![])
                         }
                     },
@@ -278,12 +278,12 @@ impl ColorSchemes {
                         Message::ImportFile(Arc::new(f))
                     } else {
                         // TODO Error toast?
-                        eprintln!("failed to select a file for importing a custom theme.");
+                        log::error!("failed to select a file for importing a custom theme.");
                         Message::ImportError
                     }
                 },
             )),
-            Message::ImportError => eprintln!("failed to import a custom theme."),
+            Message::ImportError => log::error!("failed to import a custom theme."),
             Message::ImportFile(f) => {
                 let Some(f) = f.uris().first() else {
                     return Command::none();
@@ -318,7 +318,7 @@ impl ColorSchemes {
                         if let Some(b) = res.ok().and_then(|theme| {
                             if file_path.is_file() && !new_file.exists() {
                                 if let Err(e) = std::fs::write(new_file, &theme) {
-                                    eprintln!(
+                                    log::error!(
                                         "failed to write the file to the themes directory: {e}"
                                     );
                                 }
@@ -327,18 +327,25 @@ impl ColorSchemes {
                         }) {
                             Message::ImportSuccess(Box::new(b))
                         } else {
-                            eprintln!("failed to import a file for a custom theme.");
+                            log::error!("failed to import a file for a custom theme.");
                             Message::ImportError
                         }
                     },
                 ))
             }
             Message::ImportSuccess(builder) => {
+                log::info!("Setting the theme...");
+
                 self.theme_builder = *builder;
 
-                if let Some(config) = self.theme_builder_config.as_ref() {
-                    _ = self.theme_builder.write_entry(config);
+                let Some(config) = self.theme_builder_config.as_ref() else {
+                    log::error!("Failed to get the theme config.");
+                    return Command::none();
                 };
+
+                if let Err(e) = self.theme_builder.write_entry(config) {
+                    log::error!("Failed to write the theme config: {e}");
+                }
 
                 let config = if self.theme_mode.is_dark {
                     Theme::dark_config()
@@ -346,29 +353,39 @@ impl ColorSchemes {
                     Theme::light_config()
                 };
                 let new_theme = self.theme_builder.clone().build();
-                if let Ok(config) = config {
-                    _ = new_theme.write_entry(&config);
-                } else {
-                    eprintln!("Failed to get the theme config.");
+
+                let Some(config) = config.ok() else {
+                    log::error!("Failed to get the theme config.");
+                    return Command::none();
+                };
+
+                if let Err(e) = new_theme.write_entry(&config) {
+                    log::error!("Failed to write the theme config: {e}");
                 }
                 commands.push(self.update(Message::ReloadColorSchemes));
             }
             Message::SetColorScheme(color_scheme) => {
+                log::info!("Setting the color scheme...");
                 self.selected = color_scheme.clone();
                 let Some(config_helper) = &self.config_helper else {
+                    log::error!("Failed to get the config helper.");
                     return Command::none();
                 };
                 let Some(config) = &mut self.config else {
+                    log::error!("Failed to get the config.");
                     return Command::none();
                 };
                 if let Err(e) = config.set_name(config_helper, self.selected.name.clone()) {
-                    eprintln!("There was an error selecting the color scheme: {e}");
+                    log::error!("There was an error selecting the color scheme: {e}");
                 }
                 if let Err(e) = config.set_path(config_helper, self.selected.path.clone()) {
-                    eprintln!("There was an error selecting the color scheme: {e}");
+                    log::error!("There was an error selecting the color scheme: {e}");
                 }
+                log::info!("{:#?}", color_scheme.theme);
                 if color_scheme.theme != ThemeBuilder::default() {
+                    log::info!("Theme is not default, setting the theme...");
                     if let Ok(theme) = &color_scheme.theme() {
+                        log::info!("Color scheme has a theme, setting the theme...");
                         commands.push(self.update(Message::ImportSuccess(Box::new(theme.clone()))))
                     }
                 }
@@ -384,7 +401,7 @@ impl ColorSchemes {
                     return Command::none();
                 };
                 std::fs::remove_file(&path).unwrap_or_else(|e| {
-                    eprintln!("There was an error deleting the color scheme: {e}")
+                    log::error!("There was an error deleting the color scheme: {e}")
                 });
                 commands.push(self.update(Message::ReloadColorSchemes));
             }
@@ -400,14 +417,15 @@ impl ColorSchemes {
                 if let Err(e) =
                     std::fs::write(&new_file, ron::ser::to_string(&color_scheme.theme).unwrap())
                 {
-                    eprintln!("There was an error installing the color scheme: {e}");
+                    log::error!("There was an error installing the color scheme: {e}");
                 }
                 commands.push(self.update(Message::ReloadColorSchemes));
             }
             Message::OpenLink(link) => {
                 if let Some(link) = link {
-                    open::that_detached(link)
-                        .unwrap_or_else(|e| eprintln!("There was an error opening the link: {e}"));
+                    open::that_detached(link).unwrap_or_else(|e| {
+                        log::error!("There was an error opening the link: {e}")
+                    });
                 }
             }
             Message::OpenContainingFolder(color_scheme) => {
@@ -416,7 +434,7 @@ impl ColorSchemes {
                 };
                 if let Some(path) = path.parent() {
                     if let Err(e) = open::that_detached(path) {
-                        eprintln!("There was an error opening that color scheme: {e}")
+                        log::error!("There was an error opening that color scheme: {e}")
                     }
                 }
             }
@@ -438,17 +456,17 @@ impl ColorSchemes {
                     };
 
                     if path.exists() {
-                        eprintln!("The color scheme already exists.");
+                        log::error!("The color scheme already exists.");
                         return Command::none();
                     }
 
                     let Ok(theme_builder) = ron::to_string(&self.theme_builder) else {
-                        eprintln!("failed to serialize the theme builder");
+                        log::error!("failed to serialize the theme builder");
                         return Command::none();
                     };
 
                     if let Err(e) = std::fs::write(path, theme_builder) {
-                        eprintln!("failed to write the file to the themes directory: {e}");
+                        log::error!("failed to write the file to the themes directory: {e}");
                     }
 
                     commands.push(self.update(Message::SetColorScheme(color_scheme)));
@@ -479,7 +497,7 @@ impl ColorSchemes {
         if let Some(ref xdg_data_home) = xdg_data_home {
             if !xdg_data_home.exists() {
                 if let Err(e) = std::fs::create_dir_all(xdg_data_home) {
-                    eprintln!("failed to create the themes directory: {e}")
+                    log::error!("failed to create the themes directory: {e}")
                 };
             }
         }
