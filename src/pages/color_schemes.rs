@@ -334,8 +334,6 @@ impl ColorSchemes {
                 ))
             }
             Message::ImportSuccess(builder) => {
-                log::info!("Setting the theme...");
-
                 self.theme_builder = *builder;
 
                 let Some(config) = self.theme_builder_config.as_ref() else {
@@ -365,7 +363,6 @@ impl ColorSchemes {
                 commands.push(self.update(Message::ReloadColorSchemes));
             }
             Message::SetColorScheme(color_scheme) => {
-                log::info!("Setting the color scheme...");
                 self.selected = color_scheme.clone();
                 let Some(config_helper) = &self.config_helper else {
                     log::error!("Failed to get the config helper.");
@@ -381,7 +378,7 @@ impl ColorSchemes {
                 if let Err(e) = config.set_path(config_helper, self.selected.path.clone()) {
                     log::error!("There was an error selecting the color scheme: {e}");
                 }
-                log::info!("{:#?}", color_scheme.theme);
+
                 if color_scheme.theme != ThemeBuilder::default() {
                     log::info!("Theme is not default, setting the theme...");
                     if let Ok(theme) = &color_scheme.theme() {
