@@ -25,6 +25,15 @@
   </branding>
   <launchable type="desktop-id">dev.edfloreshz.CosmicTweaks.desktop</launchable>
   <releases>
+  <release version="0.1.1" date="2024-10-03">
+        <description>
+            <p>Improved user experience</p>
+            <ul>
+                <li>Available themes are now shown on the side</li>
+                <li>Added settings and about page</li>
+            </ul>
+        </description>
+    </release>
     <release version="0.1.0" date="2024-09-30">
         <description>
             <p>Initial release! 🎉</p>
