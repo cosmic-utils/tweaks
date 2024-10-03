@@ -16,6 +16,7 @@ pretty_env_logger = "0.5.0"
 reqwest = { version = "0.12", features = ["json"] }
 ron = "0.8.1"
 rust-embed = "8.3.0"
+paste = "1.0"
 
 [dependencies.libcosmic]
 git = "https://github.com/pop-os/libcosmic.git"
@@ -36,3 +37,6 @@ features = ["derive"]
 [dependencies.tokio]
 version = "1.35.1"
 features = ["macros", "fs", "rt"]
+
+[build-dependencies]
+vergen = { version = "8", features = ["git", "gitcl"] }

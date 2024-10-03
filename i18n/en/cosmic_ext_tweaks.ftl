@@ -9,12 +9,16 @@ color-schemes-error = Error loading color schemes
 import-color-scheme = Import color scheme
 delete-color-scheme = Delete color scheme
 install-color-scheme = Install color scheme
+find-color-schemes = Find color schemes
 open-containing-folder = Open containing folder
 open-link = Open link
 installed = Installed
 available = Available
 loading = Loading...
 show-more = Show more
+settings = Settings
+about = About
+find-themes = Find themes
 
 # Panel only
 show-panel = Show panel
@@ -30,3 +34,19 @@ save = Save
 cancel = Cancel
 save-current-color-scheme = Save current color scheme
 color-scheme-name = Color scheme name
+
+## About
+git-description = Git commit {$hash} on {$date}
+
+## Settings
+settings = Settings
+
+### Appearance
+appearance = Appearance
+theme = Theme
+match-desktop = Match desktop
+dark = Dark
+light = Light
+
+# Menu
+view = View

@@ -72,7 +72,7 @@ pub fn installed<'a>(
     .into()
 }
 
-pub fn available<'a>(color_scheme: &ColorScheme) -> Element<'a, super::Message> {
+pub fn available<'a>(color_scheme: &ColorScheme) -> Element<'a, crate::app::Message> {
     let theme = color_scheme.theme.clone().build();
     let spacing = cosmic::theme::active().cosmic().spacing;
     let color_scheme_name = color_scheme.name.clone();
@@ -102,9 +102,11 @@ pub fn available<'a>(color_scheme: &ColorScheme) -> Element<'a, super::Message> 
                         .apply(widget::button::icon)
                         .style(cosmic::theme::Button::Link)
                         .padding(spacing.space_xxs)
-                        .on_press(super::Message::OpenLink(color_scheme.link.clone())),
+                        .on_press(crate::app::Message::ColorSchemes(Box::new(
+                            super::Message::OpenLink(color_scheme.link.clone()),
+                        ))),
                     fl!("open-link"),
-                    tooltip::Position::Bottom,
+                    cosmic::widget::tooltip::Position::Bottom,
                 )
                 .into(),
                 widget::tooltip::tooltip(
@@ -112,9 +114,11 @@ pub fn available<'a>(color_scheme: &ColorScheme) -> Element<'a, super::Message> 
                         .apply(widget::button::icon)
                         .style(cosmic::theme::Button::Suggested)
                         .padding(spacing.space_xxs)
-                        .on_press(super::Message::InstallColorScheme(color_scheme.clone())),
+                        .on_press(crate::app::Message::ColorSchemes(Box::new(
+                            super::Message::InstallColorScheme(color_scheme.clone()),
+                        ))),
                     fl!("install-color-scheme"),
-                    tooltip::Position::Bottom,
+                    cosmic::widget::tooltip::Position::Bottom,
                 )
                 .into(),
             ])
@@ -123,13 +127,14 @@ pub fn available<'a>(color_scheme: &ColorScheme) -> Element<'a, super::Message> 
             .padding([0, spacing.space_xxs, spacing.space_xxs, spacing.space_xxs])
             .into(),
         ])
-        .width(Length::Fixed(200.0))
         .height(Length::Fixed(160.0))
         .apply(widget::container)
         .style(background(&theme)),
     )
     .style(cosmic::theme::Button::Image)
-    .on_press(super::Message::SetColorScheme(color_scheme.clone()))
+    .on_press(crate::app::Message::ColorSchemes(Box::new(
+        super::Message::SetColorScheme(color_scheme.clone()),
+    )))
     .into()
 }
 
