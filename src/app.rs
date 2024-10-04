@@ -385,6 +385,7 @@ impl Application for TweakTool {
                 ),
             },
             Message::SaveNewColorScheme(name) => {
+                commands.push(self.update(Message::AppTheme(0)));
                 commands.push(self.update(Message::ColorSchemes(Box::new(
                     pages::color_schemes::Message::SaveCurrentColorScheme(Some(name)),
                 ))))
