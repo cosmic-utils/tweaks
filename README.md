@@ -6,6 +6,8 @@
 
 A tweaking tool for the COSMIC™ desktop.
 
+[![Get it on Flathub](https://flathub.org/api/badge?svg&locale=en)](https://flathub.org/apps/dev.edfloreshz.CosmicTweaks)
+
 ![window-light.png](res/screenshots/window-light.png#gh-light-mode-only)
 ![window-dark.png](res/screenshots/window-dark.png#gh-dark-mode-only)
 
