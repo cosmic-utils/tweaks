@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
   <id>dev.edfloreshz.CosmicTweaks</id>
-  <name>Tweaks for COSMIC</name>
-  <summary>A tweaking tool for the COSMIC™ desktop</summary>
+  <name>Tweaks</name>
+  <summary>Customize your COSMIC™ desktop</summary>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-only</project_license>
   <project_group>COSMIC</project_group>
@@ -12,9 +12,14 @@
   <update_contact>edfloreshz@proton.me</update_contact>
   <url type="homepage">https://github.com/cosmic-utils/tweaks</url>
   <url type="bugtracker">https://github.com/cosmic-utils/tweaks/issues</url>
+  <url type="vcs-browser">https://github.com/cosmic-utils/tweaks</url>
+  <url type="donation">https://ko-fi.com/edfloreshz</url>
+  <url type="contact">https://edfloreshz.dev</url>
+  <url type="contribute">https://github.com/cosmic-utils/tweaks</url>
+  <url type="translate">https://github.com/cosmic-utils/tweaks/tree/main/i18n</url>
   <content_rating type="oars-1.1" />
   <description>
-    <p>Customize your COSMIC desktop beyond infinity!</p>
+    <p>Tweak and personalize your COSMIC desktop beyond infinity!</p>
     <ul>
       <li>Built with Rust for exceptional performance and responsiveness.</li>
     </ul>
@@ -35,6 +40,16 @@
       <caption>Dark mode</caption>
     </screenshot>
   </screenshots>
+  <requires>
+    <display_length compare="ge">360</display_length>
+  </requires>
+  <recommends>
+    <internet>always</internet>
+  </recommends>
+  <supports>
+    <control>keyboard</control>
+    <control>pointing</control>
+  </supports>
   <categories>
     <category>Utility</category>
   </categories>
