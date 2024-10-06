@@ -1,12 +1,10 @@
 <div align="center">
     <img src="res/icons/hicolor/scalable/apps/icon.svg" width="300"/>
+    <h1>Tweaks</h1>
+    <p>Customize your COSMIC™ desktop</p>
+    <a href="https://flathub.org/apps/dev.edfloreshz.CosmicTweaks"><img src="https://flathub.org/api/badge?svg&locale=en" /></a>
+    <br/><br/>
 </div>
-
-# Tweaks for COSMIC
-
-A tweaking tool for the COSMIC™ desktop.
-
-[![Get it on Flathub](https://flathub.org/api/badge?svg&locale=en)](https://flathub.org/apps/dev.edfloreshz.CosmicTweaks)
 
 ![window-light.png](res/screenshots/window-light.png#gh-light-mode-only)
 ![window-dark.png](res/screenshots/window-dark.png#gh-dark-mode-only)
