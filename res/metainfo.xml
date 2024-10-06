@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
   <id>dev.edfloreshz.CosmicTweaks</id>
-  <name>Tweaks for COSMIC</name>
-  <summary>A tweaking tool for the COSMIC™ desktop</summary>
+  <name>Tweaks</name>
+  <summary>Customize your COSMIC™ desktop</summary>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-only</project_license>
   <project_group>COSMIC</project_group>
@@ -12,11 +12,19 @@
   <update_contact>edfloreshz@proton.me</update_contact>
   <url type="homepage">https://github.com/cosmic-utils/tweaks</url>
   <url type="bugtracker">https://github.com/cosmic-utils/tweaks/issues</url>
+  <url type="vcs-browser">https://github.com/cosmic-utils/tweaks</url>
+  <url type="donation">https://ko-fi.com/edfloreshz</url>
+  <url type="contact">https://edfloreshz.dev</url>
+  <url type="contribute">https://github.com/cosmic-utils/tweaks</url>
+  <url type="translate">https://github.com/cosmic-utils/tweaks/tree/main/i18n</url>
   <content_rating type="oars-1.1" />
   <description>
-    <p>Customize your COSMIC desktop beyond infinity!</p>
+    <p>Tweak and personalize your COSMIC desktop beyond infinity!</p>
     <ul>
-      <li>Built with Rust for exceptional performance and responsiveness.</li>
+      <li>Save current color scheme</li>
+      <li>Import existing color schemes</li>
+      <li>Download color schemes from cosmic-themes.org</li>
+      <li>Customize the panel and dock</li>
     </ul>
   </description>
   <branding>
@@ -24,46 +32,53 @@
     <color type="primary" scheme_preference="dark">#280c4b</color>
   </branding>
   <launchable type="desktop-id">dev.edfloreshz.CosmicTweaks.desktop</launchable>
-  <releases>
-  <release version="0.1.1" date="2024-10-03">
-        <description>
-            <p>Improved user experience</p>
-            <ul>
-                <li>Available themes are now shown on the side</li>
-                <li>Added settings and about page</li>
-            </ul>
-        </description>
-    </release>
-    <release version="0.1.0" date="2024-09-30">
-        <description>
-            <p>Initial release! 🎉</p>
-            <ul>
-                <li>Save current color scheme</li>
-                <li>Import existing color schemes</li>
-                <li>Download color schemes from cosmic-themes.org</li>
-                <li>Customize the panel and dock</li>
-            </ul>
-        </description>
-    </release>
-  </releases>
-  <icon type="remote" height="256" width="256">
-    https://raw.githubusercontent.com/cosmic-utils/tweaks/master/res/icons/hicolor/scalable/apps/icon.svg</icon>
+  <icon type="remote" height="256" width="256">https://raw.githubusercontent.com/cosmic-utils/tweaks/master/res/icons/hicolor/scalable/apps/icon.svg</icon>
   <screenshots>
     <screenshot type="default">
-      <image>
-        https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/window-light.png</image>
+      <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/window-light.png</image>
       <caption>Light mode</caption>
     </screenshot>
     <screenshot>
-      <image>
-        https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/window-dark.png</image>
+      <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/window-dark.png</image>
       <caption>Dark mode</caption>
     </screenshot>
   </screenshots>
+  <requires>
+    <display_length compare="ge">360</display_length>
+  </requires>
+  <recommends>
+    <internet>always</internet>
+  </recommends>
+  <supports>
+    <control>keyboard</control>
+    <control>pointing</control>
+  </supports>
   <categories>
     <category>Utility</category>
   </categories>
   <provides>
     <id>com.system76.CosmicApplication</id>
   </provides>
+  <releases>
+    <release version="0.1.1" date="2024-10-03">
+      <description>
+        <p>Improved user experience</p>
+        <ul>
+          <li>Available themes are now shown on the side</li>
+          <li>Added settings and about page</li>
+        </ul>
+      </description>
+    </release>
+    <release version="0.1.0" date="2024-09-30">
+      <description>
+        <p>Initial release! &#x1f389;</p>
+        <ul>
+          <li>Save current color scheme</li>
+          <li>Import existing color schemes</li>
+          <li>Download color schemes from cosmic-themes.org</li>
+          <li>Customize the panel and dock</li>
+        </ul>
+      </description>
+    </release>
+  </releases>
 </component>
