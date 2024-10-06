@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
   <id>dev.edfloreshz.CosmicTweaks</id>
-  <name>Tweaks</name>
+  <name>Tweaks for COSMIC™</name>
   <summary>Customize your COSMIC™ desktop</summary>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-only</project_license>
@@ -21,7 +21,10 @@
   <description>
     <p>Tweak and personalize your COSMIC desktop beyond infinity!</p>
     <ul>
-      <li>Built with Rust for exceptional performance and responsiveness.</li>
+      <li>Save current color scheme</li>
+      <li>Import existing color schemes</li>
+      <li>Download color schemes from cosmic-themes.org</li>
+      <li>Customize the panel and dock</li>
     </ul>
   </description>
   <branding>
