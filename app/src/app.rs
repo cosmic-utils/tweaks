@@ -1,5 +1,14 @@
 use std::collections::{HashMap, VecDeque};
 
+use crate::{
+    core::{config_manager::ConfigManager, nav::NavPage},
+    fl,
+    pages::{
+        self,
+        color_schemes::{config::ColorScheme, preview, ColorSchemeProvider, ColorSchemes},
+    },
+    settings::{AppTheme, TweaksSettings},
+};
 use cosmic::{
     app::{self, Core},
     cosmic_config,
@@ -14,16 +23,6 @@ use cosmic::{
 use key_bind::key_binds;
 use pages::color_schemes::providers::cosmic_themes::CosmicTheme;
 
-use crate::{
-    core::nav::NavPage,
-    fl,
-    pages::{
-        self,
-        color_schemes::{config::ColorScheme, preview, ColorSchemeProvider, ColorSchemes},
-    },
-    settings::{AppTheme, TweaksSettings},
-};
-
 mod key_bind;
 
 pub struct TweakTool {
@@ -35,8 +34,7 @@ pub struct TweakTool {
     color_schemes: ColorSchemes,
     context_page: ContextPage,
     app_themes: Vec<String>,
-    config_handler: Option<cosmic_config::Config>,
-    config: TweaksSettings,
+    config_manager: ConfigManager,
     available: Vec<ColorScheme>,
     status: Status,
     limit: usize,
@@ -202,7 +200,7 @@ impl Application for TweakTool {
         Some(dialog.into())
     }
 
-    fn init(core: Core, flags: Self::Flags) -> (Self, Command<app::Message<Self::Message>>) {
+    fn init(core: Core, _flags: Self::Flags) -> (Self, Command<app::Message<Self::Message>>) {
         log::info!("Starting Cosmic Tweak Tool...");
 
         let mut nav_model = segmented_button::SingleSelectModel::default();
@@ -228,8 +226,7 @@ impl Application for TweakTool {
             color_schemes: ColorSchemes::default(),
             context_page: ContextPage::About,
             app_themes: vec![fl!("match-desktop"), fl!("dark"), fl!("light")],
-            config_handler: flags.config_handler,
-            config: flags.config,
+            config_manager: ConfigManager::new(),
             available: vec![],
             status: Status::Idle,
             limit: 15,
@@ -271,9 +268,9 @@ impl Application for TweakTool {
         // Helper for updating config values efficiently
         macro_rules! config_set {
             ($name: ident, $value: expr) => {
-                match &self.config_handler {
+                match &self.config_manager.app_handler {
                     Some(config_handler) => {
-                        match paste::paste! { self.config.[<set_ $name>](config_handler, $value) } {
+                        match paste::paste! { self.config_manager.app_config.[<set_ $name>](config_handler, $value) } {
                             Ok(_) => {}
                             Err(err) => {
                                 log::warn!(
@@ -285,7 +282,7 @@ impl Application for TweakTool {
                         }
                     }
                     None => {
-                        self.config.$name = $value;
+                        self.config_manager.app_config.$name = $value;
                         log::warn!(
                             "failed to save config {:?}: no config handler",
                             stringify!($name)
@@ -415,7 +412,7 @@ impl Application for TweakTool {
 
 impl TweakTool {
     fn update_config(&mut self) -> Command<cosmic::app::Message<Message>> {
-        app::command::set_theme(self.config.app_theme.theme())
+        app::command::set_theme(self.config_manager.app_config.app_theme.theme())
     }
 
     fn about(&self) -> Element<Message> {
@@ -450,7 +447,7 @@ impl TweakTool {
     }
 
     fn settings(&self) -> Element<Message> {
-        let app_theme_selected = match self.config.app_theme {
+        let app_theme_selected = match self.config_manager.app_config.app_theme {
             AppTheme::Dark => 1,
             AppTheme::Light => 2,
             AppTheme::System => 0,

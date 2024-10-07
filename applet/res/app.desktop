@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Tweaks
+Exec=cosmic-ext-tweaks-applet
+Terminal=false
+Type=Application
+StartupNotify=true
+Icon=dev.edfloreshz.CosmicTweaks.Applet
+Categories=Utility;
+MimeType=inode/directory;
+NoDisplay=true
+X-CosmicApplet=true
+X-CosmicHoverPopup=Auto
