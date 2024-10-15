@@ -30,6 +30,9 @@ padding-description = Padding is the space between the contents and the borders 
 spacing = Spacing
 spacing-description = Spacing is the space between the icons in the dock or panel.
 
+border_radius = Border radius
+border-radius-description = Radius for the dock or panel.
+
 save = Save
 cancel = Cancel
 save-current-color-scheme = Save current color scheme
