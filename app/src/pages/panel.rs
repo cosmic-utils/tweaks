@@ -1,29 +1,26 @@
 use cosmic::{
-    cosmic_config::{self, Config, CosmicConfigEntry},
+    cosmic_config::{self, CosmicConfigEntry},
+    iced::Alignment,
     widget, Command, Element,
 };
-use cosmic_panel_config::CosmicPanelConfig;
 use serde::{Deserialize, Serialize};
 
 use crate::{
     core::{
-        cosmic_panel_button_config::{CosmicPanelButtonConfig, IndividualConfig, Override},
+        config_manager::ConfigManager,
+        cosmic_panel_button_config::{IndividualConfig, Override},
         icons,
     },
     fl,
+    settings::Tweak,
 };
 
 #[derive(Debug)]
 pub struct Panel {
-    pub panel_helper: Option<Config>,
-    pub panel_config: Option<CosmicPanelConfig>,
+    pub config_manager: ConfigManager,
     pub padding: u32,
     pub spacing: u32,
     pub show_panel: bool,
-    pub cosmic_panel_config: CosmicPanel,
-    pub cosmic_panel_config_helper: Option<Config>,
-    pub cosmic_panel_button_config: CosmicPanelButtonConfig,
-    pub cosmic_panel_button_config_helper: Option<Config>,
     pub force_icons: bool,
 }
 
@@ -43,63 +40,24 @@ pub struct CosmicPanel {
 
 impl Default for Panel {
     fn default() -> Self {
-        let panel_helper = CosmicPanelConfig::cosmic_config("Panel").ok();
-        let panel_config = panel_helper.as_ref().and_then(|config_helper| {
-            let panel_config = CosmicPanelConfig::get_entry(config_helper).ok()?;
-            (panel_config.name == "Panel").then_some(panel_config)
-        });
-        let (cosmic_panel_config_helper, cosmic_panel_config) =
-            match cosmic_config::Config::new("com.system76.CosmicPanel", 1) {
-                Ok(config_handler) => {
-                    let config = match CosmicPanel::get_entry(&config_handler) {
-                        Ok(ok) => ok,
-                        Err((errs, config)) => {
-                            log::error!("errors loading config: {:?}", errs);
-                            config
-                        }
-                    };
-                    (Some(config_handler), config)
-                }
-                Err(err) => {
-                    log::error!("failed to create config handler: {}", err);
-                    (None, CosmicPanel::default())
-                }
-            };
-
-        let (cosmic_panel_button_config_helper, cosmic_panel_button_config) =
-            match cosmic_config::Config::new("com.system76.CosmicPanelButton", 1) {
-                Ok(config_handler) => {
-                    let config = match CosmicPanelButtonConfig::get_entry(&config_handler) {
-                        Ok(ok) => ok,
-                        Err((errs, config)) => {
-                            log::error!(
-                                "errors loading config for cosmic panel button: {:?}",
-                                errs
-                            );
-                            config
-                        }
-                    };
-                    (Some(config_handler), config)
-                }
-                Err(err) => {
-                    log::error!(
-                        "failed to create config handler for cosmic panel button: {}",
-                        err
-                    );
-                    (None, CosmicPanelButtonConfig::default())
-                }
-            };
-
-        let padding = panel_config
+        let config_manager = ConfigManager::new();
+        let padding = config_manager
+            .panel_config
             .clone()
             .map(|config| config.padding)
             .unwrap_or(0);
-        let spacing = panel_config
+        let spacing = config_manager
+            .panel_config
             .clone()
             .map(|config| config.spacing)
             .unwrap_or(0);
-        let show_panel = cosmic_panel_config.entries.iter().any(|e| e == "Panel");
-        let force_icons = cosmic_panel_button_config
+        let show_panel = config_manager
+            .cosmic_panel_config
+            .entries
+            .iter()
+            .any(|e| e == "Panel");
+        let force_icons = config_manager
+            .panel_button_config
             .configs
             .iter()
             .find(|(e, _)| *e == "Panel")
@@ -110,15 +68,10 @@ impl Default for Panel {
             })
             .unwrap_or(false);
         Self {
-            panel_helper,
-            panel_config,
+            config_manager,
             padding,
             spacing,
             show_panel,
-            cosmic_panel_config,
-            cosmic_panel_config_helper,
-            cosmic_panel_button_config,
-            cosmic_panel_button_config_helper,
             force_icons,
         }
     }
@@ -130,22 +83,37 @@ pub enum Message {
     SetSpacing(u32),
     ShowPanel(bool),
     ForceIcons(bool),
+    ToggleFavorite(Tweak),
 }
 
 impl Panel {
     pub fn view<'a>(&self) -> Element<'a, Message> {
         let spacing = cosmic::theme::active().cosmic().spacing;
-
+        let favorite = |tweak| {
+            if self.config_manager.app_config.favorites.contains(&tweak) {
+                widget::icon::from_name("starred-symbolic")
+            } else {
+                widget::icon::from_name("non-starred-symbolic")
+            }
+        };
         widget::scrollable(
             widget::settings::section()
                 .title("Panel")
                 .add(
                     widget::settings::item::builder(fl!("show-panel"))
-                        .toggler(self.show_panel, Message::ShowPanel),
+                        .toggler(self.show_panel, Message::ShowPanel)
+                        .push(
+                            widget::button::icon(favorite(Tweak::PanelShow))
+                                .on_press(Message::ToggleFavorite(Tweak::PanelShow)),
+                        ),
                 )
                 .add(
                     widget::settings::item::builder(fl!("force-icon-buttons-in-panel"))
-                        .toggler(self.force_icons, Message::ForceIcons),
+                        .toggler(self.force_icons, Message::ForceIcons)
+                        .push(
+                            widget::button::icon(favorite(Tweak::PanelForceIcons))
+                                .on_press(Message::ToggleFavorite(Tweak::PanelForceIcons)),
+                        ),
                 )
                 .add(
                     widget::settings::item::builder(fl!("padding"))
@@ -155,7 +123,11 @@ impl Panel {
                             widget::row::with_children(vec![
                                 widget::slider(0..=20, self.padding, Message::SetPadding).into(),
                                 widget::text::text(format!("{} px", self.padding)).into(),
+                                widget::button::icon(favorite(Tweak::PanelPadding))
+                                    .on_press(Message::ToggleFavorite(Tweak::PanelPadding))
+                                    .into(),
                             ])
+                            .align_items(Alignment::Center)
                             .spacing(spacing.space_xxs),
                         ),
                 )
@@ -167,7 +139,11 @@ impl Panel {
                             widget::row::with_children(vec![
                                 widget::slider(0..=28, self.spacing, Message::SetSpacing).into(),
                                 widget::text::text(format!("{} px", self.spacing)).into(),
+                                widget::button::icon(favorite(Tweak::PanelSpacing))
+                                    .on_press(Message::ToggleFavorite(Tweak::PanelSpacing))
+                                    .into(),
                             ])
+                            .align_items(Alignment::Center)
                             .spacing(spacing.space_xxs),
                         ),
                 ),
@@ -176,14 +152,54 @@ impl Panel {
     }
 
     pub fn update(&mut self, message: Message) -> Command<crate::app::Message> {
-        let Some(panel_helper) = &mut self.panel_helper else {
+        // Helper for updating config values efficiently
+        macro_rules! config_set {
+            ($name: ident, $value: expr) => {
+                match &self.config_manager.app_handler {
+                    Some(config_handler) => {
+                        match paste::paste! { self.config_manager.app_config.[<set_ $name>](config_handler, $value) } {
+                            Ok(_) => {}
+                            Err(err) => {
+                                log::warn!(
+                                    "failed to save config {:?}: {}",
+                                    stringify!($name),
+                                    err
+                                );
+                            }
+                        }
+                    }
+                    None => {
+                        self.config_manager.app_config.$name = $value;
+                        log::warn!(
+                            "failed to save config {:?}: no config handler",
+                            stringify!($name)
+                        );
+                    }
+                }
+            };
+        }
+
+        let Some(panel_helper) = &mut self.config_manager.panel_handler else {
             return cosmic::Command::none();
         };
-        let Some(panel_config) = &mut self.panel_config else {
+        let Some(panel_config) = &mut self.config_manager.panel_config else {
             return cosmic::Command::none();
         };
 
         match message {
+            Message::ToggleFavorite(tweak) => {
+                let favorites = self.config_manager.app_config.favorites.clone();
+                if favorites.contains(&tweak) {
+                    let index = favorites.iter().position(|x| *x == tweak).unwrap();
+                    let mut favorites = favorites.clone();
+                    favorites.remove(index);
+                    config_set!(favorites, favorites);
+                } else {
+                    let mut favorites = favorites.clone();
+                    favorites.push(tweak);
+                    config_set!(favorites, favorites);
+                }
+            }
             Message::SetPadding(padding) => {
                 self.padding = padding;
                 let update = panel_config.set_padding(panel_helper, self.padding);
@@ -199,7 +215,7 @@ impl Panel {
                 }
             }
             Message::ForceIcons(force) => {
-                let mut configs = self.cosmic_panel_button_config.configs.clone();
+                let mut configs = self.config_manager.panel_button_config.configs.clone();
                 if let Some(inner_config) = configs.get_mut("Panel") {
                     inner_config.force_presentation =
                         if force { Some(Override::Icon) } else { None };
@@ -212,8 +228,11 @@ impl Panel {
                     );
                 }
 
-                if let Some(helper) = &self.cosmic_panel_button_config_helper {
-                    let update = self.cosmic_panel_button_config.set_configs(helper, configs);
+                if let Some(helper) = &self.config_manager.panel_button_handler {
+                    let update = self
+                        .config_manager
+                        .panel_button_config
+                        .set_configs(helper, configs);
                     if let Err(err) = update {
                         log::error!("Error updating cosmic panel button configs: {}", err);
                     } else {
@@ -224,15 +243,19 @@ impl Panel {
             Message::ShowPanel(show) => {
                 if show {
                     if !self
+                        .config_manager
                         .cosmic_panel_config
                         .entries
                         .iter()
                         .any(|e| e == "Panel")
                     {
-                        let mut entries = self.cosmic_panel_config.entries.clone();
+                        let mut entries = self.config_manager.cosmic_panel_config.entries.clone();
                         entries.push("Panel".to_owned());
-                        if let Some(helper) = &self.cosmic_panel_config_helper {
-                            let update = self.cosmic_panel_config.set_entries(helper, entries);
+                        if let Some(helper) = &self.config_manager.cosmic_panel_handler {
+                            let update = self
+                                .config_manager
+                                .cosmic_panel_config
+                                .set_entries(helper, entries);
                             if let Err(err) = update {
                                 log::error!("Error updating cosmic panel entries: {}", err);
                             } else {
@@ -241,15 +264,19 @@ impl Panel {
                         }
                     }
                 } else if let Some(i) = self
+                    .config_manager
                     .cosmic_panel_config
                     .entries
                     .iter()
                     .position(|e| e == "Panel")
                 {
-                    let mut entries = self.cosmic_panel_config.entries.clone();
+                    let mut entries = self.config_manager.cosmic_panel_config.entries.clone();
                     entries.remove(i);
-                    if let Some(helper) = &self.cosmic_panel_config_helper {
-                        let update = self.cosmic_panel_config.set_entries(helper, entries);
+                    if let Some(helper) = &self.config_manager.cosmic_panel_handler {
+                        let update = self
+                            .config_manager
+                            .cosmic_panel_config
+                            .set_entries(helper, entries);
                         if let Err(err) = update {
                             log::error!("Error updating cosmic panel entries: {}", err);
                         } else {

@@ -19,6 +19,7 @@ show-more = Show more
 settings = Settings
 about = About
 find-themes = Find themes
+favorite = Favorite
 
 # Panel only
 show-panel = Show panel

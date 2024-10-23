@@ -6,7 +6,7 @@ prefix := '/usr'
 
 base-dir := absolute_path(clean(rootdir / prefix))
 
-bin-src := 'target' / 'release' / name
+bin-src := '..' / 'target' / 'release' / name
 bin-dst := base-dir / 'bin' / name
 
 desktop := appid + '.desktop'

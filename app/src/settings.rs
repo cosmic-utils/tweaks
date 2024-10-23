@@ -11,6 +11,7 @@ pub const CONFIG_VERSION: u64 = 1;
 #[derive(Clone, Default, Debug, Eq, PartialEq, Deserialize, Serialize, CosmicConfigEntry)]
 pub struct TweaksSettings {
     pub app_theme: AppTheme,
+    pub favorites: Vec<Tweak>,
 }
 
 impl TweaksSettings {
@@ -55,4 +56,14 @@ impl AppTheme {
             Self::System => theme::system_preference(),
         }
     }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub enum Tweak {
+    DockPadding,
+    DockSpacing,
+    PanelShow,
+    PanelForceIcons,
+    PanelPadding,
+    PanelSpacing,
 }

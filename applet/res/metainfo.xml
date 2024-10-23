@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>dev.edfloreshz.CosmicTweaks.Applet</id>
+  <name>Tweaks</name>
+  <summary>Easily access your favorite COSMIC™ tweaks</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-only</project_license>
+  <developer id="dev.edfloreshz">
+    <name>edfloreshz</name>
+  </developer>
+  <update_contact>edfloreshz@proton.me</update_contact>
+  <url type="homepage">https://github.com/cosmic-utils/tweaks</url>
+  <url type="bugtracker">https://github.com/cosmic-utils/tweaks/issues</url>
+  <url type="vcs-browser">https://github.com/cosmic-utils/tweaks/applet</url>
+  <url type="donation">https://ko-fi.com/edfloreshz</url>
+  <url type="contact">https://edfloreshz.dev</url>
+  <url type="contribute">https://github.com/cosmic-utils/tweaks</url>
+  <url type="translate">https://github.com/cosmic-utils/tweaks/tree/main/i18n</url>
+  <content_rating type="oars-1.1" />
+  <description>
+    <p>Easily access your favorite COSMIC™ tweaks</p>
+    <ul>
+      <li>Set tweaks as favorite</li>
+      <li>Access tweaks quickly from an applet</li>
+    </ul>
+  </description>
+  <branding>
+    <color type="primary" scheme_preference="light">#eaeaff</color>
+    <color type="primary" scheme_preference="dark">#280c4b</color>
+  </branding>
+  <launchable type="desktop-id">dev.edfloreshz.CosmicTweaks.Applet.desktop</launchable>
+  <icon type="remote" height="256" width="256">https://raw.githubusercontent.com/cosmic-utils/tweaks/master/applet/res/icons/hicolor/scalable/apps/icon.svg</icon>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/applet/res/screenshots/window-light.png</image>
+      <caption>Light mode</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/applet/res/screenshots/window-dark.png</image>
+      <caption>Dark mode</caption>
+    </screenshot>
+  </screenshots>
+  <requires>
+    <display_length compare="ge">360</display_length>
+  </requires>
+  <recommends>
+    <internet>always</internet>
+  </recommends>
+  <supports>
+    <control>keyboard</control>
+    <control>pointing</control>
+  </supports>
+  <categories>
+    <category>Utility</category>
+  </categories>
+  <provides>
+    <id>com.system76.CosmicApplet</id>
+  </provides>
+</component>

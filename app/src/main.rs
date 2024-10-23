@@ -1,7 +1,4 @@
-mod app;
-mod core;
-mod pages;
-mod settings;
+use cosmic_ext_tweaks::{app, core};
 
 fn main() -> cosmic::iced::Result {
     let (settings, flags) = core::config::get();
