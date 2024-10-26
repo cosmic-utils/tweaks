@@ -1,6 +1,6 @@
 use cosmic::{
     cosmic_config::{Config, CosmicConfigEntry},
-    widget, Command, Element,
+    widget, Element, Task,
 };
 use cosmic_panel_config::CosmicPanelConfig;
 
@@ -78,12 +78,12 @@ impl Dock {
         .into()
     }
 
-    pub fn update(&mut self, message: Message) -> Command<crate::app::Message> {
+    pub fn update(&mut self, message: Message) -> Task<crate::app::Message> {
         let Some(dock_helper) = &mut self.dock_helper else {
-            return cosmic::Command::none();
+            return cosmic::Task::none();
         };
         let Some(dock_config) = &mut self.dock_config else {
-            return cosmic::Command::none();
+            return cosmic::Task::none();
         };
 
         match message {
@@ -102,6 +102,6 @@ impl Dock {
                 }
             }
         }
-        Command::none()
+        Task::none()
     }
 }

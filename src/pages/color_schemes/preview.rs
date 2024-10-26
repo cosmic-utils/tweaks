@@ -21,9 +21,9 @@ pub fn installed<'a>(
     widget::button::custom(
         widget::column::with_children(vec![
             widget::row::with_children(vec![
-                widget::horizontal_space(Length::Fill).into(),
+                widget::horizontal_space().into(),
                 widget::text(color_scheme_name).into(),
-                widget::horizontal_space(Length::Fill).into(),
+                widget::horizontal_space().into(),
             ])
             .padding(spacing.space_xxs)
             .into(),
@@ -32,31 +32,31 @@ pub fn installed<'a>(
                     .padding(spacing.space_xxs)
                     .width(Length::Fixed(100.0))
                     .height(Length::Fill)
-                    .style(card(&theme))
+                    .class(card(theme.clone()))
                     .into(),
-                widget::horizontal_space(Length::Fill).into(),
+                widget::horizontal_space().into(),
                 widget::tooltip::tooltip(
                     icons::get_handle("symbolic-link-symbolic", 14)
                         .apply(widget::button::icon)
-                        .style(cosmic::theme::Button::Link)
+                        .class(cosmic::style::Button::Link)
                         .padding(spacing.space_xxs)
                         .on_press(super::Message::OpenContainingFolder(color_scheme.clone())),
-                    fl!("open-containing-folder"),
+                    widget::text(fl!("open-containing-folder")),
                     tooltip::Position::Bottom,
                 )
                 .into(),
                 widget::tooltip::tooltip(
                     icons::get_handle("user-trash-symbolic", 14)
                         .apply(widget::button::icon)
-                        .style(cosmic::theme::Button::Destructive)
+                        .class(cosmic::style::Button::Destructive)
                         .padding(spacing.space_xxs)
                         .on_press(super::Message::DeleteColorScheme(color_scheme.clone())),
-                    fl!("delete-color-scheme"),
+                    widget::text(fl!("delete-color-scheme")),
                     tooltip::Position::Bottom,
                 )
                 .into(),
             ])
-            .align_items(Alignment::End)
+            .align_y(Alignment::End)
             .spacing(spacing.space_xxs)
             .padding([0, spacing.space_xxs, spacing.space_xxs, spacing.space_xxs])
             .into(),
@@ -64,10 +64,10 @@ pub fn installed<'a>(
         .width(Length::Fixed(200.0))
         .height(Length::Fixed(160.0))
         .apply(widget::container)
-        .style(background(&theme)),
+        .class(background(theme.clone())),
     )
     .selected(selected.name == color_scheme.name)
-    .style(cosmic::theme::Button::Image)
+    .class(cosmic::style::Button::Image)
     .on_press(super::Message::SetColorScheme(color_scheme.clone()))
     .into()
 }
@@ -86,7 +86,7 @@ pub fn available<'a>(color_scheme: &ColorScheme) -> Element<'a, crate::app::Mess
         widget::column::with_children(vec![
             widget::column::with_children(theme_caption)
                 .width(Length::Fill)
-                .align_items(Alignment::Center)
+                .align_x(Alignment::Center)
                 .padding([spacing.space_xxs, spacing.space_none])
                 .into(),
             widget::row::with_children(vec![
@@ -94,54 +94,53 @@ pub fn available<'a>(color_scheme: &ColorScheme) -> Element<'a, crate::app::Mess
                     .padding(spacing.space_xxs)
                     .width(Length::Fixed(100.0))
                     .height(Length::Fill)
-                    .style(card(&theme))
+                    .class(card(theme.clone()))
                     .into(),
-                widget::horizontal_space(Length::Fill).into(),
+                widget::horizontal_space().into(),
                 widget::tooltip::tooltip(
                     icons::get_handle("symbolic-link-symbolic", 14)
                         .apply(widget::button::icon)
-                        .style(cosmic::theme::Button::Link)
+                        .class(cosmic::style::Button::Link)
                         .padding(spacing.space_xxs)
                         .on_press(crate::app::Message::ColorSchemes(Box::new(
                             super::Message::OpenLink(color_scheme.link.clone()),
                         ))),
-                    fl!("open-link"),
+                    widget::text(fl!("open-link")),
                     cosmic::widget::tooltip::Position::Bottom,
                 )
                 .into(),
                 widget::tooltip::tooltip(
                     icons::get_handle("folder-download-symbolic", 14)
                         .apply(widget::button::icon)
-                        .style(cosmic::theme::Button::Suggested)
+                        .class(cosmic::style::Button::Suggested)
                         .padding(spacing.space_xxs)
                         .on_press(crate::app::Message::ColorSchemes(Box::new(
                             super::Message::InstallColorScheme(color_scheme.clone()),
                         ))),
-                    fl!("install-color-scheme"),
+                    widget::text(fl!("install-color-scheme")),
                     cosmic::widget::tooltip::Position::Bottom,
                 )
                 .into(),
             ])
-            .align_items(Alignment::End)
+            .align_y(Alignment::End)
             .spacing(spacing.space_xxs)
             .padding([0, spacing.space_xxs, spacing.space_xxs, spacing.space_xxs])
             .into(),
         ])
         .height(Length::Fixed(160.0))
         .apply(widget::container)
-        .style(background(&theme)),
+        .class(background(theme.clone())),
     )
-    .style(cosmic::theme::Button::Image)
+    .class(cosmic::style::Button::Image)
     .on_press(crate::app::Message::ColorSchemes(Box::new(
         super::Message::SetColorScheme(color_scheme.clone()),
     )))
     .into()
 }
 
-pub fn background(theme: &Theme) -> cosmic::theme::Container {
-    let theme = theme.clone();
+pub fn background<'a>(theme: Theme) -> cosmic::theme::Container<'a> {
     let corner_radii = cosmic::theme::active().cosmic().corner_radii;
-    cosmic::theme::Container::custom(move |_| container::Appearance {
+    cosmic::theme::Container::custom(move |_| container::Style {
         icon_color: Some(Color::from(theme.background.on)),
         text_color: Some(Color::from(theme.background.on)),
         background: Some(cosmic::iced::Background::Color(
@@ -155,11 +154,11 @@ pub fn background(theme: &Theme) -> cosmic::theme::Container {
     })
 }
 
-pub fn card(theme: &Theme) -> cosmic::theme::Container {
+pub fn card<'a>(theme: Theme) -> cosmic::theme::Container<'a> {
     let theme = theme.clone();
     let corner_radii = cosmic::theme::active().cosmic().corner_radii;
 
-    cosmic::theme::Container::custom(move |_| container::Appearance {
+    cosmic::theme::Container::custom(move |_| container::Style {
         icon_color: Some(Color::from(theme.primary.component.on)),
         text_color: Some(Color::from(theme.primary.component.on)),
         background: Some(cosmic::iced::Background::Color(
@@ -174,7 +173,7 @@ pub fn card(theme: &Theme) -> cosmic::theme::Container {
 }
 
 #[allow(dead_code)]
-pub fn standard_button(theme: &Theme) -> cosmic::theme::Button {
+pub fn standard_button(theme: Theme) -> cosmic::theme::Button {
     let active_theme = theme.clone();
     let disabled_theme = theme.clone();
     let hovered_theme = theme.clone();
@@ -182,25 +181,25 @@ pub fn standard_button(theme: &Theme) -> cosmic::theme::Button {
     let _corner_radii = cosmic::theme::active().cosmic().corner_radii;
 
     cosmic::theme::Button::Custom {
-        active: Box::new(move |_active, _cosmic| button::Appearance {
+        active: Box::new(move |_active, _cosmic| button::Style {
             background: Some(cosmic::iced_core::Background::Color(
                 active_theme.on_accent_color().into(),
             )),
             ..Default::default()
         }),
-        disabled: Box::new(move |_cosmic| button::Appearance {
+        disabled: Box::new(move |_cosmic| button::Style {
             background: Some(cosmic::iced_core::Background::Color(
                 disabled_theme.on_accent_color().into(),
             )),
             ..Default::default()
         }),
-        hovered: Box::new(move |_hovered, _cosmic| button::Appearance {
+        hovered: Box::new(move |_hovered, _cosmic| button::Style {
             background: Some(cosmic::iced_core::Background::Color(
                 hovered_theme.on_accent_color().into(),
             )),
             ..Default::default()
         }),
-        pressed: Box::new(move |_pressed, _cosmic| button::Appearance {
+        pressed: Box::new(move |_pressed, _cosmic| button::Style {
             background: Some(cosmic::iced_core::Background::Color(
                 pressed_theme.on_accent_color().into(),
             )),

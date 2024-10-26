@@ -6,9 +6,8 @@ use ashpd::desktop::file_chooser::{FileFilter, SelectedFiles};
 use cosmic::{
     cosmic_config::{Config, CosmicConfigEntry},
     cosmic_theme::{Theme, ThemeBuilder, ThemeMode},
-    iced::Length,
     widget::{self, tooltip},
-    Apply, Command, Element,
+    Apply, Element, Task,
 };
 
 pub mod config;
@@ -112,14 +111,14 @@ impl ColorSchemes {
         widget::column::with_children(vec![
             widget::row::with_children(vec![
                 widget::text::title3(fl!("color-schemes")).into(),
-                widget::horizontal_space(Length::Fill).into(),
+                widget::horizontal_space().into(),
                 widget::tooltip::tooltip(
                     icons::get_handle("arrow-into-box-symbolic", 16)
                         .apply(widget::button::icon)
                         .padding(spacing.space_xxs)
                         .on_press(Message::SaveCurrentColorScheme(None))
-                        .style(cosmic::theme::Button::Standard),
-                    fl!("save-current-color-scheme"),
+                        .class(cosmic::style::Button::Standard),
+                    widget::text(fl!("save-current-color-scheme")),
                     tooltip::Position::Bottom,
                 )
                 .into(),
@@ -128,8 +127,8 @@ impl ColorSchemes {
                         .apply(widget::button::icon)
                         .padding(spacing.space_xxs)
                         .on_press(Message::StartImport)
-                        .style(cosmic::theme::Button::Standard),
-                    fl!("import-color-scheme"),
+                        .class(cosmic::style::Button::Standard),
+                    widget::text(fl!("import-color-scheme")),
                     tooltip::Position::Bottom,
                 )
                 .into(),
@@ -138,8 +137,8 @@ impl ColorSchemes {
                         .apply(widget::button::icon)
                         .padding(spacing.space_xxs)
                         .on_press(Message::OpenAvailableThemes)
-                        .style(cosmic::theme::Button::Standard),
-                    fl!("find-color-schemes"),
+                        .class(cosmic::style::Button::Standard),
+                    widget::text(fl!("find-color-schemes")),
                     tooltip::Position::Bottom,
                 )
                 .into(),
@@ -168,13 +167,13 @@ impl ColorSchemes {
         .into()
     }
 
-    pub fn update(&mut self, message: Message) -> Command<Message> {
+    pub fn update(&mut self, message: Message) -> Task<Message> {
         let mut commands = vec![];
         match message {
             Message::OpenAvailableThemes => {
                 commands.push(self.update(Message::OpenAvailableThemes))
             }
-            Message::StartImport => commands.push(Command::perform(
+            Message::StartImport => commands.push(Task::perform(
                 async {
                     SelectedFiles::open_file()
                         .modal(true)
@@ -196,13 +195,13 @@ impl ColorSchemes {
             Message::ImportError => log::error!("failed to import a custom theme."),
             Message::ImportFile(f) => {
                 let Some(f) = f.uris().first() else {
-                    return Command::none();
+                    return Task::none();
                 };
                 if f.scheme() != "file" {
-                    return Command::none();
+                    return Task::none();
                 }
                 let Ok(path) = f.to_file_path() else {
-                    return Command::none();
+                    return Task::none();
                 };
 
                 let file = path.file_name().unwrap().to_str().unwrap().to_string();
@@ -222,12 +221,12 @@ impl ColorSchemes {
                 commands.push(self.update(Message::SetColorScheme(color_scheme.clone())));
 
                 let file_path = path.clone();
-                commands.push(Command::perform(
-                    async move { tokio::fs::read_to_string(path).await },
-                    move |res| {
+                commands.push(Task::perform(
+                    async move { (tokio::fs::read_to_string(path).await, file_path) },
+                    move |(res, path)| {
                         if let Some(b) = res.ok().and_then(|theme| {
-                            if file_path.is_file() && !new_file.exists() {
-                                if let Err(e) = std::fs::write(new_file, &theme) {
+                            if path.is_file() && !path.exists() {
+                                if let Err(e) = std::fs::write(path, &theme) {
                                     log::error!(
                                         "failed to write the file to the themes directory: {e}"
                                     );
@@ -248,7 +247,7 @@ impl ColorSchemes {
 
                 let Some(config) = self.theme_builder_config.as_ref() else {
                     log::error!("Failed to get the theme config.");
-                    return Command::none();
+                    return Task::none();
                 };
 
                 if let Err(e) = self.theme_builder.write_entry(config) {
@@ -264,7 +263,7 @@ impl ColorSchemes {
 
                 let Some(config) = config.ok() else {
                     log::error!("Failed to get the theme config.");
-                    return Command::none();
+                    return Task::none();
                 };
 
                 if let Err(e) = new_theme.write_entry(&config) {
@@ -276,11 +275,11 @@ impl ColorSchemes {
                 self.selected = color_scheme.clone();
                 let Some(config_helper) = &self.config_helper else {
                     log::error!("Failed to get the config helper.");
-                    return Command::none();
+                    return Task::none();
                 };
                 let Some(config) = &mut self.config else {
                     log::error!("Failed to get the config.");
-                    return Command::none();
+                    return Task::none();
                 };
                 if let Err(e) = config.set_name(config_helper, self.selected.name.clone()) {
                     log::error!("There was an error selecting the color scheme: {e}");
@@ -305,7 +304,7 @@ impl ColorSchemes {
                     }
                 }
                 let Some(path) = color_scheme.path else {
-                    return Command::none();
+                    return Task::none();
                 };
                 std::fs::remove_file(&path).unwrap_or_else(|e| {
                     log::error!("There was an error deleting the color scheme: {e}")
@@ -337,7 +336,7 @@ impl ColorSchemes {
             }
             Message::OpenContainingFolder(color_scheme) => {
                 let Some(path) = color_scheme.path else {
-                    return Command::none();
+                    return Task::none();
                 };
                 if let Some(path) = path.parent() {
                     if let Err(e) = open::that_detached(path) {
@@ -364,12 +363,12 @@ impl ColorSchemes {
 
                     if path.exists() {
                         log::error!("The color scheme already exists.");
-                        return Command::none();
+                        return Task::none();
                     }
 
                     let Ok(theme_builder) = ron::to_string(&self.theme_builder) else {
                         log::error!("failed to serialize the theme builder");
-                        return Command::none();
+                        return Task::none();
                     };
 
                     if let Err(e) = std::fs::write(path, theme_builder) {
@@ -383,7 +382,7 @@ impl ColorSchemes {
                 }
             }
         }
-        Command::batch(commands)
+        Task::batch(commands)
     }
 
     pub fn fetch_color_schemes() -> anyhow::Result<Vec<ColorScheme>> {

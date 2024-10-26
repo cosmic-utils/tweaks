@@ -3,13 +3,13 @@ use std::collections::{HashMap, VecDeque};
 use cosmic::{
     app::{self, Core},
     cosmic_config,
-    iced::{Alignment, Command, Length},
+    iced::{Alignment, Length},
     widget::{
         self,
         menu::{self, KeyBind},
         segmented_button,
     },
-    Application, ApplicationExt, Apply, Element,
+    Application, ApplicationExt, Apply, Element, Task,
 };
 use key_bind::key_binds;
 use pages::color_schemes::providers::cosmic_themes::CosmicTheme;
@@ -153,9 +153,9 @@ impl Application for TweakTool {
     fn on_nav_select(
         &mut self,
         id: widget::nav_bar::Id,
-    ) -> cosmic::iced::Command<app::Message<Self::Message>> {
+    ) -> cosmic::iced::Task<app::Message<Self::Message>> {
         self.nav_model.activate(id);
-        Command::none()
+        Task::none()
     }
 
     fn context_drawer(&self) -> Option<Element<Message>> {
@@ -202,7 +202,7 @@ impl Application for TweakTool {
         Some(dialog.into())
     }
 
-    fn init(core: Core, flags: Self::Flags) -> (Self, Command<app::Message<Self::Message>>) {
+    fn init(core: Core, flags: Self::Flags) -> (Self, Task<app::Message<Self::Message>>) {
         log::info!("Starting Cosmic Tweak Tool...");
 
         let mut nav_model = segmented_button::SingleSelectModel::default();
@@ -241,7 +241,7 @@ impl Application for TweakTool {
             app.limit,
         ))];
 
-        (app, Command::batch(commands))
+        (app, Task::batch(commands))
     }
 
     fn view(&self) -> Element<Self::Message> {
@@ -263,11 +263,11 @@ impl Application for TweakTool {
             .padding(spacing.space_xs)
             .width(Length::Fill)
             .height(Length::Fill)
-            .align_items(Alignment::Center)
+            .align_x(Alignment::Center)
             .into()
     }
 
-    fn update(&mut self, message: Self::Message) -> cosmic::Command<app::Message<Self::Message>> {
+    fn update(&mut self, message: Self::Message) -> cosmic::Task<app::Message<Self::Message>> {
         // Helper for updating config values efficiently
         macro_rules! config_set {
             ($name: ident, $value: expr) => {
@@ -307,7 +307,7 @@ impl Application for TweakTool {
                 self.offset = self.offset + self.limit;
                 let limit = self.limit.clone();
                 let offset = self.offset.clone();
-                commands.push(Command::perform(
+                commands.push(Task::perform(
                     async move {
                         let url = match provider {
                             ColorSchemeProvider::CosmicThemes => {
@@ -409,12 +409,12 @@ impl Application for TweakTool {
                 self.dialog_pages.pop_front();
             }
         }
-        Command::batch(commands)
+        Task::batch(commands)
     }
 }
 
 impl TweakTool {
-    fn update_config(&mut self) -> Command<cosmic::app::Message<Message>> {
+    fn update_config(&mut self) -> Task<cosmic::app::Message<Message>> {
         app::command::set_theme(self.config.app_theme.theme())
     }
 
@@ -443,7 +443,7 @@ impl TweakTool {
             .padding(spacing.space_none)
             .into(),
         ])
-        .align_items(Alignment::Center)
+        .align_x(Alignment::Center)
         .spacing(spacing.space_xxs)
         .width(Length::Fill)
         .into()
@@ -503,12 +503,12 @@ impl TweakTool {
                         ColorSchemeProvider::CosmicThemes,
                         self.limit,
                     ))
-                    .style(cosmic::theme::Button::Standard)
+                    .class(cosmic::style::Button::Standard)
                     .into(),
             ),
             Status::LoadingMore => Some(
                 widget::button::text(fl!("loading"))
-                    .style(cosmic::theme::Button::Standard)
+                    .class(cosmic::style::Button::Standard)
                     .into(),
             ),
             Status::Loading => None,

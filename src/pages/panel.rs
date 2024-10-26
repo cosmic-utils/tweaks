@@ -1,6 +1,6 @@
 use cosmic::{
     cosmic_config::{self, Config, CosmicConfigEntry},
-    widget, Command, Element,
+    widget, Element, Task,
 };
 use cosmic_panel_config::CosmicPanelConfig;
 use serde::{Deserialize, Serialize};
@@ -175,12 +175,12 @@ impl Panel {
         .into()
     }
 
-    pub fn update(&mut self, message: Message) -> Command<crate::app::Message> {
+    pub fn update(&mut self, message: Message) -> Task<crate::app::Message> {
         let Some(panel_helper) = &mut self.panel_helper else {
-            return cosmic::Command::none();
+            return cosmic::Task::none();
         };
         let Some(panel_config) = &mut self.panel_config else {
-            return cosmic::Command::none();
+            return cosmic::Task::none();
         };
 
         match message {
@@ -259,6 +259,6 @@ impl Panel {
                 }
             }
         }
-        Command::none()
+        Task::none()
     }
 }
