@@ -4,7 +4,6 @@ version = "0.1.1"
 edition = "2021"
 
 [dependencies]
-anyhow = "1.0.82"
 ashpd = "0.8.1"
 dirs = "5.0.1"
 env_logger = "0.11.5"
@@ -17,11 +16,15 @@ reqwest = { version = "0.12", features = ["json"] }
 ron = "0.8.1"
 rust-embed = "8.3.0"
 paste = "1.0"
+anyhow = "1.0.91"
 
 [dependencies.libcosmic]
 git = "https://github.com/pop-os/libcosmic.git"
 default-features = false
 features = ["multi-window", "tokio", "winit", "wgpu"]
+
+[dependencies.cosmic-ext-config-templates]
+git = "https://github.com/ryanabx/cosmic-ext-config-templates"
 
 [dependencies.i18n-embed]
 version = "0.14"

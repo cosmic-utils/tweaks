@@ -1,0 +1,164 @@
+(
+    overrides: [
+        (
+            path: "com.system76.CosmicPanel/v1/entries",
+            setting: "[\n    \"Panel\",\n    \"Dock\",\n]",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Dock/v1/name",
+            setting: "\"Dock\"",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Dock/v1/anchor",
+            setting: "Left",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Dock/v1/anchor_gap",
+            setting: "false",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Dock/v1/layer",
+            setting: "Top",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Dock/v1/keyboard_interactivity",
+            setting: "OnDemand",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Dock/v1/size",
+            setting: "M",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Dock/v1/output",
+            setting: "All",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Dock/v1/background",
+            setting: "ThemeDefault",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Dock/v1/plugins_wings",
+            setting: "Some(([\n    \"com.system76.CosmicPanelLauncherButton\",\n    \"com.system76.CosmicPanelWorkspacesButton\",\n    \"com.system76.CosmicPanelAppButton\",\n    \"com.system76.CosmicAppList\",\n    \"com.system76.CosmicAppletMinimize\",\n], []))",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Dock/v1/plugins_center",
+            setting: "Some([])",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Dock/v1/expand_to_edges",
+            setting: "true",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Dock/v1/padding",
+            setting: "0",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Dock/v1/spacing",
+            setting: "4",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Dock/v1/border_radius",
+            setting: "0",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Dock/v1/exclusive_zone",
+            setting: "true",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Dock/v1/autohide",
+            setting: "None",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Dock/v1/margin",
+            setting: "0",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Dock/v1/opacity",
+            setting: "1.0",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Panel/v1/size_wings",
+            setting: "Some([\n    None,\n    Some(()),\n])",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Panel/v1/size_center",
+            setting: "None",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Panel/v1/name",
+            setting: "\"Panel\"",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Panel/v1/anchor",
+            setting: "Top",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Panel/v1/anchor_gap",
+            setting: "false",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Panel/v1/layer",
+            setting: "Top",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Panel/v1/keyboard_interactivity",
+            setting: "OnDemand",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Panel/v1/size",
+            setting: "XS",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Panel/v1/output",
+            setting: "All",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Panel/v1/background",
+            setting: "ThemeDefault",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Panel/v1/plugins_wings",
+            setting: "Some(([\n    \"com.system76.CosmicPanelWorkspacesButton\",\n    \"com.system76.CosmicPanelAppButton\",\n], [\n    \"com.system76.CosmicAppletInputSources\",\n    \"com.system76.CosmicAppletStatusArea\",\n    \"com.system76.CosmicAppletTiling\",\n    \"com.system76.CosmicAppletAudio\",\n    \"com.system76.CosmicAppletNetwork\",\n    \"com.system76.CosmicAppletBattery\",\n    \"com.system76.CosmicAppletNotifications\",\n    \"com.system76.CosmicAppletBluetooth\",\n    \"com.system76.CosmicAppletPower\",\n]))",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Panel/v1/plugins_center",
+            setting: "Some([\n    \"com.system76.CosmicAppletTime\",\n])",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Panel/v1/expand_to_edges",
+            setting: "true",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Panel/v1/padding",
+            setting: "0",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Panel/v1/spacing",
+            setting: "2",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Panel/v1/border_radius",
+            setting: "0",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Panel/v1/exclusive_zone",
+            setting: "true",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Panel/v1/autohide",
+            setting: "None",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Panel/v1/margin",
+            setting: "0",
+        ),
+        (
+            path: "com.system76.CosmicPanel.Panel/v1/opacity",
+            setting: "1.0",
+        ),
+        (
+            path: "com.system76.CosmicPanelButton/v1/configs",
+            setting: "{\n    \"Dock\": (\n        force_presentation: Some(Icon),\n    ),\n    \"Panel\": (\n        force_presentation: None,\n    ),\n}",
+        ),
+    ],
+)

@@ -20,6 +20,7 @@ use crate::{
     pages::{
         self,
         color_schemes::{config::ColorScheme, preview, ColorSchemeProvider, ColorSchemes},
+        layouts::Layouts,
     },
     settings::{AppTheme, TweaksSettings},
 };
@@ -33,6 +34,7 @@ pub struct TweakTool {
     dialog_text_input: widget::Id,
     key_binds: HashMap<KeyBind, Action>,
     color_schemes: ColorSchemes,
+    layouts: Layouts,
     context_page: ContextPage,
     app_themes: Vec<String>,
     config_handler: Option<cosmic_config::Config>,
@@ -58,6 +60,7 @@ pub enum DialogPage {
 pub enum Message {
     Dock(pages::dock::Message),
     Panel(pages::panel::Message),
+    Layouts(pages::layouts::Message),
     ColorSchemes(Box<pages::color_schemes::Message>),
     OpenSaveDialog,
     DialogUpdate(DialogPage),
@@ -226,6 +229,7 @@ impl Application for TweakTool {
             dialog_text_input: widget::Id::unique(),
             key_binds: key_binds(),
             color_schemes: ColorSchemes::default(),
+            layouts: Layouts::default(),
             context_page: ContextPage::About,
             app_themes: vec![fl!("match-desktop"), fl!("dark"), fl!("light")],
             config_handler: flags.config_handler,
@@ -257,6 +261,7 @@ impl Application for TweakTool {
                 .map(Message::ColorSchemes),
             NavPage::Dock => pages::dock::Dock::default().view().map(Message::Dock),
             NavPage::Panel => pages::panel::Panel::default().view().map(Message::Panel),
+            NavPage::Layouts => self.layouts.view().map(Message::Layouts),
         };
 
         widget::column::with_children(vec![view])
@@ -370,6 +375,9 @@ impl Application for TweakTool {
                     .update(message)
                     .map(cosmic::app::Message::App),
             ),
+            Message::Layouts(message) => {
+                commands.push(self.layouts.update(message).map(cosmic::app::Message::App))
+            }
             Message::ColorSchemes(message) => match *message {
                 pages::color_schemes::Message::SaveCurrentColorScheme(None) => {
                     commands.push(self.update(Message::OpenSaveDialog))
