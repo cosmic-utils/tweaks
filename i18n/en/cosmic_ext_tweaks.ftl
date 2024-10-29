@@ -4,6 +4,7 @@ app-description = A tool to customize your COSMIC desktop experience.
 home = Home
 dock = Dock
 panel = Panel
+layouts = Layouts
 color-schemes = Color schemes
 color-schemes-error = Error loading color schemes
 import-color-scheme = Import color scheme

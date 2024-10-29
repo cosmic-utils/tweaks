@@ -39,6 +39,7 @@ impl IconCache {
         bundle!("dock-top-symbolic", 18);
         bundle!("dark-mode-symbolic", 18);
         bundle!("resize-mode-symbolic", 18);
+        bundle!("view-coverflow-symbolic", 18);
         bundle!("arrow-into-box-symbolic", 16);
         bundle!("document-save-symbolic", 16);
         bundle!("search-global-symbolic", 16);
