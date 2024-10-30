@@ -1,12 +1,20 @@
-use std::collections::{HashMap, VecDeque};
+use std::{
+    any::TypeId,
+    collections::{HashMap, VecDeque},
+};
 
 use cosmic::{
     app::{self, Core},
-    cosmic_config,
-    iced::{Alignment, Length},
+    cosmic_config::{self, Update},
+    cosmic_theme::{self, ThemeMode},
+    iced::{
+        event,
+        keyboard::{Event as KeyEvent, Key, Modifiers},
+        Alignment, Event, Length, Subscription,
+    },
     widget::{
         self,
-        menu::{self, KeyBind},
+        menu::{self, Action, KeyBind},
         segmented_button,
     },
     Application, ApplicationExt, Apply, Element, Task,
@@ -22,7 +30,7 @@ use crate::{
         color_schemes::{config::ColorScheme, preview, ColorSchemeProvider, ColorSchemes},
         layouts::Layouts,
     },
-    settings::{AppTheme, TweaksSettings},
+    settings::{AppTheme, TweaksSettings, CONFIG_VERSION},
 };
 
 mod key_bind;
@@ -32,7 +40,8 @@ pub struct TweakTool {
     nav_model: segmented_button::SingleSelectModel,
     dialog_pages: VecDeque<DialogPage>,
     dialog_text_input: widget::Id,
-    key_binds: HashMap<KeyBind, Action>,
+    key_binds: HashMap<KeyBind, TweaksAction>,
+    modifiers: Modifiers,
     color_schemes: ColorSchemes,
     layouts: Layouts,
     context_page: ContextPage,
@@ -72,6 +81,9 @@ pub enum Message {
     AppTheme(usize),
     FetchAvailableColorSchemes(ColorSchemeProvider, usize),
     SetAvailableColorSchemes(Vec<ColorScheme>),
+    Key(Modifiers, Key),
+    Modifiers(Modifiers),
+    SystemThemeModeChange,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]
@@ -92,17 +104,17 @@ impl ContextPage {
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum Action {
+pub enum TweaksAction {
     About,
     Settings,
 }
 
-impl cosmic::widget::menu::Action for Action {
+impl Action for TweaksAction {
     type Message = Message;
     fn message(&self) -> Self::Message {
         match self {
-            Action::About => Message::ToggleContextPage(ContextPage::About),
-            Action::Settings => Message::ToggleContextPage(ContextPage::Settings),
+            Self::About => Message::ToggleContextPage(ContextPage::About),
+            Self::Settings => Message::ToggleContextPage(ContextPage::Settings),
         }
     }
 }
@@ -136,8 +148,8 @@ impl Application for TweakTool {
             menu::items(
                 &self.key_binds,
                 vec![
-                    menu::Item::Button(fl!("settings"), Action::Settings),
-                    menu::Item::Button(fl!("about"), Action::About),
+                    menu::Item::Button(fl!("settings"), TweaksAction::Settings),
+                    menu::Item::Button(fl!("about"), TweaksAction::About),
                 ],
             ),
         )]);
@@ -228,6 +240,7 @@ impl Application for TweakTool {
             dialog_pages: VecDeque::new(),
             dialog_text_input: widget::Id::unique(),
             key_binds: key_binds(),
+            modifiers: Modifiers::empty(),
             color_schemes: ColorSchemes::default(),
             layouts: Layouts::default(),
             context_page: ContextPage::About,
@@ -416,8 +429,70 @@ impl Application for TweakTool {
             Message::DialogCancel => {
                 self.dialog_pages.pop_front();
             }
+            Message::Key(modifiers, key) => {
+                for (key_bind, action) in &self.key_binds {
+                    if key_bind.matches(modifiers, &key) {
+                        return self.update(action.message());
+                    }
+                }
+            }
+            Message::Modifiers(modifiers) => {
+                self.modifiers = modifiers;
+            }
+            Message::SystemThemeModeChange => {
+                commands.push(self.update_config());
+            }
         }
         Task::batch(commands)
+    }
+
+    fn subscription(&self) -> cosmic::iced::Subscription<Self::Message> {
+        struct ConfigSubscription;
+        struct ThemeSubscription;
+
+        let subscriptions = vec![
+            event::listen_with(|event, _status, _window_id| match event {
+                Event::Keyboard(KeyEvent::KeyPressed { key, modifiers, .. }) => {
+                    Some(Message::Key(modifiers, key))
+                }
+                Event::Keyboard(KeyEvent::ModifiersChanged(modifiers)) => {
+                    Some(Message::Modifiers(modifiers))
+                }
+                _ => None,
+            }),
+            cosmic_config::config_subscription(
+                TypeId::of::<ConfigSubscription>(),
+                Self::APP_ID.into(),
+                CONFIG_VERSION,
+            )
+            .map(|update: Update<ThemeMode>| {
+                if !update.errors.is_empty() {
+                    log::info!(
+                        "errors loading config {:?}: {:?}",
+                        update.keys,
+                        update.errors
+                    );
+                }
+                Message::SystemThemeModeChange
+            }),
+            cosmic_config::config_subscription::<_, cosmic_theme::ThemeMode>(
+                TypeId::of::<ThemeSubscription>(),
+                cosmic_theme::THEME_MODE_ID.into(),
+                cosmic_theme::ThemeMode::version(),
+            )
+            .map(|update: Update<ThemeMode>| {
+                if !update.errors.is_empty() {
+                    log::info!(
+                        "errors loading theme mode {:?}: {:?}",
+                        update.keys,
+                        update.errors
+                    );
+                }
+                Message::SystemThemeModeChange
+            }),
+        ];
+
+        Subscription::batch(subscriptions)
     }
 }
 

@@ -1,6 +1,7 @@
 mod app;
 mod core;
 mod pages;
+mod resources;
 mod settings;
 
 fn main() -> cosmic::iced::Result {
