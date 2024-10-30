@@ -62,7 +62,8 @@ pub enum Status {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum DialogPage {
-    New(String),
+    SaveCurrentColorScheme(String),
+    SaveCurrentLayout(String),
 }
 
 #[derive(Debug, Clone)]
@@ -71,7 +72,8 @@ pub enum Message {
     Panel(pages::panel::Message),
     Layouts(pages::layouts::Message),
     ColorSchemes(Box<pages::color_schemes::Message>),
-    OpenSaveDialog,
+    OpenSaveCurrentColorScheme,
+    OpenSaveCurrentLayout,
     DialogUpdate(DialogPage),
     DialogComplete,
     DialogCancel,
@@ -84,6 +86,7 @@ pub enum Message {
     Key(Modifiers, Key),
     Modifiers(Modifiers),
     SystemThemeModeChange,
+    SaveNewLayout(String),
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]
@@ -193,26 +196,32 @@ impl Application for TweakTool {
 
         let spacing = cosmic::theme::active().cosmic().spacing;
 
-        let dialog = match dialog_page {
-            DialogPage::New(name) => widget::dialog(fl!("save-current-color-scheme"))
-                .primary_action(
-                    widget::button::suggested(fl!("save"))
-                        .on_press_maybe(Some(Message::DialogComplete)),
-                )
-                .secondary_action(
-                    widget::button::standard(fl!("cancel")).on_press(Message::DialogCancel),
-                )
-                .control(
-                    widget::column::with_children(vec![
-                        widget::text::body(fl!("color-scheme-name")).into(),
-                        widget::text_input("", name.as_str())
-                            .id(self.dialog_text_input.clone())
-                            .on_input(move |name| Message::DialogUpdate(DialogPage::New(name)))
-                            .into(),
-                    ])
-                    .spacing(spacing.space_xxs),
-                ),
+        let text_input = match dialog_page {
+            DialogPage::SaveCurrentColorScheme(name) => widget::text_input("", name.as_str())
+                .id(self.dialog_text_input.clone())
+                .on_input(move |name| {
+                    Message::DialogUpdate(DialogPage::SaveCurrentColorScheme(name))
+                }),
+            DialogPage::SaveCurrentLayout(name) => widget::text_input("", name.as_str())
+                .id(self.dialog_text_input.clone())
+                .on_input(move |name| Message::DialogUpdate(DialogPage::SaveCurrentLayout(name))),
         };
+
+        let dialog = widget::dialog(fl!("save-current-color-scheme"))
+            .primary_action(
+                widget::button::suggested(fl!("save"))
+                    .on_press_maybe(Some(Message::DialogComplete)),
+            )
+            .secondary_action(
+                widget::button::standard(fl!("cancel")).on_press(Message::DialogCancel),
+            )
+            .control(
+                widget::column::with_children(vec![
+                    widget::text::body(fl!("color-scheme-name")).into(),
+                    text_input.into(),
+                ])
+                .spacing(spacing.space_xxs),
+            );
 
         Some(dialog.into())
     }
@@ -388,12 +397,15 @@ impl Application for TweakTool {
                     .update(message)
                     .map(cosmic::app::Message::App),
             ),
-            Message::Layouts(message) => {
-                commands.push(self.layouts.update(message).map(cosmic::app::Message::App))
-            }
+            Message::Layouts(message) => match message {
+                pages::layouts::Message::OpenSaveDialog => {
+                    commands.push(self.update(Message::OpenSaveCurrentLayout))
+                }
+                _ => commands.push(self.layouts.update(message).map(cosmic::app::Message::App)),
+            },
             Message::ColorSchemes(message) => match *message {
                 pages::color_schemes::Message::SaveCurrentColorScheme(None) => {
-                    commands.push(self.update(Message::OpenSaveDialog))
+                    commands.push(self.update(Message::OpenSaveCurrentColorScheme))
                 }
                 pages::color_schemes::Message::OpenAvailableThemes => commands
                     .push(self.update(Message::ToggleContextPage(ContextPage::AvailableThemes))),
@@ -410,8 +422,17 @@ impl Application for TweakTool {
                     pages::color_schemes::Message::SaveCurrentColorScheme(Some(name)),
                 ))))
             }
-            Message::OpenSaveDialog => {
-                self.dialog_pages.push_back(DialogPage::New(String::new()));
+            Message::SaveNewLayout(name) => commands.push(self.update(Message::Layouts(
+                pages::layouts::Message::SaveCurrentLayout(name),
+            ))),
+            Message::OpenSaveCurrentColorScheme => {
+                self.dialog_pages
+                    .push_back(DialogPage::SaveCurrentColorScheme(String::new()));
+                return widget::text_input::focus(self.dialog_text_input.clone());
+            }
+            Message::OpenSaveCurrentLayout => {
+                self.dialog_pages
+                    .push_back(DialogPage::SaveCurrentLayout(String::new()));
                 return widget::text_input::focus(self.dialog_text_input.clone());
             }
             Message::DialogUpdate(dialog_page) => {
@@ -420,8 +441,11 @@ impl Application for TweakTool {
             Message::DialogComplete => {
                 if let Some(dialog_page) = self.dialog_pages.pop_front() {
                     match dialog_page {
-                        DialogPage::New(name) => {
+                        DialogPage::SaveCurrentColorScheme(name) => {
                             commands.push(self.update(Message::SaveNewColorScheme(name)))
+                        }
+                        DialogPage::SaveCurrentLayout(name) => {
+                            commands.push(self.update(Message::SaveNewLayout(name)))
                         }
                     }
                 }

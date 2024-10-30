@@ -34,6 +34,7 @@ spacing-description = Spacing is the space between the icons in the dock or pane
 save = Save
 cancel = Cancel
 save-current-color-scheme = Save current color scheme
+save-current-layout = Save current layout
 color-scheme-name = Color scheme name
 
 ## About
