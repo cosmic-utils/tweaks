@@ -1,13 +1,16 @@
 use std::path::{Path, PathBuf};
 
 use config::{CustomLayout, Layout, LayoutsConfig};
-use cosmic::{cosmic_config::Config, widget, Application, Apply, Element, Task};
+use cosmic::{
+    cosmic_config::Config, iced::alignment::Horizontal, widget, Application, Apply, Element, Task,
+};
 use cosmic_ext_config_templates::{generate_template, load_template};
 use dirs::data_local_dir;
 
 use crate::app::TweakTool;
 
 pub mod config;
+pub mod factory;
 
 #[derive(Debug)]
 pub struct Layouts {
@@ -36,22 +39,25 @@ impl Layouts {
             .layouts
             .iter()
             .map(|layout| {
-                widget::button::text(layout.name())
-                    .on_press(Message::SelectLayout(layout.clone()))
+                widget::column()
+                    .push(layout.preview())
+                    .push(widget::text(layout.name()))
+                    .spacing(spacing.space_xs)
+                    .align_x(Horizontal::Center)
                     .into()
             })
             .collect::<Vec<Element<Message>>>();
 
-        widget::column()
-            .push(widget::text("Layouts"))
-            .push(
+        widget::scrollable(
+            widget::settings::section().title("Layouts").add(
                 widget::flex_row(layouts)
-                    .row_spacing(spacing.space_xs)
-                    .column_spacing(spacing.space_xs)
+                    .row_spacing(spacing.space_s)
+                    .column_spacing(spacing.space_s)
                     .apply(widget::container)
                     .padding([0, spacing.space_xxs]),
-            )
-            .into()
+            ),
+        )
+        .into()
     }
 
     pub fn update(&mut self, message: Message) -> Task<crate::app::Message> {

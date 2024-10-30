@@ -1,18 +1,16 @@
 use std::path::PathBuf;
 
+use super::{
+    factory::{LayoutPreview, PanelProperties, Position},
+    Message,
+};
+use crate::{app::TweakTool, resources};
 use cosmic::{
     cosmic_config::{self, cosmic_config_derive::CosmicConfigEntry, Config, CosmicConfigEntry},
-    Application,
+    widget, Application, Element,
 };
 use cosmic_ext_config_templates::Schema;
 use serde::{Deserialize, Serialize};
-
-use crate::app::TweakTool;
-
-const COSMIC: &str = include_str!("../layouts/files/cosmic.ron");
-const MAC: &str = include_str!("../layouts/files/mac.ron");
-const WINDOWS: &str = include_str!("../layouts/files/windows.ron");
-const UBUNTU: &str = include_str!("../layouts/files/ubuntu.ron");
 
 #[derive(Debug, Serialize, Clone, Deserialize, PartialEq, CosmicConfigEntry)]
 #[version = 1]
@@ -56,7 +54,7 @@ pub enum Layout {
 }
 
 impl Layout {
-    pub fn name(&self) -> &str {
+    pub fn file_name(&self) -> &str {
         match self {
             Layout::Cosmic => "cosmic",
             Layout::Mac => "mac",
@@ -66,12 +64,61 @@ impl Layout {
         }
     }
 
+    pub fn name(&self) -> &str {
+        match self {
+            Layout::Cosmic => "COSMIC",
+            Layout::Mac => "macOS",
+            Layout::Windows => "Windows",
+            Layout::Ubuntu => "Ubuntu",
+            Layout::Custom(custom_layout) => &custom_layout.name,
+        }
+    }
+
+    pub fn preview(&self) -> Element<Message> {
+        let layout = match self {
+            Layout::Cosmic => LayoutPreview::new(
+                Some(PanelProperties::new(Position::Top, true, 10.0)),
+                Some(PanelProperties::new(Position::Bottom, true, 20.0)),
+                6,
+                true,
+            ),
+            Layout::Mac => LayoutPreview::new(
+                Some(PanelProperties::new(Position::Top, true, 10.0)),
+                Some(PanelProperties::new(Position::Bottom, false, 20.0)),
+                6,
+                true,
+            ),
+            Layout::Windows => LayoutPreview::new(
+                None,
+                Some(PanelProperties::new(Position::Bottom, true, 15.0)),
+                6,
+                true,
+            ),
+            Layout::Ubuntu => LayoutPreview::new(
+                Some(PanelProperties::new(Position::Top, true, 10.0)),
+                Some(PanelProperties::new(Position::Left, true, 20.0)),
+                3,
+                true,
+            ),
+            Layout::Custom(_) => LayoutPreview::new(
+                Some(PanelProperties::new(Position::Top, true, 10.0)),
+                None,
+                0,
+                true,
+            ),
+        };
+
+        widget::button::custom(layout.render())
+            .on_press(Message::SelectLayout(self.clone()))
+            .into()
+    }
+
     pub fn schema(&self) -> Schema {
         match self {
-            Layout::Cosmic => ron::from_str::<Schema>(COSMIC).unwrap(),
-            Layout::Mac => ron::from_str::<Schema>(MAC).unwrap(),
-            Layout::Windows => ron::from_str::<Schema>(WINDOWS).unwrap(),
-            Layout::Ubuntu => ron::from_str::<Schema>(UBUNTU).unwrap(),
+            Layout::Cosmic => ron::from_str::<Schema>(resources::COSMIC_LAYOUT).unwrap(),
+            Layout::Mac => ron::from_str::<Schema>(resources::MAC_LAYOUT).unwrap(),
+            Layout::Windows => ron::from_str::<Schema>(resources::WINDOWS_LAYOUT).unwrap(),
+            Layout::Ubuntu => ron::from_str::<Schema>(resources::UBUNTU_LAYOUT).unwrap(),
             Layout::Custom(custom_layout) => Schema::from_file(&custom_layout.path).unwrap(),
         }
     }
