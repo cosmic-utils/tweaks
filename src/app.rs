@@ -2,7 +2,7 @@ use std::collections::{HashMap, VecDeque};
 
 use cosmic::{
     app::{self, Core},
-    cosmic_config,
+    cosmic_config, cosmic_theme,
     iced::{Alignment, Length},
     widget::{
         self,
@@ -127,6 +127,69 @@ impl Application for TweakTool {
         &mut self.core
     }
 
+    fn init(core: Core, flags: Self::Flags) -> (Self, Task<app::Message<Self::Message>>) {
+        log::info!("Starting Cosmic Tweak Tool...");
+
+        let mut nav_model = segmented_button::SingleSelectModel::default();
+        for &nav_page in NavPage::all() {
+            let id = nav_model
+                .insert()
+                .icon(nav_page.icon())
+                .text(nav_page.title())
+                .data::<NavPage>(nav_page)
+                .id();
+
+            if nav_page == NavPage::default() {
+                nav_model.activate(id);
+            }
+        }
+
+        let mut app = TweakTool {
+            nav_model,
+            core,
+            dialog_pages: VecDeque::new(),
+            dialog_text_input: widget::Id::unique(),
+            key_binds: key_binds(),
+            color_schemes: ColorSchemes::default(),
+            context_page: ContextPage::About,
+            app_themes: vec![fl!("match-desktop"), fl!("dark"), fl!("light")],
+            config_handler: flags.config_handler,
+            config: flags.config,
+            available: vec![],
+            status: Status::Idle,
+            limit: 15,
+            offset: 0,
+        };
+
+        let mut commands = vec![app.update(Message::FetchAvailableColorSchemes(
+            ColorSchemeProvider::CosmicThemes,
+            app.limit,
+        ))];
+
+        if let Some(id) = app.core.main_window_id() {
+            commands.push(cosmic::iced::runtime::window::enable_blur(id));
+        }
+
+        (app, Task::batch(commands))
+    }
+
+    fn system_theme_update(
+        &mut self,
+        _keys: &[&'static str],
+        new_theme: &cosmic_theme::Theme,
+    ) -> app::Task<Self::Message> {
+        if let Ok(session) = std::env::var("DESKTOP_SESSION") {
+            if session == "plasma" {
+                let mut theme = new_theme.clone();
+                theme.background.base.alpha *= 0.8;
+                return cosmic::app::command::set_theme(cosmic::Theme::custom(
+                    std::sync::Arc::new(theme),
+                ));
+            }
+        }
+        Task::none()
+    }
+
     fn header_start(&self) -> Vec<Element<Self::Message>> {
         let menu_bar = menu::bar(vec![menu::Tree::with_children(
             menu::root(fl!("view")),
@@ -200,48 +263,6 @@ impl Application for TweakTool {
         };
 
         Some(dialog.into())
-    }
-
-    fn init(core: Core, flags: Self::Flags) -> (Self, Task<app::Message<Self::Message>>) {
-        log::info!("Starting Cosmic Tweak Tool...");
-
-        let mut nav_model = segmented_button::SingleSelectModel::default();
-        for &nav_page in NavPage::all() {
-            let id = nav_model
-                .insert()
-                .icon(nav_page.icon())
-                .text(nav_page.title())
-                .data::<NavPage>(nav_page)
-                .id();
-
-            if nav_page == NavPage::default() {
-                nav_model.activate(id);
-            }
-        }
-
-        let mut app = TweakTool {
-            nav_model,
-            core,
-            dialog_pages: VecDeque::new(),
-            dialog_text_input: widget::Id::unique(),
-            key_binds: key_binds(),
-            color_schemes: ColorSchemes::default(),
-            context_page: ContextPage::About,
-            app_themes: vec![fl!("match-desktop"), fl!("dark"), fl!("light")],
-            config_handler: flags.config_handler,
-            config: flags.config,
-            available: vec![],
-            status: Status::Idle,
-            limit: 15,
-            offset: 0,
-        };
-
-        let commands = vec![app.update(Message::FetchAvailableColorSchemes(
-            ColorSchemeProvider::CosmicThemes,
-            app.limit,
-        ))];
-
-        (app, Task::batch(commands))
     }
 
     fn view(&self) -> Element<Self::Message> {
