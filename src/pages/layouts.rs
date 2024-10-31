@@ -4,7 +4,7 @@ use config::{CustomLayout, Layout, LayoutsConfig};
 use cosmic::{
     cosmic_config::Config, iced::alignment::Horizontal, widget, Application, Apply, Element, Task,
 };
-use cosmic_ext_config_templates::{generate_template, load_template};
+use cosmic_ext_config_templates::{load_template, panel::PanelSchema, Schema};
 use dirs::data_local_dir;
 
 use crate::{app::TweakTool, core::icons, fl};
@@ -102,17 +102,7 @@ impl Layouts {
                 }
                 let mut path = path.join(&name);
                 path.set_extension("ron");
-                let config_dirs = vec![
-                    PathBuf::from("com.system76.CosmicPanel"),
-                    PathBuf::from("com.system76.CosmicPanel.Dock"),
-                    PathBuf::from("com.system76.CosmicPanel.Panel"),
-                    PathBuf::from("com.system76.CosmicPanelButton"),
-                ];
-                let config_dirs = config_dirs
-                    .iter()
-                    .map(|p| p.as_path())
-                    .collect::<Vec<&Path>>();
-                match generate_template(config_dirs, &path) {
+                match PanelSchema::generate().and_then(|panel_schema| Schema::Panel(panel_schema).save(&path)) {
                     Ok(_) => {
                         if let Some(helper) = &self.helper {
                             let layout = CustomLayout::new(name, &path);
