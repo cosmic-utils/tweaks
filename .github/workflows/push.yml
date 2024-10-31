@@ -23,6 +23,9 @@ jobs:
       uses: auguwu/clippy-action@1.4.0
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
+    - uses: dtolnay/rust-toolchain@stable
+      with:
+        components: rustfmt
     - name: format
       uses: mbrobbel/rustfmt-check@master
       with:
