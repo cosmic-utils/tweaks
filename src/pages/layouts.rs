@@ -54,34 +54,36 @@ impl Layouts {
             })
             .collect::<Vec<Element<Message>>>();
 
-        widget::scrollable(widget::column::with_children(vec![
-            widget::row::with_children(vec![
-                widget::text::title3(fl!("layouts")).into(),
-                widget::horizontal_space().into(),
-                widget::tooltip::tooltip(
-                    icons::get_handle("arrow-into-box-symbolic", 16)
-                        .apply(widget::button::icon)
-                        .padding(spacing.space_xxs)
-                        .on_press(Message::OpenSaveDialog)
-                        .class(cosmic::style::Button::Standard),
-                    widget::text(fl!("save-current-layout")),
-                    widget::tooltip::Position::Bottom,
-                )
+        widget::scrollable(
+            widget::column::with_children(vec![
+                widget::row::with_children(vec![
+                    widget::text::title3(fl!("layouts")).into(),
+                    widget::horizontal_space().into(),
+                    widget::tooltip::tooltip(
+                        icons::get_handle("arrow-into-box-symbolic", 16)
+                            .apply(widget::button::icon)
+                            .padding(spacing.space_xxs)
+                            .on_press(Message::OpenSaveDialog)
+                            .class(cosmic::style::Button::Standard),
+                        widget::text(fl!("save-current-layout")),
+                        widget::tooltip::Position::Bottom,
+                    )
+                    .into(),
+                ])
+                .spacing(spacing.space_xxs)
                 .into(),
+                widget::settings::section()
+                    .add(
+                        widget::flex_row(layouts)
+                            .row_spacing(spacing.space_s)
+                            .column_spacing(spacing.space_s)
+                            .apply(widget::container)
+                            .padding([0, spacing.space_xxs]),
+                    )
+                    .into(),
             ])
-            .spacing(spacing.space_xxs)
-            .into(),
-            widget::settings::section()
-                .title("Default")
-                .add(
-                    widget::flex_row(layouts)
-                        .row_spacing(spacing.space_s)
-                        .column_spacing(spacing.space_s)
-                        .apply(widget::container)
-                        .padding([0, spacing.space_xxs]),
-                )
-                .into(),
-        ]))
+            .spacing(spacing.space_s),
+        )
         .into()
     }
 
