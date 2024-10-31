@@ -4,7 +4,7 @@ use cosmic::{
         Length,
     },
     widget::{self, horizontal_space, vertical_space},
-    Element,
+    Apply, Element,
 };
 
 use super::Message;
@@ -56,14 +56,14 @@ impl LayoutPreview {
         }
     }
 
-    pub fn render<'a>(&self) -> Element<'a, Message> {
+    pub fn view<'a>(&self) -> Element<'a, Message> {
         let column = widget::column().width(188).height(98);
         let row = widget::row().width(188).height(98);
         let spacing = cosmic::theme::active().cosmic().spacing;
 
-        let panel = widget::container(widget::text("")).class(cosmic::style::Container::Background);
+        let panel = widget::container(widget::text(""));
 
-        let container: Element<_> = match (self.panel, self.dock) {
+        let content: Element<_> = match (self.panel, self.dock) {
             (None, None) => column.into(),
             (None, Some(dock_props)) => {
                 let extend_dock = if dock_props.extend {
@@ -93,7 +93,11 @@ impl LayoutPreview {
                     .align_x(Horizontal::Center)
                     .align_y(Vertical::Center)
                     .padding(5)
-                    .class(cosmic::style::Container::Background);
+                    .class(if dock_props.extend {
+                        cosmic::style::Container::custom(crate::app::style::panel_style)
+                    } else {
+                        cosmic::style::Container::Background
+                    });
 
                 match dock_props.position {
                     Position::Top => column
@@ -114,6 +118,11 @@ impl LayoutPreview {
                 }
             }
             (Some(panel_props), None) => {
+                let panel = panel.class(if panel_props.extend {
+                    cosmic::style::Container::custom(crate::app::style::panel_style)
+                } else {
+                    cosmic::style::Container::Background
+                });
                 let extend_panel = if panel_props.extend {
                     Length::Fill
                 } else {
@@ -141,6 +150,11 @@ impl LayoutPreview {
                 }
             }
             (Some(panel_props), Some(dock_props)) => {
+                let panel = panel.class(if panel_props.extend {
+                    cosmic::style::Container::custom(crate::app::style::panel_style)
+                } else {
+                    cosmic::style::Container::Background
+                });
                 let extend_panel = if panel_props.extend {
                     Length::Fill
                 } else {
@@ -173,7 +187,11 @@ impl LayoutPreview {
                     .align_x(Horizontal::Center)
                     .align_y(Vertical::Center)
                     .padding(5)
-                    .class(cosmic::style::Container::Background);
+                    .class(if dock_props.extend {
+                        cosmic::style::Container::custom(crate::app::style::panel_style)
+                    } else {
+                        cosmic::style::Container::Background
+                    });
 
                 match (panel_props.position, dock_props.position) {
                     (Position::Top, Position::Top) => column
@@ -303,7 +321,11 @@ impl LayoutPreview {
             }
         };
 
-        container.into()
+        content
+            .apply(widget::container)
+            .class(cosmic::style::Container::Secondary)
+            .padding(spacing.space_xxxs)
+            .into()
     }
 }
 
