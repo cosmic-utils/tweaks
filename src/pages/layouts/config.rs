@@ -1,13 +1,17 @@
-use std::path::PathBuf;
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+};
 
 use super::{
-    factory::{LayoutPreview, PanelProperties, Position},
+    preview::{LayoutPreview, PanelProperties, Position},
     Message,
 };
-use crate::{app::TweakTool, resources};
+use crate::{app::TweakTool, fl, resources};
 use cosmic::{
     cosmic_config::{self, cosmic_config_derive::CosmicConfigEntry, Config, CosmicConfigEntry},
-    widget, Application, Element,
+    widget::{self, menu::Action},
+    Application, Element,
 };
 use cosmic_ext_config_templates::Schema;
 use serde::{Deserialize, Serialize};
@@ -44,6 +48,20 @@ impl LayoutsConfig {
     }
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum LayoutsAction {
+    DeleteLayout,
+}
+
+impl Action for LayoutsAction {
+    type Message = Message;
+    fn message(&self) -> Self::Message {
+        match self {
+            LayoutsAction::DeleteLayout => Message::DeleteLayout,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Clone, Deserialize, PartialEq)]
 pub enum Layout {
     Cosmic,
@@ -54,16 +72,6 @@ pub enum Layout {
 }
 
 impl Layout {
-    pub fn file_name(&self) -> &str {
-        match self {
-            Layout::Cosmic => "cosmic",
-            Layout::Mac => "mac",
-            Layout::Windows => "windows",
-            Layout::Ubuntu => "ubuntu",
-            Layout::Custom(custom_layout) => &custom_layout.name,
-        }
-    }
-
     pub fn name(&self) -> &str {
         match self {
             Layout::Cosmic => "COSMIC",
@@ -108,10 +116,24 @@ impl Layout {
             ),
         };
 
-        widget::button::custom(layout.view())
-            .on_press(Message::SelectLayout(self.clone()))
-            .class(cosmic::style::Button::Image)
-            .into()
+        widget::mouse_area(widget::context_menu(
+            widget::button::custom(layout.view())
+                .on_press(Message::ApplyLayout(self.clone()))
+                .class(cosmic::style::Button::Image),
+            if self.is_custom() {
+                Some(widget::menu::items(
+                    &HashMap::new(),
+                    vec![widget::menu::Item::Button(
+                        fl!("delete-layout"),
+                        LayoutsAction::DeleteLayout,
+                    )],
+                ))
+            } else {
+                None
+            },
+        ))
+        .on_right_press(Message::SelectLayout(self.clone()))
+        .into()
     }
 
     pub fn schema(&self) -> Schema {
@@ -123,6 +145,10 @@ impl Layout {
             Layout::Custom(custom_layout) => Schema::from_file(&custom_layout.path).unwrap(),
         }
     }
+
+    pub fn is_custom(&self) -> bool {
+        matches!(self, Layout::Custom(_))
+    }
 }
 
 #[derive(Debug, Serialize, Clone, Default, Deserialize, PartialEq, CosmicConfigEntry)]
@@ -132,10 +158,14 @@ pub struct CustomLayout {
 }
 
 impl CustomLayout {
-    pub fn new(name: String, path: &PathBuf) -> Self {
+    pub fn new(name: String, path: &Path) -> Self {
         Self {
             name,
-            path: path.clone(),
+            path: path.to_path_buf(),
         }
+    }
+
+    pub fn path(&self) -> &PathBuf {
+        &self.path
     }
 }

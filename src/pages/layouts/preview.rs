@@ -34,6 +34,7 @@ impl PanelProperties {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[allow(unused)]
 pub enum Position {
     Top,
     Bottom,
