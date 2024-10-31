@@ -117,8 +117,8 @@ impl Action for TweaksAction {
     type Message = Message;
     fn message(&self) -> Self::Message {
         match self {
-            Self::About => Message::ToggleContextPage(ContextPage::About),
-            Self::Settings => Message::ToggleContextPage(ContextPage::Settings),
+            TweaksAction::About => Message::ToggleContextPage(ContextPage::About),
+            TweaksAction::Settings => Message::ToggleContextPage(ContextPage::Settings),
         }
     }
 }
@@ -332,9 +332,9 @@ impl Application for TweakTool {
                     self.status = Status::LoadingMore;
                 }
                 self.limit = limit;
-                self.offset = self.offset + self.limit;
-                let limit = self.limit.clone();
-                let offset = self.offset.clone();
+                self.offset += self.limit;
+                let limit = self.limit;
+                let offset = self.offset;
                 commands.push(Task::perform(
                     async move {
                         let url = match provider {
@@ -625,8 +625,8 @@ impl TweakTool {
         widget::settings::view_column(
             loading
                 .into_iter()
-                .chain(available.into_iter())
-                .chain(show_more_button.into_iter())
+                .chain(available)
+                .chain(show_more_button)
                 .collect(),
         )
         .into()

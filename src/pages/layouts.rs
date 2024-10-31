@@ -1,5 +1,3 @@
-use std::path::{Path, PathBuf};
-
 use config::{CustomLayout, Layout, LayoutsConfig};
 use cosmic::{
     cosmic_config::Config, iced::alignment::Horizontal, widget, Application, Apply, Element, Task,
@@ -10,30 +8,37 @@ use dirs::data_local_dir;
 use crate::{app::TweakTool, core::icons, fl};
 
 pub mod config;
-pub mod factory;
+pub mod preview;
 
 #[derive(Debug)]
 pub struct Layouts {
     pub helper: Option<Config>,
     pub config: LayoutsConfig,
+    selected_layout: Option<Layout>,
 }
 
 impl Default for Layouts {
     fn default() -> Self {
         let (helper, config) = (LayoutsConfig::helper(), LayoutsConfig::config());
-        Self { helper, config }
+        Self {
+            helper,
+            config,
+            selected_layout: None,
+        }
     }
 }
 
 #[derive(Debug, Clone)]
 pub enum Message {
+    ApplyLayout(Layout),
     SelectLayout(Layout),
+    DeleteLayout,
     OpenSaveDialog,
     SaveCurrentLayout(String),
 }
 
 impl Layouts {
-    pub fn view<'a>(&'a self) -> Element<'a, Message> {
+    pub fn view(&self) -> Element<Message> {
         let spacing = cosmic::theme::active().cosmic().spacing;
         let layouts = self
             .config
@@ -83,11 +88,12 @@ impl Layouts {
     pub fn update(&mut self, message: Message) -> Task<crate::app::Message> {
         let mut commands = vec![];
         match message {
-            Message::SelectLayout(layout) => {
+            Message::ApplyLayout(layout) => {
                 if let Err(e) = load_template(layout.schema().clone()) {
                     eprintln!("Failed to load template: {}", e);
                 }
             }
+            Message::SelectLayout(layout) => self.selected_layout = Some(layout),
             Message::OpenSaveDialog => commands.push(self.update(Message::OpenSaveDialog)),
             Message::SaveCurrentLayout(name) => {
                 let path = data_local_dir()
@@ -102,7 +108,9 @@ impl Layouts {
                 }
                 let mut path = path.join(&name);
                 path.set_extension("ron");
-                match PanelSchema::generate().and_then(|panel_schema| Schema::Panel(panel_schema).save(&path)) {
+                match PanelSchema::generate()
+                    .and_then(|panel_schema| Schema::Panel(panel_schema).save(&path))
+                {
                     Ok(_) => {
                         if let Some(helper) = &self.helper {
                             let layout = CustomLayout::new(name, &path);
@@ -119,6 +127,30 @@ impl Layouts {
                         }
                     }
                     Err(e) => log::error!("Failed to generate template: {}", e),
+                }
+            }
+            Message::DeleteLayout => {
+                if let Some(layout) = &self.selected_layout {
+                    if let Layout::Custom(existing_layout) = &layout {
+                        if existing_layout.path().exists() {
+                            if let Err(e) = std::fs::remove_file(existing_layout.path()) {
+                                log::error!("Failed to delete layout: {}", e);
+                                return Task::batch(commands);
+                            }
+                        }
+                        let mut layouts = self.config.layouts.clone();
+                        layouts.retain(|l| l != layout);
+                        if let Some(helper) = &self.helper {
+                            match self.config.set_layouts(helper, layouts) {
+                                Ok(written) => {
+                                    if !written {
+                                        log::error!("Failed to write layouts to config");
+                                    }
+                                }
+                                Err(e) => log::error!("Failed to set layouts: {}", e),
+                            }
+                        }
+                    }
                 }
             }
         }

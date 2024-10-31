@@ -9,6 +9,7 @@ color-schemes = Color schemes
 color-schemes-error = Error loading color schemes
 import-color-scheme = Import color scheme
 delete-color-scheme = Delete color scheme
+delete-layout = Delete layout
 install-color-scheme = Install color scheme
 find-color-schemes = Find color schemes
 open-containing-folder = Open containing folder
