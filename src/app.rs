@@ -34,6 +34,7 @@ use crate::{
 };
 
 mod key_bind;
+pub mod style;
 
 pub struct TweakTool {
     core: Core,

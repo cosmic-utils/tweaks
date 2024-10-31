@@ -108,8 +108,9 @@ impl Layout {
             ),
         };
 
-        widget::button::custom(layout.render())
+        widget::button::custom(layout.view())
             .on_press(Message::SelectLayout(self.clone()))
+            .class(cosmic::style::Button::Image)
             .into()
     }
 
