@@ -80,58 +80,52 @@ pub fn available<'a>(color_scheme: &ColorScheme) -> Element<'a, crate::app::Mess
         theme_caption.push(widget::text::caption(author.clone()).into());
     }
 
-    widget::button::custom(
-        widget::column::with_children(vec![
-            widget::column::with_children(theme_caption)
+    widget::column::with_children(vec![
+        widget::column::with_children(theme_caption)
+            .width(Length::Fill)
+            .align_x(Alignment::Center)
+            .padding([spacing.space_xxs, spacing.space_none])
+            .into(),
+        widget::row::with_children(vec![
+            widget::container(widget::text("Navigation"))
+                .padding(spacing.space_xxs)
                 .width(Length::Fill)
-                .align_x(Alignment::Center)
-                .padding([spacing.space_xxs, spacing.space_none])
+                .height(Length::Fill)
+                .class(crate::app::style::card(theme.clone()))
                 .into(),
-            widget::row::with_children(vec![
-                widget::container(widget::text("Navigation"))
+            widget::horizontal_space().into(),
+            widget::tooltip::tooltip(
+                icons::get_handle("symbolic-link-symbolic", 14)
+                    .apply(widget::button::icon)
+                    .class(cosmic::style::Button::Link)
                     .padding(spacing.space_xxs)
-                    .width(Length::Fixed(100.0))
-                    .height(Length::Fill)
-                    .class(crate::app::style::card(theme.clone()))
-                    .into(),
-                widget::horizontal_space().into(),
-                widget::tooltip::tooltip(
-                    icons::get_handle("symbolic-link-symbolic", 14)
-                        .apply(widget::button::icon)
-                        .class(cosmic::style::Button::Link)
-                        .padding(spacing.space_xxs)
-                        .on_press(crate::app::Message::ColorSchemes(Box::new(
-                            super::Message::OpenLink(color_scheme.link.clone()),
-                        ))),
-                    widget::text(fl!("open-link")),
-                    cosmic::widget::tooltip::Position::Bottom,
-                )
-                .into(),
-                widget::tooltip::tooltip(
-                    icons::get_handle("folder-download-symbolic", 14)
-                        .apply(widget::button::icon)
-                        .class(cosmic::style::Button::Suggested)
-                        .padding(spacing.space_xxs)
-                        .on_press(crate::app::Message::ColorSchemes(Box::new(
-                            super::Message::InstallColorScheme(color_scheme.clone()),
-                        ))),
-                    widget::text(fl!("install-color-scheme")),
-                    cosmic::widget::tooltip::Position::Bottom,
-                )
-                .into(),
-            ])
-            .align_y(Alignment::End)
-            .spacing(spacing.space_xxs)
-            .padding([0, spacing.space_xxs, spacing.space_xxs, spacing.space_xxs])
+                    .on_press(crate::app::Message::ColorSchemes(Box::new(
+                        super::Message::OpenLink(color_scheme.link.clone()),
+                    ))),
+                widget::text(fl!("open-link")),
+                cosmic::widget::tooltip::Position::Bottom,
+            )
+            .into(),
+            widget::tooltip::tooltip(
+                icons::get_handle("folder-download-symbolic", 14)
+                    .apply(widget::button::icon)
+                    .class(cosmic::style::Button::Suggested)
+                    .padding(spacing.space_xxs)
+                    .on_press(crate::app::Message::ColorSchemes(Box::new(
+                        super::Message::InstallColorScheme(color_scheme.clone()),
+                    ))),
+                widget::text(fl!("install-color-scheme")),
+                cosmic::widget::tooltip::Position::Bottom,
+            )
             .into(),
         ])
-        .height(Length::Fixed(160.0))
-        .apply(widget::container)
-        .class(crate::app::style::background(theme.clone())),
-    )
-    .class(cosmic::style::Button::Image)
-    .on_press(crate::app::Message::ColorSchemes(Box::new(
-        super::Message::SetColorScheme(color_scheme.clone()),
-    )))
+        .align_y(Alignment::End)
+        .spacing(spacing.space_xxs)
+        .padding([0, spacing.space_xxs, spacing.space_xxs, spacing.space_xxs])
+        .into(),
+    ])
+    .height(Length::Fixed(160.0))
+    .apply(widget::container)
+    .class(crate::app::style::background(theme.clone()))
     .into()
 }

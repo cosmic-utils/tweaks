@@ -10,6 +10,7 @@ color-schemes-error = Error loading color schemes
 import-color-scheme = Import color scheme
 delete-color-scheme = Delete color scheme
 delete-layout = Delete layout
+available-color-schemes-body = Find and install color schemes.
 install-color-scheme = Install color scheme
 find-color-schemes = Find color schemes
 open-containing-folder = Open containing folder
@@ -34,6 +35,7 @@ spacing-description = Spacing is the space between the icons in the dock or pane
 
 save = Save
 cancel = Cancel
+close = Close
 save-current-color-scheme = Save current color scheme
 save-current-layout = Save current layout
 color-scheme-name = Color scheme name

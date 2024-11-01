@@ -65,6 +65,7 @@ pub enum Status {
 pub enum DialogPage {
     SaveCurrentColorScheme(String),
     SaveCurrentLayout(String),
+    AvailableColorSchemes,
 }
 
 #[derive(Debug, Clone)]
@@ -73,13 +74,12 @@ pub enum Message {
     Panel(pages::panel::Message),
     Layouts(pages::layouts::Message),
     ColorSchemes(Box<pages::color_schemes::Message>),
-    OpenSaveCurrentColorScheme,
-    OpenSaveCurrentLayout,
     DialogUpdate(DialogPage),
     DialogComplete,
     DialogCancel,
     SaveNewColorScheme(String),
     ToggleContextPage(ContextPage),
+    ToggleDialogPage(DialogPage),
     LaunchUrl(String),
     AppTheme(usize),
     FetchAvailableColorSchemes(ColorSchemeProvider, usize),
@@ -92,7 +92,6 @@ pub enum Message {
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum ContextPage {
-    AvailableThemes,
     Settings,
     About,
 }
@@ -102,7 +101,6 @@ impl ContextPage {
         match self {
             Self::About => fl!("about"),
             Self::Settings => fl!("settings"),
-            Self::AvailableThemes => fl!("available"),
         }
     }
 }
@@ -196,7 +194,6 @@ impl Application for TweakTool {
         Some(match self.context_page {
             ContextPage::About => self.about(),
             ContextPage::Settings => self.settings(),
-            ContextPage::AvailableThemes => self.available_themes(),
         })
     }
 
@@ -208,32 +205,82 @@ impl Application for TweakTool {
 
         let spacing = cosmic::theme::active().cosmic().spacing;
 
-        let text_input = match dialog_page {
-            DialogPage::SaveCurrentColorScheme(name) => widget::text_input("", name.as_str())
-                .id(self.dialog_text_input.clone())
-                .on_input(move |name| {
-                    Message::DialogUpdate(DialogPage::SaveCurrentColorScheme(name))
-                }),
-            DialogPage::SaveCurrentLayout(name) => widget::text_input("", name.as_str())
-                .id(self.dialog_text_input.clone())
-                .on_input(move |name| Message::DialogUpdate(DialogPage::SaveCurrentLayout(name))),
-        };
+        let dialog = match dialog_page {
+            DialogPage::SaveCurrentColorScheme(name) => {
+                widget::dialog(fl!("save-current-color-scheme"))
+                    .primary_action(
+                        widget::button::suggested(fl!("save"))
+                            .on_press_maybe(Some(Message::DialogComplete)),
+                    )
+                    .secondary_action(
+                        widget::button::standard(fl!("cancel")).on_press(Message::DialogCancel),
+                    )
+                    .control(
+                        widget::column::with_children(vec![
+                            widget::text::body(fl!("color-scheme-name")).into(),
+                            widget::text_input("", name.as_str())
+                                .id(self.dialog_text_input.clone())
+                                .on_input(move |name| {
+                                    Message::DialogUpdate(DialogPage::SaveCurrentColorScheme(name))
+                                })
+                                .into(),
+                        ])
+                        .spacing(spacing.space_xxs),
+                    )
+            }
+            DialogPage::SaveCurrentLayout(name) => widget::dialog(fl!("save-current-color-scheme"))
+                .primary_action(
+                    widget::button::suggested(fl!("save"))
+                        .on_press_maybe(Some(Message::DialogComplete)),
+                )
+                .secondary_action(
+                    widget::button::standard(fl!("cancel")).on_press(Message::DialogCancel),
+                )
+                .control(
+                    widget::column::with_children(vec![
+                        widget::text::body(fl!("color-scheme-name")).into(),
+                        widget::text_input("", name.as_str())
+                            .id(self.dialog_text_input.clone())
+                            .on_input(move |name| {
+                                Message::DialogUpdate(DialogPage::SaveCurrentLayout(name))
+                            })
+                            .into(),
+                    ])
+                    .spacing(spacing.space_xxs),
+                ),
+            DialogPage::AvailableColorSchemes => {
+                let show_more_button: Option<Element<Message>> = match self.status {
+                    Status::Idle => Some(
+                        widget::button::text(fl!("show-more"))
+                            .on_press(Message::FetchAvailableColorSchemes(
+                                ColorSchemeProvider::CosmicThemes,
+                                self.limit,
+                            ))
+                            .class(cosmic::style::Button::Standard)
+                            .into(),
+                    ),
+                    Status::LoadingMore => Some(
+                        widget::button::text(fl!("loading"))
+                            .class(cosmic::style::Button::Standard)
+                            .into(),
+                    ),
+                    Status::Loading => None,
+                };
 
-        let dialog = widget::dialog(fl!("save-current-color-scheme"))
-            .primary_action(
-                widget::button::suggested(fl!("save"))
-                    .on_press_maybe(Some(Message::DialogComplete)),
-            )
-            .secondary_action(
-                widget::button::standard(fl!("cancel")).on_press(Message::DialogCancel),
-            )
-            .control(
-                widget::column::with_children(vec![
-                    widget::text::body(fl!("color-scheme-name")).into(),
-                    text_input.into(),
-                ])
-                .spacing(spacing.space_xxs),
-            );
+                let mut dialog = widget::dialog(fl!("available"))
+                    .body(fl!("available-color-schemes-body"))
+                    .secondary_action(
+                        widget::button::standard(fl!("close")).on_press(Message::DialogCancel),
+                    )
+                    .control(self.available_themes());
+
+                if let Some(show_more_button) = show_more_button {
+                    dialog = dialog.primary_action(show_more_button);
+                }
+
+                dialog
+            }
+        };
 
         Some(dialog.into())
     }
@@ -410,17 +457,20 @@ impl Application for TweakTool {
                     .map(cosmic::app::Message::App),
             ),
             Message::Layouts(message) => match message {
-                pages::layouts::Message::OpenSaveDialog => {
-                    commands.push(self.update(Message::OpenSaveCurrentLayout))
-                }
+                pages::layouts::Message::OpenSaveDialog => commands.push(self.update(
+                    Message::ToggleDialogPage(DialogPage::SaveCurrentLayout(String::new())),
+                )),
                 _ => commands.push(self.layouts.update(message).map(cosmic::app::Message::App)),
             },
             Message::ColorSchemes(message) => match *message {
                 pages::color_schemes::Message::SaveCurrentColorScheme(None) => {
-                    commands.push(self.update(Message::OpenSaveCurrentColorScheme))
+                    commands.push(self.update(Message::ToggleDialogPage(
+                        DialogPage::SaveCurrentColorScheme(String::new()),
+                    )))
                 }
-                pages::color_schemes::Message::OpenAvailableThemes => commands
-                    .push(self.update(Message::ToggleContextPage(ContextPage::AvailableThemes))),
+                pages::color_schemes::Message::OpenAvailableThemes => commands.push(
+                    self.update(Message::ToggleDialogPage(DialogPage::AvailableColorSchemes)),
+                ),
                 _ => commands.push(
                     self.color_schemes
                         .update(*message)
@@ -437,15 +487,9 @@ impl Application for TweakTool {
             Message::SaveNewLayout(name) => commands.push(self.update(Message::Layouts(
                 pages::layouts::Message::SaveCurrentLayout(name),
             ))),
-            Message::OpenSaveCurrentColorScheme => {
-                self.dialog_pages
-                    .push_back(DialogPage::SaveCurrentColorScheme(String::new()));
-                return widget::text_input::focus(self.dialog_text_input.clone());
-            }
-            Message::OpenSaveCurrentLayout => {
-                self.dialog_pages
-                    .push_back(DialogPage::SaveCurrentLayout(String::new()));
-                return widget::text_input::focus(self.dialog_text_input.clone());
+            Message::ToggleDialogPage(dialog_page) => {
+                self.dialog_pages.push_back(dialog_page);
+                commands.push(widget::text_input::focus(self.dialog_text_input.clone()));
             }
             Message::DialogUpdate(dialog_page) => {
                 self.dialog_pages[0] = dialog_page;
@@ -459,6 +503,7 @@ impl Application for TweakTool {
                         DialogPage::SaveCurrentLayout(name) => {
                             commands.push(self.update(Message::SaveNewLayout(name)))
                         }
+                        DialogPage::AvailableColorSchemes => (),
                     }
                 }
             }
@@ -597,49 +642,24 @@ impl TweakTool {
         };
 
         let available: Option<Element<'a, Message>> = match self.status {
-            Status::Idle | Status::LoadingMore => Some(
-                widget::settings::section()
-                    .title(fl!("available"))
-                    .add({
-                        let themes: Vec<Element<Message>> =
-                            self.available.iter().map(preview::available).collect();
-
-                        widget::flex_row(themes)
-                            .row_spacing(spacing.space_xs)
-                            .column_spacing(spacing.space_xs)
-                            .apply(widget::container)
-                            .padding([0, spacing.space_xxs])
-                    })
-                    .into(),
-            ),
+            Status::Idle | Status::LoadingMore => {
+                let themes: Vec<Element<Message>> =
+                    self.available.iter().map(preview::available).collect();
+                let widgets = widget::flex_row(themes)
+                    .row_spacing(spacing.space_xs)
+                    .column_spacing(spacing.space_xs)
+                    .min_item_width(Some(400.0))
+                    .apply(widget::container)
+                    .padding([0, spacing.space_xxs]);
+                Some(widgets.into())
+            }
             Status::Loading => None,
         };
 
-        let show_more_button: Option<Element<'a, Message>> = match self.status {
-            Status::Idle => Some(
-                widget::button::text(fl!("show-more"))
-                    .on_press(Message::FetchAvailableColorSchemes(
-                        ColorSchemeProvider::CosmicThemes,
-                        self.limit,
-                    ))
-                    .class(cosmic::style::Button::Standard)
-                    .into(),
-            ),
-            Status::LoadingMore => Some(
-                widget::button::text(fl!("loading"))
-                    .class(cosmic::style::Button::Standard)
-                    .into(),
-            ),
-            Status::Loading => None,
-        };
-
-        widget::settings::view_column(
-            loading
-                .into_iter()
-                .chain(available)
-                .chain(show_more_button)
-                .collect(),
-        )
+        widget::container(widget::scrollable(widget::column::with_children(
+            loading.into_iter().chain(available).collect(),
+        )))
+        .height(Length::Fixed(450.0))
         .into()
     }
 }
