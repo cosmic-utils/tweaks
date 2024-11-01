@@ -1,4 +1,7 @@
-use crate::fl;
+use crate::{
+    app::style::{destructive_button, link_button, standard_button},
+    fl,
+};
 use cosmic::{
     iced::{Alignment, Length},
     widget::{self, tooltip},
@@ -28,7 +31,7 @@ pub fn installed<'a>(
             widget::row::with_children(vec![
                 widget::container(widget::text("Navigation"))
                     .padding(spacing.space_xxs)
-                    .width(Length::Fixed(100.0))
+                    .width(90.0)
                     .height(Length::Fill)
                     .class(crate::app::style::card(theme.clone()))
                     .into(),
@@ -36,7 +39,7 @@ pub fn installed<'a>(
                 widget::tooltip::tooltip(
                     icons::get_handle("symbolic-link-symbolic", 14)
                         .apply(widget::button::icon)
-                        .class(cosmic::style::Button::Link)
+                        .class(link_button(theme.clone()))
                         .padding(spacing.space_xxs)
                         .on_press(super::Message::OpenContainingFolder(color_scheme.clone())),
                     widget::text(fl!("open-containing-folder")),
@@ -46,7 +49,7 @@ pub fn installed<'a>(
                 widget::tooltip::tooltip(
                     icons::get_handle("user-trash-symbolic", 14)
                         .apply(widget::button::icon)
-                        .class(cosmic::style::Button::Destructive)
+                        .class(destructive_button(theme.clone()))
                         .padding(spacing.space_xxs)
                         .on_press(super::Message::DeleteColorScheme(color_scheme.clone())),
                     widget::text(fl!("delete-color-scheme")),
@@ -62,7 +65,7 @@ pub fn installed<'a>(
         .width(Length::Fixed(200.0))
         .height(Length::Fixed(160.0))
         .apply(widget::container)
-        .class(crate::app::style::background(theme.clone())),
+        .class(crate::app::style::background(&theme)),
     )
     .selected(selected.name == color_scheme.name)
     .class(cosmic::style::Button::Image)
@@ -89,7 +92,7 @@ pub fn available<'a>(color_scheme: &ColorScheme) -> Element<'a, crate::app::Mess
         widget::row::with_children(vec![
             widget::container(widget::text("Navigation"))
                 .padding(spacing.space_xxs)
-                .width(Length::Fill)
+                .width(90.0)
                 .height(Length::Fill)
                 .class(crate::app::style::card(theme.clone()))
                 .into(),
@@ -97,7 +100,7 @@ pub fn available<'a>(color_scheme: &ColorScheme) -> Element<'a, crate::app::Mess
             widget::tooltip::tooltip(
                 icons::get_handle("symbolic-link-symbolic", 14)
                     .apply(widget::button::icon)
-                    .class(cosmic::style::Button::Link)
+                    .class(link_button(theme.clone()))
                     .padding(spacing.space_xxs)
                     .on_press(crate::app::Message::ColorSchemes(Box::new(
                         super::Message::OpenLink(color_scheme.link.clone()),
@@ -109,7 +112,7 @@ pub fn available<'a>(color_scheme: &ColorScheme) -> Element<'a, crate::app::Mess
             widget::tooltip::tooltip(
                 icons::get_handle("folder-download-symbolic", 14)
                     .apply(widget::button::icon)
-                    .class(cosmic::style::Button::Suggested)
+                    .class(standard_button(theme.clone()))
                     .padding(spacing.space_xxs)
                     .on_press(crate::app::Message::ColorSchemes(Box::new(
                         super::Message::InstallColorScheme(color_scheme.clone()),
@@ -124,8 +127,9 @@ pub fn available<'a>(color_scheme: &ColorScheme) -> Element<'a, crate::app::Mess
         .padding([0, spacing.space_xxs, spacing.space_xxs, spacing.space_xxs])
         .into(),
     ])
-    .height(Length::Fixed(160.0))
+    .width(240.0)
+    .height(160.0)
     .apply(widget::container)
-    .class(crate::app::style::background(theme.clone()))
+    .class(crate::app::style::background(&theme))
     .into()
 }
