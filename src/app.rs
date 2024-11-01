@@ -648,7 +648,6 @@ impl TweakTool {
                 let widgets = widget::flex_row(themes)
                     .row_spacing(spacing.space_xs)
                     .column_spacing(spacing.space_xs)
-                    .min_item_width(Some(400.0))
                     .apply(widget::container)
                     .padding([0, spacing.space_xxs]);
                 Some(widgets.into())

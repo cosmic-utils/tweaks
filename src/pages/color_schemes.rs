@@ -376,7 +376,6 @@ impl ColorSchemes {
                         .row_spacing(spacing.space_xs)
                         .column_spacing(spacing.space_xs)
                         .apply(widget::container)
-                        .padding([0, spacing.space_xxs])
                 })
                 .into(),
         ])
