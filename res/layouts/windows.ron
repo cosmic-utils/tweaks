@@ -24,6 +24,8 @@ Panel((
                     "com.system76.CosmicPanelLauncherButton",
                     "com.system76.CosmicAppList",
                 ]),
+                size_wings: Some((Some(XS), Some(XS))),
+                size_center: None,
                 expand_to_edges: true,
                 padding: 4,
                 spacing: 4,
@@ -38,10 +40,10 @@ Panel((
     panel_config_version: 1,
     panel_button_config: (
         configs: {
-            "Dock": (
+            "Panel": (
                 force_presentation: Some(Icon),
             ),
-            "Panel": (
+            "Dock": (
                 force_presentation: Some(Icon),
             ),
         },

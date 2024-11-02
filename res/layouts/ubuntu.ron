@@ -27,6 +27,8 @@ Panel((
                 plugins_center: Some([
                     "com.system76.CosmicAppletTime",
                 ]),
+                size_wings: None,
+                size_center: None,
                 expand_to_edges: true,
                 padding: 0,
                 spacing: 2,
@@ -53,6 +55,8 @@ Panel((
                     "com.system76.CosmicAppletMinimize",
                 ], [])),
                 plugins_center: Some([]),
+                size_wings: None,
+                size_center: None,
                 expand_to_edges: true,
                 padding: 0,
                 spacing: 4,
@@ -67,11 +71,11 @@ Panel((
     panel_config_version: 1,
     panel_button_config: (
         configs: {
-            "Panel": (
-                force_presentation: None,
-            ),
             "Dock": (
                 force_presentation: Some(Icon),
+            ),
+            "Panel": (
+                force_presentation: None,
             ),
         },
     ),

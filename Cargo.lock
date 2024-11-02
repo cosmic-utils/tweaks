@@ -776,12 +776,37 @@ dependencies = [
 ]
 
 [[package]]
+name = "calloop"
+version = "0.14.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a1ead1e1514bce44c0f40e027899fbc595907fc112635bed21b3b5d975c0a5e7"
+dependencies = [
+ "bitflags 2.6.0",
+ "polling 3.7.0",
+ "rustix 0.38.34",
+ "slab",
+ "tracing",
+]
+
+[[package]]
 name = "calloop-wayland-source"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "95a66a987056935f7efce4ab5668920b5d0dac4a7c99991a67395f13702ddd20"
 dependencies = [
- "calloop",
+ "calloop 0.13.0",
+ "rustix 0.38.34",
+ "wayland-backend",
+ "wayland-client",
+]
+
+[[package]]
+name = "calloop-wayland-source"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "876a7a1dbbe026a55ef47a500b123af5a9a0914520f061d467914cf21be95daf"
+dependencies = [
+ "calloop 0.14.1",
  "rustix 0.38.34",
  "wayland-backend",
  "wayland-client",
@@ -1079,7 +1104,7 @@ dependencies = [
 [[package]]
 name = "cosmic-config"
 version = "0.1.0"
-source = "git+https://github.com/pop-os/libcosmic.git?branch=master#4b562867eccb65895953023a19393fa293aafb4b"
+source = "git+https://github.com/pop-os/libcosmic.git?branch=master#36b3cfa13aeac6e5cdf7e76ef826ed7d66aaebfe"
 dependencies = [
  "atomicwrites",
  "cosmic-config-derive 0.1.0 (git+https://github.com/pop-os/libcosmic.git?branch=master)",
@@ -1097,7 +1122,7 @@ dependencies = [
 [[package]]
 name = "cosmic-config"
 version = "0.1.0"
-source = "git+https://github.com/pop-os/libcosmic.git#4b562867eccb65895953023a19393fa293aafb4b"
+source = "git+https://github.com/pop-os/libcosmic.git#36b3cfa13aeac6e5cdf7e76ef826ed7d66aaebfe"
 dependencies = [
  "atomicwrites",
  "cosmic-config-derive 0.1.0 (git+https://github.com/pop-os/libcosmic.git)",
@@ -1116,7 +1141,7 @@ dependencies = [
 [[package]]
 name = "cosmic-config-derive"
 version = "0.1.0"
-source = "git+https://github.com/pop-os/libcosmic.git?branch=master#4b562867eccb65895953023a19393fa293aafb4b"
+source = "git+https://github.com/pop-os/libcosmic.git?branch=master#36b3cfa13aeac6e5cdf7e76ef826ed7d66aaebfe"
 dependencies = [
  "quote",
  "syn 1.0.109",
@@ -1125,7 +1150,7 @@ dependencies = [
 [[package]]
 name = "cosmic-config-derive"
 version = "0.1.0"
-source = "git+https://github.com/pop-os/libcosmic.git#4b562867eccb65895953023a19393fa293aafb4b"
+source = "git+https://github.com/pop-os/libcosmic.git#36b3cfa13aeac6e5cdf7e76ef826ed7d66aaebfe"
 dependencies = [
  "quote",
  "syn 1.0.109",
@@ -1134,7 +1159,7 @@ dependencies = [
 [[package]]
 name = "cosmic-ext-config-templates"
 version = "2.0.0"
-source = "git+https://github.com/ryanabx/cosmic-ext-config-templates#5e2ab667aa5a70ce4a63405e0e54369cc257a38a"
+source = "git+https://github.com/ryanabx/cosmic-ext-config-templates#27e5df97b7317fe71c194b7150f511e5838cb18f"
 dependencies = [
  "anyhow",
  "clap",
@@ -1176,13 +1201,13 @@ dependencies = [
 [[package]]
 name = "cosmic-panel-config"
 version = "0.1.0"
-source = "git+https://github.com/pop-os/cosmic-panel?branch=master#041a44eb6f825b7e0b3d45ccf745252b136d5da9"
+source = "git+https://github.com/pop-os/cosmic-panel?branch=master#43c3ac30eb8e6e8032cb049e352ce07a525b321c"
 dependencies = [
  "anyhow",
  "cosmic-config 0.1.0 (git+https://github.com/pop-os/libcosmic.git)",
  "ron",
  "serde",
- "smithay-client-toolkit",
+ "smithay-client-toolkit 0.19.2 (git+https://github.com/Smithay/client-toolkit)",
  "tracing",
  "wayland-protocols-wlr",
  "xdg-shell-wrapper-config 0.1.0 (git+https://github.com/pop-os/cosmic-panel?branch=master)",
@@ -1191,13 +1216,13 @@ dependencies = [
 [[package]]
 name = "cosmic-panel-config"
 version = "0.1.0"
-source = "git+https://github.com/pop-os/cosmic-panel#041a44eb6f825b7e0b3d45ccf745252b136d5da9"
+source = "git+https://github.com/pop-os/cosmic-panel#43c3ac30eb8e6e8032cb049e352ce07a525b321c"
 dependencies = [
  "anyhow",
  "cosmic-config 0.1.0 (git+https://github.com/pop-os/libcosmic.git)",
  "ron",
  "serde",
- "smithay-client-toolkit",
+ "smithay-client-toolkit 0.19.2 (git+https://github.com/Smithay/client-toolkit)",
  "tracing",
  "wayland-protocols-wlr",
  "xdg-shell-wrapper-config 0.1.0 (git+https://github.com/pop-os/cosmic-panel)",
@@ -1510,7 +1535,7 @@ dependencies = [
  "bitflags 2.6.0",
  "mime 0.1.0",
  "raw-window-handle",
- "smithay-client-toolkit",
+ "smithay-client-toolkit 0.19.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "smithay-clipboard",
 ]
 
@@ -2631,7 +2656,7 @@ dependencies = [
 [[package]]
 name = "iced_core"
 version = "0.14.0-dev"
-source = "git+https://github.com/pop-os/libcosmic.git?branch=master#4b562867eccb65895953023a19393fa293aafb4b"
+source = "git+https://github.com/pop-os/libcosmic.git?branch=master#36b3cfa13aeac6e5cdf7e76ef826ed7d66aaebfe"
 dependencies = [
  "bitflags 2.6.0",
  "bytes",
@@ -2653,7 +2678,7 @@ dependencies = [
 [[package]]
 name = "iced_core"
 version = "0.14.0-dev"
-source = "git+https://github.com/pop-os/libcosmic.git#4b562867eccb65895953023a19393fa293aafb4b"
+source = "git+https://github.com/pop-os/libcosmic.git#36b3cfa13aeac6e5cdf7e76ef826ed7d66aaebfe"
 dependencies = [
  "bitflags 2.6.0",
  "bytes",
@@ -2676,7 +2701,7 @@ dependencies = [
 [[package]]
 name = "iced_futures"
 version = "0.14.0-dev"
-source = "git+https://github.com/pop-os/libcosmic.git?branch=master#4b562867eccb65895953023a19393fa293aafb4b"
+source = "git+https://github.com/pop-os/libcosmic.git?branch=master#36b3cfa13aeac6e5cdf7e76ef826ed7d66aaebfe"
 dependencies = [
  "futures",
  "iced_core 0.14.0-dev (git+https://github.com/pop-os/libcosmic.git?branch=master)",
@@ -2689,7 +2714,7 @@ dependencies = [
 [[package]]
 name = "iced_futures"
 version = "0.14.0-dev"
-source = "git+https://github.com/pop-os/libcosmic.git#4b562867eccb65895953023a19393fa293aafb4b"
+source = "git+https://github.com/pop-os/libcosmic.git#36b3cfa13aeac6e5cdf7e76ef826ed7d66aaebfe"
 dependencies = [
  "futures",
  "iced_core 0.14.0-dev (git+https://github.com/pop-os/libcosmic.git)",
@@ -2796,7 +2821,7 @@ dependencies = [
  "resvg",
  "rustc-hash 2.0.0",
  "rustix 0.38.34",
- "smithay-client-toolkit",
+ "smithay-client-toolkit 0.19.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "thiserror",
  "tiny-xlib",
  "wayland-backend",
@@ -3212,7 +3237,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0c2a198fb6b0eada2a8df47933734e6d35d350665a33a3593d7164fa52c75c19"
 dependencies = [
  "cfg-if",
- "windows-targets 0.48.5",
+ "windows-targets 0.52.6",
 ]
 
 [[package]]
@@ -4921,7 +4946,7 @@ dependencies = [
  "ab_glyph",
  "log",
  "memmap2 0.9.4",
- "smithay-client-toolkit",
+ "smithay-client-toolkit 0.19.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "tiny-skia",
 ]
 
@@ -5128,8 +5153,35 @@ checksum = "3457dea1f0eb631b4034d61d4d8c32074caa6cd1ab2d59f2327bd8461e2c0016"
 dependencies = [
  "bitflags 2.6.0",
  "bytemuck",
- "calloop",
- "calloop-wayland-source",
+ "calloop 0.13.0",
+ "calloop-wayland-source 0.3.0",
+ "cursor-icon",
+ "libc",
+ "log",
+ "memmap2 0.9.4",
+ "pkg-config",
+ "rustix 0.38.34",
+ "thiserror",
+ "wayland-backend",
+ "wayland-client",
+ "wayland-csd-frame",
+ "wayland-cursor",
+ "wayland-protocols",
+ "wayland-protocols-wlr",
+ "wayland-scanner",
+ "xkbcommon",
+ "xkeysym",
+]
+
+[[package]]
+name = "smithay-client-toolkit"
+version = "0.19.2"
+source = "git+https://github.com/Smithay/client-toolkit#618a876400cb6c6b07a8ac5d3557f404602ec077"
+dependencies = [
+ "bitflags 2.6.0",
+ "bytemuck",
+ "calloop 0.14.1",
+ "calloop-wayland-source 0.4.0",
  "cursor-icon",
  "libc",
  "log",
@@ -5155,7 +5207,7 @@ source = "git+https://github.com/pop-os/smithay-clipboard?tag=pop-dnd-5#5a3007de
 dependencies = [
  "libc",
  "raw-window-handle",
- "smithay-client-toolkit",
+ "smithay-client-toolkit 0.19.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "wayland-backend",
 ]
 
@@ -5698,6 +5750,7 @@ version = "0.1.40"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c3523ab5a71916ccf420eebdf5521fcef02141234bbc0b8a49f2fdc4544364ef"
 dependencies = [
+ "log",
  "pin-project-lite",
  "tracing-attributes",
  "tracing-core",
@@ -6704,7 +6757,7 @@ dependencies = [
  "bitflags 2.6.0",
  "block2",
  "bytemuck",
- "calloop",
+ "calloop 0.13.0",
  "cfg_aliases 0.2.1",
  "concurrent-queue",
  "core-foundation",
@@ -6726,7 +6779,7 @@ dependencies = [
  "redox_syscall 0.4.1",
  "rustix 0.38.34",
  "sctk-adwaita",
- "smithay-client-toolkit",
+ "smithay-client-toolkit 0.19.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "smol_str",
  "tracing",
  "unicode-segmentation",
@@ -6819,7 +6872,7 @@ dependencies = [
 [[package]]
 name = "xdg-shell-wrapper-config"
 version = "0.1.0"
-source = "git+https://github.com/pop-os/cosmic-panel?branch=master#041a44eb6f825b7e0b3d45ccf745252b136d5da9"
+source = "git+https://github.com/pop-os/cosmic-panel?branch=master#43c3ac30eb8e6e8032cb049e352ce07a525b321c"
 dependencies = [
  "serde",
  "wayland-protocols-wlr",
@@ -6828,7 +6881,7 @@ dependencies = [
 [[package]]
 name = "xdg-shell-wrapper-config"
 version = "0.1.0"
-source = "git+https://github.com/pop-os/cosmic-panel#041a44eb6f825b7e0b3d45ccf745252b136d5da9"
+source = "git+https://github.com/pop-os/cosmic-panel#43c3ac30eb8e6e8032cb049e352ce07a525b321c"
 dependencies = [
  "serde",
  "wayland-protocols-wlr",
