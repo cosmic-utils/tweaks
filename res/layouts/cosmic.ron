@@ -27,6 +27,8 @@ Panel((
                 plugins_center: Some([
                     "com.system76.CosmicAppletTime",
                 ]),
+                size_wings: None,
+                size_center: None,
                 expand_to_edges: true,
                 padding: 0,
                 spacing: 2,
@@ -53,6 +55,8 @@ Panel((
                     "com.system76.CosmicAppList",
                     "com.system76.CosmicAppletMinimize",
                 ]),
+                size_wings: None,
+                size_center: None,
                 expand_to_edges: true,
                 padding: 0,
                 spacing: 4,
