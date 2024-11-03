@@ -274,12 +274,16 @@ impl Application for TweakTool {
             offset: 0,
         };
 
-        let commands = vec![app.update(Message::FetchAvailableColorSchemes(
+        let mut tasks = vec![app.update(Message::FetchAvailableColorSchemes(
             ColorSchemeProvider::CosmicThemes,
             app.limit,
         ))];
 
-        (app, Task::batch(commands))
+        if let Some(id) = app.core.main_window_id() {
+            tasks.push(app.set_window_title(fl!("app-title"), id));
+        }
+
+        (app, Task::batch(tasks))
     }
 
     fn view(&self) -> Element<Self::Message> {
