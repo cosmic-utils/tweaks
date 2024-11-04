@@ -13,6 +13,7 @@ Panel((
                 plugins_wings: Some(([
                     "com.system76.CosmicAppletPower",
                 ], [
+                    "com.system76.CosmicAppletStatusArea",
                     "com.system76.CosmicAppletNetwork",
                     "com.system76.CosmicAppletAudio",
                     "com.system76.CosmicAppletBattery",
