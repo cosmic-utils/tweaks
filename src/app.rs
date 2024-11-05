@@ -23,12 +23,13 @@ use key_bind::key_binds;
 use pages::color_schemes::providers::cosmic_themes::CosmicTheme;
 
 use crate::{
-    core::nav::NavPage,
+    core::nav::Page,
     fl,
     pages::{
         self,
         color_schemes::{config::ColorScheme, preview, ColorSchemeProvider, ColorSchemes},
         layouts::Layouts,
+        snapshots::Snapshots,
     },
     settings::{AppTheme, TweaksSettings, CONFIG_VERSION},
 };
@@ -45,6 +46,7 @@ pub struct TweakTool {
     modifiers: Modifiers,
     color_schemes: ColorSchemes,
     layouts: Layouts,
+    snapshots: Snapshots,
     context_page: ContextPage,
     app_themes: Vec<String>,
     config_handler: Option<cosmic_config::Config>,
@@ -65,6 +67,7 @@ pub enum Status {
 pub enum DialogPage {
     SaveCurrentColorScheme(String),
     SaveCurrentLayout(String),
+    CreateSnapshot,
     AvailableColorSchemes,
 }
 
@@ -73,6 +76,7 @@ pub enum Message {
     Dock(pages::dock::Message),
     Panel(pages::panel::Message),
     Layouts(pages::layouts::Message),
+    Snapshots(pages::snapshots::Message),
     ColorSchemes(Box<pages::color_schemes::Message>),
     DialogUpdate(DialogPage),
     DialogComplete,
@@ -177,7 +181,7 @@ impl Application for TweakTool {
             return Task::none();
         };
 
-        let title = if let Some(page) = self.nav_model.data::<NavPage>(id) {
+        let title = if let Some(page) = self.nav_model.data::<Page>(id) {
             format!("{} - {}", page.title(), fl!("app-title"))
         } else {
             fl!("app-title")
@@ -228,7 +232,7 @@ impl Application for TweakTool {
                         .spacing(spacing.space_xxs),
                     )
             }
-            DialogPage::SaveCurrentLayout(name) => widget::dialog(fl!("save-current-color-scheme"))
+            DialogPage::SaveCurrentLayout(name) => widget::dialog(fl!("save-current-layout"))
                 .primary_action(
                     widget::button::suggested(fl!("save"))
                         .on_press_maybe(Some(Message::DialogComplete)),
@@ -247,6 +251,15 @@ impl Application for TweakTool {
                             .into(),
                     ])
                     .spacing(spacing.space_xxs),
+                ),
+            DialogPage::CreateSnapshot => widget::dialog(fl!("create-snapshot"))
+                .body(fl!("create-snapshot-description"))
+                .primary_action(
+                    widget::button::suggested(fl!("create"))
+                        .on_press_maybe(Some(Message::DialogComplete)),
+                )
+                .secondary_action(
+                    widget::button::standard(fl!("cancel")).on_press(Message::DialogCancel),
                 ),
             DialogPage::AvailableColorSchemes => {
                 let show_more_button: Option<Element<Message>> = match self.status {
@@ -289,15 +302,15 @@ impl Application for TweakTool {
         log::info!("Starting Cosmic Tweak Tool...");
 
         let mut nav_model = segmented_button::SingleSelectModel::default();
-        for &nav_page in NavPage::all() {
+        for &nav_page in Page::all() {
             let id = nav_model
                 .insert()
                 .icon(nav_page.icon())
                 .text(nav_page.title())
-                .data::<NavPage>(nav_page)
+                .data::<Page>(nav_page)
                 .id();
 
-            if nav_page == NavPage::default() {
+            if nav_page == Page::default() {
                 nav_model.activate(id);
             }
         }
@@ -311,6 +324,7 @@ impl Application for TweakTool {
             modifiers: Modifiers::empty(),
             color_schemes: ColorSchemes::default(),
             layouts: Layouts::default(),
+            snapshots: Snapshots::default(),
             context_page: ContextPage::About,
             app_themes: vec![fl!("match-desktop"), fl!("dark"), fl!("light")],
             config_handler: flags.config_handler,
@@ -336,17 +350,18 @@ impl Application for TweakTool {
     fn view(&self) -> Element<Self::Message> {
         let spacing = cosmic::theme::active().cosmic().spacing;
         let entity = self.nav_model.active();
-        let nav_page = self.nav_model.data::<NavPage>(entity).unwrap_or_default();
+        let nav_page = self.nav_model.data::<Page>(entity).unwrap_or_default();
 
         let view = match nav_page {
-            NavPage::ColorSchemes => self
+            Page::ColorSchemes => self
                 .color_schemes
                 .view()
                 .map(Box::new)
                 .map(Message::ColorSchemes),
-            NavPage::Dock => pages::dock::Dock::default().view().map(Message::Dock),
-            NavPage::Panel => pages::panel::Panel::default().view().map(Message::Panel),
-            NavPage::Layouts => self.layouts.view().map(Message::Layouts),
+            Page::Dock => pages::dock::Dock::default().view().map(Message::Dock),
+            Page::Panel => pages::panel::Panel::default().view().map(Message::Panel),
+            Page::Layouts => self.layouts.view().map(Message::Layouts),
+            Page::Snapshots => self.snapshots.view().map(Message::Snapshots),
         };
 
         widget::column::with_children(vec![view])
@@ -466,6 +481,15 @@ impl Application for TweakTool {
                 )),
                 _ => commands.push(self.layouts.update(message).map(cosmic::app::Message::App)),
             },
+            Message::Snapshots(message) => match message {
+                pages::snapshots::Message::OpenSaveDialog => commands
+                    .push(self.update(Message::ToggleDialogPage(DialogPage::CreateSnapshot))),
+                _ => commands.push(
+                    self.snapshots
+                        .update(message)
+                        .map(cosmic::app::Message::App),
+                ),
+            },
             Message::ColorSchemes(message) => match *message {
                 pages::color_schemes::Message::SaveCurrentColorScheme(None) => {
                     commands.push(self.update(Message::ToggleDialogPage(
@@ -507,6 +531,9 @@ impl Application for TweakTool {
                         DialogPage::SaveCurrentLayout(name) => {
                             commands.push(self.update(Message::SaveNewLayout(name)))
                         }
+                        DialogPage::CreateSnapshot => commands.push(self.update(
+                            Message::Snapshots(pages::snapshots::Message::CreateSnapshot),
+                        )),
                         DialogPage::AvailableColorSchemes => (),
                     }
                 }
