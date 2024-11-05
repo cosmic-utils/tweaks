@@ -50,6 +50,13 @@ create-snapshot-description = You are about to create a snapshot, this will save
 restore-snapshot = Restore snapshot
 delete-snapshot = Delete snapshot
 no-snapshots = No snapshots available
+snapshot-name = Snapshot name
+name = Name
+type = Type
+created = Created
+actions = Actions
+system = System
+user = User
 
 color-scheme-name = Color scheme name
 

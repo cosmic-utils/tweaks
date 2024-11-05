@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use crate::app::TweakTool;
+use crate::{app::TweakTool, fl};
 use chrono::{NaiveDateTime, Utc};
 use cosmic::{
     cosmic_config::{self, cosmic_config_derive::CosmicConfigEntry, Config, CosmicConfigEntry},
@@ -43,32 +43,50 @@ impl SnapshotsConfig {
     Debug, Serialize, Clone, Default, Deserialize, PartialEq, Eq, PartialOrd, Ord, CosmicConfigEntry,
 )]
 pub struct Snapshot {
-    path: PathBuf,
-    created: NaiveDateTime,
+    pub name: String,
+    pub kind: SnapshotKind,
+    pub path: PathBuf,
+    pub created: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Clone, Default, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+pub enum SnapshotKind {
+    #[default]
+    System,
+    User,
+}
+
+impl ToString for SnapshotKind {
+    fn to_string(&self) -> String {
+        match self {
+            Self::System => fl!("system"),
+            Self::User => fl!("user"),
+        }
+    }
 }
 
 impl Snapshot {
-    pub fn new(path: &PathBuf) -> Self {
+    pub fn new(name: &str, path: &PathBuf, kind: SnapshotKind) -> Self {
         let created = Utc::now().naive_local();
-        let mut path = path.join(&created.format("%Y-%m-%d %H:%M:%S").to_string());
-        path.set_extension("ron");
+        let path = path.join(&name).with_extension("ron");
 
-        Self { path, created }
+        Self {
+            name: name.to_string(),
+            kind,
+            path,
+            created,
+        }
     }
 
-    pub fn name(&self) -> String {
-        self.created().format("%Y-%m-%d %H:%M:%S").to_string()
+    pub fn kind(&self) -> String {
+        self.kind.to_string()
     }
 
-    pub fn path(&self) -> &PathBuf {
-        &self.path
-    }
-
-    pub fn created(&self) -> &NaiveDateTime {
-        &self.created
+    pub fn created(&self) -> String {
+        self.created.format("%Y-%m-%d %H:%M:%S").to_string()
     }
 
     pub fn schema(&self) -> Schema {
-        Schema::from_file(self.path()).unwrap()
+        Schema::from_file(&self.path).unwrap()
     }
 }

@@ -1,11 +1,11 @@
-use config::{Snapshot, SnapshotsConfig};
-use cosmic::{cosmic_config::Config, widget, Application, Apply, Element, Task};
+use config::{Snapshot, SnapshotKind, SnapshotsConfig};
+use cosmic::{cosmic_config::Config, iced::Length, widget, Application, Apply, Element, Task};
 use cosmic_ext_config_templates::{load_template, panel::PanelSchema, Schema};
 use dirs::data_local_dir;
 
 use crate::{app::TweakTool, core::icons, fl};
 
-mod config;
+pub mod config;
 
 #[derive(Debug)]
 pub struct Snapshots {
@@ -22,7 +22,7 @@ impl Default for Snapshots {
 
 #[derive(Debug, Clone)]
 pub enum Message {
-    CreateSnapshot,
+    CreateSnapshot(String, SnapshotKind),
     RestoreSnapshot(Snapshot),
     DeleteSnapshot(Snapshot),
     OpenSaveDialog,
@@ -31,18 +31,16 @@ pub enum Message {
 impl Snapshots {
     pub fn view(&self) -> Element<Message> {
         let spacing = cosmic::theme::active().cosmic().spacing;
-        let mut snapshots = self.config.snapshots.clone();
-        snapshots.sort_by(|a, b| {
-            b.created()
-                .and_utc()
-                .timestamp()
-                .cmp(&a.created().and_utc().timestamp())
-        });
-        let snapshots = snapshots
+
+        let snapshots = self
+            .config
+            .snapshots
             .iter()
             .map(|snapshot| {
-                widget::settings::item(
-                    snapshot.name(),
+                widget::settings::item_row(vec![
+                    widget::text(&snapshot.name).width(Length::Fill).into(),
+                    widget::text(snapshot.kind()).width(Length::Fill).into(),
+                    widget::text(snapshot.created()).width(Length::Fill).into(),
                     widget::row()
                         .push(widget::tooltip(
                             widget::button::icon(icons::get_handle(
@@ -61,17 +59,45 @@ impl Snapshots {
                             widget::text(fl!("delete-snapshot")),
                             widget::tooltip::Position::Bottom,
                         ))
-                        .spacing(spacing.space_xxs),
-                )
+                        .align_y(cosmic::iced::Alignment::Center)
+                        .spacing(spacing.space_xxs)
+                        .width(Length::Fill)
+                        .into(),
+                ])
+                .align_y(cosmic::iced::Alignment::Center)
+                .spacing(spacing.space_xxxs)
+                .width(Length::Fill)
                 .into()
             })
             .collect::<Vec<Element<Message>>>();
+
+        let heading_item = |name, width| {
+            widget::row()
+                .push(widget::text::heading(name))
+                .align_y(cosmic::iced::Alignment::Center)
+                .spacing(spacing.space_xxxs)
+                .width(width)
+        };
+
+        let header = if snapshots.is_empty() {
+            None
+        } else {
+            Some(
+                widget::row()
+                    .push(heading_item(fl!("name"), Length::Fill))
+                    .push(heading_item(fl!("type"), Length::Fill))
+                    .push(heading_item(fl!("created"), Length::Fill))
+                    .push(heading_item(fl!("actions"), Length::Fill))
+                    .padding([0, spacing.space_m]),
+            )
+        };
 
         let snapshots: Element<_> = if snapshots.is_empty() {
             widget::text(fl!("no-snapshots")).into()
         } else {
             widget::settings::section().extend(snapshots).into()
         };
+
         widget::scrollable(
             widget::column()
                 .push(
@@ -91,6 +117,7 @@ impl Snapshots {
                     ])
                     .spacing(spacing.space_xxs),
                 )
+                .push_maybe(header)
                 .push(snapshots)
                 .spacing(spacing.space_xs),
         )
@@ -106,7 +133,7 @@ impl Snapshots {
                 }
             }
             Message::OpenSaveDialog => commands.push(self.update(Message::OpenSaveDialog)),
-            Message::CreateSnapshot => {
+            Message::CreateSnapshot(name, kind) => {
                 let path = data_local_dir()
                     .unwrap()
                     .join(TweakTool::APP_ID)
@@ -116,14 +143,20 @@ impl Snapshots {
                         log::error!("{e}");
                     }
                 }
-                let snapshot = Snapshot::new(&path);
+                let snapshot = Snapshot::new(&name, &path, kind);
                 match PanelSchema::generate()
-                    .and_then(|panel_schema| Schema::Panel(panel_schema).save(snapshot.path()))
+                    .and_then(|panel_schema| Schema::Panel(panel_schema).save(&snapshot.path))
                 {
                     Ok(_) => {
                         if let Some(helper) = &self.helper {
                             let mut snapshots = self.config.snapshots.clone();
-                            snapshots.push(snapshot);
+                            snapshots.push(snapshot.clone());
+                            snapshots.sort_by(|a, b| {
+                                b.created
+                                    .and_utc()
+                                    .timestamp()
+                                    .cmp(&a.created.and_utc().timestamp())
+                            });
                             match self.config.set_snapshots(helper, snapshots) {
                                 Ok(written) => {
                                     if !written {
@@ -138,14 +171,20 @@ impl Snapshots {
                 }
             }
             Message::DeleteSnapshot(snapshot) => {
-                if snapshot.path().exists() {
-                    if let Err(e) = std::fs::remove_file(snapshot.path()) {
+                if snapshot.path.exists() {
+                    if let Err(e) = std::fs::remove_file(&snapshot.path) {
                         log::error!("Failed to delete layout: {}", e);
                         return Task::batch(commands);
                     }
                 }
                 let mut snapshots = self.config.snapshots.clone();
                 snapshots.retain(|l| *l != snapshot);
+                snapshots.sort_by(|a, b| {
+                    b.created
+                        .and_utc()
+                        .timestamp()
+                        .cmp(&a.created.and_utc().timestamp())
+                });
                 if let Some(helper) = &self.helper {
                     match self.config.set_snapshots(helper, snapshots) {
                         Ok(written) => {
