@@ -38,9 +38,15 @@ impl Snapshots {
             .iter()
             .map(|snapshot| {
                 widget::settings::item_row(vec![
-                    widget::text(&snapshot.name).width(Length::Fill).into(),
-                    widget::text(snapshot.kind()).width(Length::Fill).into(),
-                    widget::text(snapshot.created()).width(Length::Fill).into(),
+                    widget::text(&snapshot.name)
+                        .width(Length::FillPortion(2))
+                        .into(),
+                    widget::text(snapshot.kind())
+                        .width(Length::FillPortion(1))
+                        .into(),
+                    widget::text(snapshot.created())
+                        .width(Length::FillPortion(1))
+                        .into(),
                     widget::row()
                         .push(widget::tooltip(
                             widget::button::icon(icons::get_handle(
@@ -61,7 +67,7 @@ impl Snapshots {
                         ))
                         .align_y(cosmic::iced::Alignment::Center)
                         .spacing(spacing.space_xxs)
-                        .width(Length::Fill)
+                        .width(Length::FillPortion(1))
                         .into(),
                 ])
                 .align_y(cosmic::iced::Alignment::Center)
@@ -84,10 +90,10 @@ impl Snapshots {
         } else {
             Some(
                 widget::row()
-                    .push(heading_item(fl!("name"), Length::Fill))
-                    .push(heading_item(fl!("type"), Length::Fill))
-                    .push(heading_item(fl!("created"), Length::Fill))
-                    .push(heading_item(fl!("actions"), Length::Fill))
+                    .push(heading_item(fl!("name"), Length::FillPortion(2)))
+                    .push(heading_item(fl!("type"), Length::FillPortion(1)))
+                    .push(heading_item(fl!("created"), Length::FillPortion(1)))
+                    .push(heading_item(fl!("actions"), Length::FillPortion(1)))
                     .padding([0, spacing.space_m]),
             )
         };
