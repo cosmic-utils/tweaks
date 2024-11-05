@@ -43,3 +43,6 @@ features = ["macros", "fs", "rt"]
 
 [build-dependencies]
 vergen = { version = "8", features = ["git", "gitcl"] }
+
+[patch."https://github.com/smithay/client-toolkit.git"]
+sctk = { package = "smithay-client-toolkit", version = "=0.19.2" }
