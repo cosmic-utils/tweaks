@@ -29,7 +29,7 @@ use crate::{
         self,
         color_schemes::{config::ColorScheme, preview, ColorSchemeProvider, ColorSchemes},
         layouts::Layouts,
-        snapshots::Snapshots,
+        snapshots::{config::SnapshotKind, Snapshots},
     },
     settings::{AppTheme, TweaksSettings, CONFIG_VERSION},
 };
@@ -66,8 +66,7 @@ pub enum Status {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum DialogPage {
     SaveCurrentColorScheme(String),
-    SaveCurrentLayout(String),
-    CreateSnapshot,
+    CreateSnapshot(String),
     AvailableColorSchemes,
 }
 
@@ -91,7 +90,6 @@ pub enum Message {
     Key(Modifiers, Key),
     Modifiers(Modifiers),
     SystemThemeModeChange,
-    SaveNewLayout(String),
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]
@@ -227,32 +225,13 @@ impl Application for TweakTool {
                                 .on_input(move |name| {
                                     Message::DialogUpdate(DialogPage::SaveCurrentColorScheme(name))
                                 })
+                                .on_submit(Message::DialogComplete)
                                 .into(),
                         ])
                         .spacing(spacing.space_xxs),
                     )
             }
-            DialogPage::SaveCurrentLayout(name) => widget::dialog(fl!("save-current-layout"))
-                .primary_action(
-                    widget::button::suggested(fl!("save"))
-                        .on_press_maybe(Some(Message::DialogComplete)),
-                )
-                .secondary_action(
-                    widget::button::standard(fl!("cancel")).on_press(Message::DialogCancel),
-                )
-                .control(
-                    widget::column::with_children(vec![
-                        widget::text::body(fl!("color-scheme-name")).into(),
-                        widget::text_input("", name.as_str())
-                            .id(self.dialog_text_input.clone())
-                            .on_input(move |name| {
-                                Message::DialogUpdate(DialogPage::SaveCurrentLayout(name))
-                            })
-                            .into(),
-                    ])
-                    .spacing(spacing.space_xxs),
-                ),
-            DialogPage::CreateSnapshot => widget::dialog(fl!("create-snapshot"))
+            DialogPage::CreateSnapshot(name) => widget::dialog(fl!("create-snapshot"))
                 .body(fl!("create-snapshot-description"))
                 .primary_action(
                     widget::button::suggested(fl!("create"))
@@ -260,6 +239,14 @@ impl Application for TweakTool {
                 )
                 .secondary_action(
                     widget::button::standard(fl!("cancel")).on_press(Message::DialogCancel),
+                )
+                .control(
+                    widget::text_input(fl!("snapshot-name"), name.as_str())
+                        .id(self.dialog_text_input.clone())
+                        .on_input(move |name| {
+                            Message::DialogUpdate(DialogPage::CreateSnapshot(name))
+                        })
+                        .on_submit(Message::DialogComplete),
                 ),
             DialogPage::AvailableColorSchemes => {
                 let show_more_button: Option<Element<Message>> = match self.status {
@@ -335,10 +322,18 @@ impl Application for TweakTool {
             offset: 0,
         };
 
-        let mut tasks = vec![app.update(Message::FetchAvailableColorSchemes(
-            ColorSchemeProvider::CosmicThemes,
-            app.limit,
-        ))];
+        let mut tasks = vec![
+            app.update(Message::FetchAvailableColorSchemes(
+                ColorSchemeProvider::CosmicThemes,
+                app.limit,
+            )),
+            app.update(Message::Snapshots(
+                pages::snapshots::Message::CreateSnapshot(
+                    "Application opened".into(),
+                    SnapshotKind::System,
+                ),
+            )),
+        ];
 
         if let Some(id) = app.core.main_window_id() {
             tasks.push(app.set_window_title(fl!("app-title"), id));
@@ -476,14 +471,12 @@ impl Application for TweakTool {
                     .map(cosmic::app::Message::App),
             ),
             Message::Layouts(message) => match message {
-                pages::layouts::Message::OpenSaveDialog => commands.push(self.update(
-                    Message::ToggleDialogPage(DialogPage::SaveCurrentLayout(String::new())),
-                )),
                 _ => commands.push(self.layouts.update(message).map(cosmic::app::Message::App)),
             },
             Message::Snapshots(message) => match message {
-                pages::snapshots::Message::OpenSaveDialog => commands
-                    .push(self.update(Message::ToggleDialogPage(DialogPage::CreateSnapshot))),
+                pages::snapshots::Message::OpenSaveDialog => commands.push(self.update(
+                    Message::ToggleDialogPage(DialogPage::CreateSnapshot(String::new())),
+                )),
                 _ => commands.push(
                     self.snapshots
                         .update(message)
@@ -512,9 +505,6 @@ impl Application for TweakTool {
                     pages::color_schemes::Message::SaveCurrentColorScheme(Some(name)),
                 ))))
             }
-            Message::SaveNewLayout(name) => commands.push(self.update(Message::Layouts(
-                pages::layouts::Message::SaveCurrentLayout(name),
-            ))),
             Message::ToggleDialogPage(dialog_page) => {
                 self.dialog_pages.push_back(dialog_page);
                 commands.push(widget::text_input::focus(self.dialog_text_input.clone()));
@@ -528,12 +518,11 @@ impl Application for TweakTool {
                         DialogPage::SaveCurrentColorScheme(name) => {
                             commands.push(self.update(Message::SaveNewColorScheme(name)))
                         }
-                        DialogPage::SaveCurrentLayout(name) => {
-                            commands.push(self.update(Message::SaveNewLayout(name)))
+                        DialogPage::CreateSnapshot(name) => {
+                            commands.push(self.update(Message::Snapshots(
+                                pages::snapshots::Message::CreateSnapshot(name, SnapshotKind::User),
+                            )))
                         }
-                        DialogPage::CreateSnapshot => commands.push(self.update(
-                            Message::Snapshots(pages::snapshots::Message::CreateSnapshot),
-                        )),
                         DialogPage::AvailableColorSchemes => (),
                     }
                 }
