@@ -1,11 +1,14 @@
 app-title = Tweaks for COSMIC
 app-description = A tool to customize your COSMIC desktop experience.
 
+# Pages
 home = Home
 dock = Dock
 panel = Panel
 layouts = Layouts
 color-schemes = Color schemes
+snapshots = Snapshots
+
 color-schemes-error = Error loading color schemes
 import-color-scheme = Import color scheme
 delete-color-scheme = Delete color scheme
@@ -36,8 +39,18 @@ spacing-description = Spacing is the space between the icons in the dock or pane
 save = Save
 cancel = Cancel
 close = Close
+create = Create
+
 save-current-color-scheme = Save current color scheme
+
 save-current-layout = Save current layout
+
+create-snapshot = Create snapshot
+create-snapshot-description = You are about to create a snapshot, this will save the current state of your desktop and make it possible to restore it later on.
+restore-snapshot = Restore snapshot
+delete-snapshot = Delete snapshot
+no-snapshots = No snapshots available
+
 color-scheme-name = Color scheme name
 
 ## About

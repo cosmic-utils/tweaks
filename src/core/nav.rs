@@ -5,27 +5,29 @@ use crate::fl;
 use super::icons;
 
 #[derive(Clone, Copy, Default, Debug, Eq, PartialEq)]
-pub enum NavPage {
+pub enum Page {
     #[default]
     ColorSchemes,
     Dock,
     Panel,
     Layouts,
+    Snapshots,
 }
 
-impl Default for &NavPage {
+impl Default for &Page {
     fn default() -> Self {
-        &NavPage::ColorSchemes
+        &Page::ColorSchemes
     }
 }
 
-impl NavPage {
+impl Page {
     pub fn title(&self) -> String {
         match self {
             Self::ColorSchemes => fl!("color-schemes"),
             Self::Dock => fl!("dock"),
             Self::Panel => fl!("panel"),
             Self::Layouts => fl!("layouts"),
+            Self::Snapshots => fl!("snapshots"),
         }
     }
 
@@ -35,10 +37,17 @@ impl NavPage {
             Self::Dock => icons::get_icon("dock-bottom-symbolic", 18),
             Self::Panel => icons::get_icon("dock-top-symbolic", 18),
             Self::Layouts => icons::get_icon("view-coverflow-symbolic", 18),
+            Self::Snapshots => icons::get_icon("snapshots-symbolic", 18),
         }
     }
 
     pub fn all() -> &'static [Self] {
-        &[Self::ColorSchemes, Self::Dock, Self::Panel, Self::Layouts]
+        &[
+            Self::ColorSchemes,
+            Self::Dock,
+            Self::Panel,
+            Self::Layouts,
+            Self::Snapshots,
+        ]
     }
 }

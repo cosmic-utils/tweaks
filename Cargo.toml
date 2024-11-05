@@ -17,6 +17,7 @@ ron = "0.8.1"
 rust-embed = "8.3.0"
 paste = "1.0"
 anyhow = "1.0.91"
+chrono = { version = "0.4.38", features = ["serde"] }
 
 [dependencies.libcosmic]
 git = "https://github.com/pop-os/libcosmic.git"

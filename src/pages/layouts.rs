@@ -82,7 +82,7 @@ impl Layouts {
                     )
                     .into(),
             ])
-            .spacing(spacing.space_s),
+            .spacing(spacing.space_xs),
         )
         .into()
     }

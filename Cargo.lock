@@ -832,6 +832,7 @@ dependencies = [
  "iana-time-zone",
  "js-sys",
  "num-traits",
+ "serde",
  "wasm-bindgen",
  "windows-targets 0.52.6",
 ]
@@ -1126,6 +1127,7 @@ version = "0.1.2"
 dependencies = [
  "anyhow",
  "ashpd 0.8.1",
+ "chrono",
  "cosmic-ext-config-templates",
  "cosmic-panel-config",
  "dirs",
