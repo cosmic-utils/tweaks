@@ -24,13 +24,13 @@ Panel((
                 size_wings: None,
                 size_center: None,
                 expand_to_edges: true,
-                padding: 4,
+                padding: 0,
                 spacing: 4,
                 border_radius: 0,
                 exclusive_zone: true,
                 autohide: None,
                 margin: 0,
-                opacity: 0.91,
+                opacity: 0.9,
             ),
             (
                 name: "Dock",
@@ -50,23 +50,23 @@ Panel((
                 size_wings: None,
                 size_center: None,
                 expand_to_edges: false,
-                padding: 6,
-                spacing: 4,
+                padding: 0,
+                spacing: 0,
                 border_radius: 8,
                 exclusive_zone: true,
                 autohide: None,
                 margin: 4,
-                opacity: 1.0,
+                opacity: 0.9,
             ),
         ],
     ),
     panel_config_version: 1,
     panel_button_config: (
         configs: {
-            "Panel": (
+            "Dock": (
                 force_presentation: Some(Icon),
             ),
-            "Dock": (
+            "Panel": (
                 force_presentation: Some(Icon),
             ),
         },
