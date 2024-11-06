@@ -28,7 +28,9 @@ use crate::{
     pages::{
         self,
         color_schemes::{config::ColorScheme, preview, ColorSchemeProvider, ColorSchemes},
+        dock::Dock,
         layouts::Layouts,
+        panel::Panel,
         snapshots::{config::SnapshotKind, Snapshots},
     },
     settings::{AppTheme, TweaksSettings, CONFIG_VERSION},
@@ -46,6 +48,8 @@ pub struct TweakTool {
     key_binds: HashMap<KeyBind, TweaksAction>,
     modifiers: Modifiers,
     color_schemes: ColorSchemes,
+    dock: Dock,
+    panel: Panel,
     layouts: Layouts,
     snapshots: Snapshots,
     context_page: ContextPage,
@@ -184,6 +188,8 @@ impl Application for TweakTool {
             modifiers: Modifiers::empty(),
             color_schemes: ColorSchemes::default(),
             layouts: Layouts::default(),
+            dock: Dock::default(),
+            panel: Panel::default(),
             snapshots: Snapshots::default(),
             context_page: ContextPage::About,
             app_themes: vec![fl!("match-desktop"), fl!("dark"), fl!("light")],
@@ -365,8 +371,8 @@ impl Application for TweakTool {
                 .view()
                 .map(Box::new)
                 .map(Message::ColorSchemes),
-            Page::Dock => pages::dock::Dock::default().view().map(Message::Dock),
-            Page::Panel => pages::panel::Panel::default().view().map(Message::Panel),
+            Page::Dock => self.dock.view().map(Message::Dock),
+            Page::Panel => self.panel.view().map(Message::Panel),
             Page::Layouts => self.layouts.view().map(Message::Layouts),
             Page::Snapshots => self.snapshots.view().map(Message::Snapshots),
         };
@@ -471,16 +477,12 @@ impl Application for TweakTool {
                 }
                 self.set_context_title(page.clone().title());
             }
-            Message::Dock(message) => commands.push(
-                pages::dock::Dock::default()
-                    .update(message)
-                    .map(cosmic::app::Message::App),
-            ),
-            Message::Panel(message) => commands.push(
-                pages::panel::Panel::default()
-                    .update(message)
-                    .map(cosmic::app::Message::App),
-            ),
+            Message::Dock(message) => {
+                commands.push(self.dock.update(message).map(cosmic::app::Message::App))
+            }
+            Message::Panel(message) => {
+                commands.push(self.panel.update(message).map(cosmic::app::Message::App))
+            }
             Message::Layouts(message) => match message {
                 _ => commands.push(self.layouts.update(message).map(cosmic::app::Message::App)),
             },
