@@ -60,6 +60,17 @@
     <id>com.system76.CosmicApplication</id>
   </provides>
   <releases>
+    <release version="0.1.3" date="2024-11-06">
+      <description>
+        <p>Snapshots and toolkit improvements 🚀</p>
+        <p>Tweak without worries with snapshots, a simple way to save the state of your desktop and restore it later on, everytime the app opens a snapshot is created in case you need to go back to a previous state.</p>
+        <ul>
+          <li>Create snapshots of your own</li>
+          <li>Includes a revamped about page</li>
+          <li>Borders have been added to the window</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.1.2" date="2024-11-04">
       <description>
         <p>Layouts are here!</p>

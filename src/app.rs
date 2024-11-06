@@ -169,7 +169,7 @@ impl Application for TweakTool {
             .set_application_icon(Self::APP_ID)
             .set_developer_name("Eduardo Flores")
             .set_license_type("GPL-3.0")
-            .set_version("0.1.2")
+            .set_version("0.1.3")
             .set_support_url("https://github.com/cosmic-utils/tweaks/issues")
             .set_repository_url("https://github.com/cosmic-utils/tweaks")
             .set_developers([("Eduardo Flores".into(), "edfloreshz@proton.me".into())]);
