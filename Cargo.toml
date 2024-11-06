@@ -22,7 +22,7 @@ chrono = { version = "0.4.38", features = ["serde"] }
 [dependencies.libcosmic]
 git = "https://github.com/pop-os/libcosmic.git"
 default-features = false
-features = ["multi-window", "tokio", "winit", "wgpu"]
+features = ["multi-window", "tokio", "winit", "wgpu", "desktop"]
 
 [dependencies.cosmic-ext-config-templates]
 git = "https://github.com/ryanabx/cosmic-ext-config-templates"
@@ -41,9 +41,6 @@ features = ["derive"]
 [dependencies.tokio]
 version = "1.35.1"
 features = ["macros", "fs", "rt"]
-
-[build-dependencies]
-vergen = { version = "8", features = ["git", "gitcl"] }
 
 [patch."https://github.com/smithay/client-toolkit.git"]
 sctk = { package = "smithay-client-toolkit", version = "=0.19.2" }

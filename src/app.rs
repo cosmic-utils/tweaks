@@ -4,7 +4,7 @@ use std::{
 };
 
 use cosmic::{
-    app::{self, Core},
+    app::{self, about::About, Core},
     cosmic_config::{self, Update},
     cosmic_theme::{self, ThemeMode},
     iced::{
@@ -40,6 +40,7 @@ pub mod style;
 pub struct TweakTool {
     core: Core,
     nav_model: segmented_button::SingleSelectModel,
+    about: About,
     dialog_pages: VecDeque<DialogPage>,
     dialog_text_input: widget::Id,
     key_binds: HashMap<KeyBind, TweaksAction>,
@@ -83,13 +84,13 @@ pub enum Message {
     SaveNewColorScheme(String),
     ToggleContextPage(ContextPage),
     ToggleDialogPage(DialogPage),
-    LaunchUrl(String),
     AppTheme(usize),
     FetchAvailableColorSchemes(ColorSchemeProvider, usize),
     SetAvailableColorSchemes(Vec<ColorScheme>),
     Key(Modifiers, Key),
     Modifiers(Modifiers),
     SystemThemeModeChange,
+    Cosmic(cosmic::app::cosmic::Message),
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]
@@ -146,6 +147,78 @@ impl Application for TweakTool {
         &mut self.core
     }
 
+    fn init(core: Core, flags: Self::Flags) -> (Self, Task<app::Message<Self::Message>>) {
+        log::info!("Starting Cosmic Tweak Tool...");
+
+        let mut nav_model = segmented_button::SingleSelectModel::default();
+        for &nav_page in Page::all() {
+            let id = nav_model
+                .insert()
+                .icon(nav_page.icon())
+                .text(nav_page.title())
+                .data::<Page>(nav_page)
+                .id();
+
+            if nav_page == Page::default() {
+                nav_model.activate(id);
+            }
+        }
+
+        let about = About::default()
+            .set_application_name(fl!("app-title"))
+            .set_application_icon(Self::APP_ID)
+            .set_developer_name("Eduardo Flores")
+            .set_license_type("GPL-3.0")
+            .set_version("0.1.2")
+            .set_support_url("https://github.com/cosmic-utils/tweaks/issues")
+            .set_repository_url("https://github.com/cosmic-utils/tweaks")
+            .set_developers([("Eduardo Flores".into(), "edfloreshz@proton.me".into())]);
+
+        let mut app = TweakTool {
+            core,
+            nav_model,
+            about,
+            dialog_pages: VecDeque::new(),
+            dialog_text_input: widget::Id::unique(),
+            key_binds: key_binds(),
+            modifiers: Modifiers::empty(),
+            color_schemes: ColorSchemes::default(),
+            layouts: Layouts::default(),
+            snapshots: Snapshots::default(),
+            context_page: ContextPage::About,
+            app_themes: vec![fl!("match-desktop"), fl!("dark"), fl!("light")],
+            config_handler: flags.config_handler,
+            config: flags.config,
+            available: vec![],
+            status: Status::Idle,
+            limit: 15,
+            offset: 0,
+        };
+
+        let mut tasks = vec![
+            app.update(Message::FetchAvailableColorSchemes(
+                ColorSchemeProvider::CosmicThemes,
+                app.limit,
+            )),
+            app.update(Message::Snapshots(
+                pages::snapshots::Message::CreateSnapshot(
+                    "Application opened".into(),
+                    SnapshotKind::System,
+                ),
+            )),
+        ];
+
+        if let Some(id) = app.core.main_window_id() {
+            tasks.push(app.set_window_title(fl!("app-title"), id));
+        }
+
+        (app, Task::batch(tasks))
+    }
+
+    fn about(&self) -> Option<&app::about::About> {
+        Some(&self.about)
+    }
+
     fn header_start(&self) -> Vec<Element<Self::Message>> {
         let menu_bar = menu::bar(vec![menu::Tree::with_children(
             menu::root(fl!("view")),
@@ -159,10 +232,6 @@ impl Application for TweakTool {
         )]);
 
         vec![menu_bar.into()]
-    }
-
-    fn header_center(&self) -> Vec<Element<Self::Message>> {
-        vec![widget::text::text(fl!("app-title")).into()]
     }
 
     fn nav_model(&self) -> Option<&widget::nav_bar::Model> {
@@ -194,7 +263,7 @@ impl Application for TweakTool {
         }
 
         Some(match self.context_page {
-            ContextPage::About => self.about(),
+            ContextPage::About => self.about_view()?.map(Message::Cosmic),
             ContextPage::Settings => self.settings(),
         })
     }
@@ -285,63 +354,6 @@ impl Application for TweakTool {
         Some(dialog.into())
     }
 
-    fn init(core: Core, flags: Self::Flags) -> (Self, Task<app::Message<Self::Message>>) {
-        log::info!("Starting Cosmic Tweak Tool...");
-
-        let mut nav_model = segmented_button::SingleSelectModel::default();
-        for &nav_page in Page::all() {
-            let id = nav_model
-                .insert()
-                .icon(nav_page.icon())
-                .text(nav_page.title())
-                .data::<Page>(nav_page)
-                .id();
-
-            if nav_page == Page::default() {
-                nav_model.activate(id);
-            }
-        }
-
-        let mut app = TweakTool {
-            nav_model,
-            core,
-            dialog_pages: VecDeque::new(),
-            dialog_text_input: widget::Id::unique(),
-            key_binds: key_binds(),
-            modifiers: Modifiers::empty(),
-            color_schemes: ColorSchemes::default(),
-            layouts: Layouts::default(),
-            snapshots: Snapshots::default(),
-            context_page: ContextPage::About,
-            app_themes: vec![fl!("match-desktop"), fl!("dark"), fl!("light")],
-            config_handler: flags.config_handler,
-            config: flags.config,
-            available: vec![],
-            status: Status::Idle,
-            limit: 15,
-            offset: 0,
-        };
-
-        let mut tasks = vec![
-            app.update(Message::FetchAvailableColorSchemes(
-                ColorSchemeProvider::CosmicThemes,
-                app.limit,
-            )),
-            app.update(Message::Snapshots(
-                pages::snapshots::Message::CreateSnapshot(
-                    "Application opened".into(),
-                    SnapshotKind::System,
-                ),
-            )),
-        ];
-
-        if let Some(id) = app.core.main_window_id() {
-            tasks.push(app.set_window_title(fl!("app-title"), id));
-        }
-
-        (app, Task::batch(tasks))
-    }
-
     fn view(&self) -> Element<Self::Message> {
         let spacing = cosmic::theme::active().cosmic().spacing;
         let entity = self.nav_model.active();
@@ -397,6 +409,11 @@ impl Application for TweakTool {
 
         let mut commands = vec![];
         match message {
+            Message::Cosmic(message) => {
+                commands.push(cosmic::app::command::message(cosmic::app::message::cosmic(
+                    message,
+                )));
+            }
             Message::FetchAvailableColorSchemes(provider, limit) => {
                 if self.offset == 0 {
                     self.status = Status::Loading;
@@ -445,12 +462,6 @@ impl Application for TweakTool {
                 config_set!(app_theme, app_theme);
                 return self.update_config();
             }
-            Message::LaunchUrl(url) => match open::that_detached(&url) {
-                Ok(()) => {}
-                Err(err) => {
-                    log::warn!("failed to open {:?}: {}", url, err);
-                }
-            },
             Message::ToggleContextPage(page) => {
                 if self.context_page == page {
                     self.core.window.show_context = !self.core.window.show_context;
@@ -600,37 +611,6 @@ impl Application for TweakTool {
 impl TweakTool {
     fn update_config(&mut self) -> Task<cosmic::app::Message<Message>> {
         app::command::set_theme(self.config.app_theme.theme())
-    }
-
-    fn about(&self) -> Element<Message> {
-        let spacing = cosmic::theme::active().cosmic().spacing;
-        let repository = "https://github.com/cosmic-utils/tweaks";
-        let hash = env!("VERGEN_GIT_SHA");
-        let short_hash: String = hash.chars().take(7).collect();
-        let date = env!("VERGEN_GIT_COMMIT_DATE");
-        widget::column::with_children(vec![
-            widget::svg(widget::svg::Handle::from_memory(
-                &include_bytes!("../res/icons/hicolor/scalable/apps/icon.svg")[..],
-            ))
-            .into(),
-            widget::text::title3(fl!("app-title")).into(),
-            widget::button::link(repository)
-                .on_press(Message::LaunchUrl(repository.to_string()))
-                .padding(spacing.space_none)
-                .into(),
-            widget::button::link(fl!(
-                "git-description",
-                hash = short_hash.as_str(),
-                date = date
-            ))
-            .on_press(Message::LaunchUrl(format!("{repository}/commits/{hash}")))
-            .padding(spacing.space_none)
-            .into(),
-        ])
-        .align_x(Alignment::Center)
-        .spacing(spacing.space_xxs)
-        .width(Length::Fill)
-        .into()
     }
 
     fn settings(&self) -> Element<Message> {
