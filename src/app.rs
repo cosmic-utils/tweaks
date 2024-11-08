@@ -14,7 +14,7 @@ use cosmic::{
     },
     widget::{
         self,
-        menu::{self, Action, KeyBind},
+        menu::{self, Action, ItemHeight, ItemWidth, KeyBind},
         segmented_button,
     },
     Application, ApplicationExt, Apply, Element, Task,
@@ -232,10 +232,14 @@ impl Application for TweakTool {
                 &self.key_binds,
                 vec![
                     menu::Item::Button(fl!("settings"), TweaksAction::Settings),
+                    menu::Item::Divider,
                     menu::Item::Button(fl!("about"), TweaksAction::About),
                 ],
             ),
-        )]);
+        )])
+        .item_height(ItemHeight::Dynamic(40))
+        .item_width(ItemWidth::Uniform(240))
+        .spacing(4.0);
 
         vec![menu_bar.into()]
     }
