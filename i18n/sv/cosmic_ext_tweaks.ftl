@@ -36,7 +36,9 @@ save-current-color-scheme = Spara nuvarande färgschema
 color-scheme-name = Färgschema namn
 
 ## Om
-git-description = Git commit {$hash} på {$date}
+repository = Förråd
+support = Support
+website = Hemsida
 
 ## Inställningar
 settings = Inställningar
