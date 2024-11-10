@@ -61,7 +61,9 @@ user = User
 color-scheme-name = Color scheme name
 
 ## About
-git-description = Git commit {$hash} on {$date}
+repository = Repository
+support = Support
+website = Website
 
 ## Settings
 settings = Settings

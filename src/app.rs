@@ -4,7 +4,7 @@ use std::{
 };
 
 use cosmic::{
-    app::{self, about::About, Core},
+    app::{self, Core},
     cosmic_config::{self, Update},
     cosmic_theme::{self, ThemeMode},
     iced::{
@@ -14,6 +14,7 @@ use cosmic::{
     },
     widget::{
         self,
+        about::About,
         menu::{self, Action, ItemHeight, ItemWidth, KeyBind},
         segmented_button,
     },
@@ -94,7 +95,7 @@ pub enum Message {
     Key(Modifiers, Key),
     Modifiers(Modifiers),
     SystemThemeModeChange,
-    Cosmic(cosmic::app::cosmic::Message),
+    Open(String),
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]
@@ -169,14 +170,19 @@ impl Application for TweakTool {
         }
 
         let about = About::default()
-            .set_application_name(fl!("app-title"))
-            .set_application_icon(Self::APP_ID)
-            .set_developer_name("Eduardo Flores")
-            .set_license_type("GPL-3.0")
-            .set_version("0.1.3")
-            .set_support_url("https://github.com/cosmic-utils/tweaks/issues")
-            .set_repository_url("https://github.com/cosmic-utils/tweaks")
-            .set_developers([("Eduardo Flores".into(), "edfloreshz@proton.me".into())]);
+            .name(fl!("app-title"))
+            .icon(Self::APP_ID)
+            .version("0.1.3")
+            .author("Eduardo Flores")
+            .license("GPL-3.0-only")
+            .links([
+                (
+                    fl!("support"),
+                    "https://github.com/cosmic-utils/tweaks/issues",
+                ),
+                (fl!("repository"), "https://github.com/cosmic-utils/tweaks"),
+            ])
+            .developers([("Eduardo Flores".into(), "edfloreshz@proton.me".into())]);
 
         let mut app = TweakTool {
             core,
@@ -219,10 +225,6 @@ impl Application for TweakTool {
         }
 
         (app, Task::batch(tasks))
-    }
-
-    fn about(&self) -> Option<&app::about::About> {
-        Some(&self.about)
     }
 
     fn header_start(&self) -> Vec<Element<Self::Message>> {
@@ -273,7 +275,7 @@ impl Application for TweakTool {
         }
 
         Some(match self.context_page {
-            ContextPage::About => self.about_view()?.map(Message::Cosmic),
+            ContextPage::About => widget::about(&self.about, Message::Open),
             ContextPage::Settings => self.settings(),
         })
     }
@@ -287,30 +289,30 @@ impl Application for TweakTool {
         let spacing = cosmic::theme::active().cosmic().spacing;
 
         let dialog = match dialog_page {
-            DialogPage::SaveCurrentColorScheme(name) => {
-                widget::dialog(fl!("save-current-color-scheme"))
-                    .primary_action(
-                        widget::button::suggested(fl!("save"))
-                            .on_press_maybe(Some(Message::DialogComplete)),
-                    )
-                    .secondary_action(
-                        widget::button::standard(fl!("cancel")).on_press(Message::DialogCancel),
-                    )
-                    .control(
-                        widget::column::with_children(vec![
-                            widget::text::body(fl!("color-scheme-name")).into(),
-                            widget::text_input("", name.as_str())
-                                .id(self.dialog_text_input.clone())
-                                .on_input(move |name| {
-                                    Message::DialogUpdate(DialogPage::SaveCurrentColorScheme(name))
-                                })
-                                .on_submit(Message::DialogComplete)
-                                .into(),
-                        ])
-                        .spacing(spacing.space_xxs),
-                    )
-            }
-            DialogPage::CreateSnapshot(name) => widget::dialog(fl!("create-snapshot"))
+            DialogPage::SaveCurrentColorScheme(name) => widget::dialog()
+                .title(fl!("save-current-color-scheme"))
+                .primary_action(
+                    widget::button::suggested(fl!("save"))
+                        .on_press_maybe(Some(Message::DialogComplete)),
+                )
+                .secondary_action(
+                    widget::button::standard(fl!("cancel")).on_press(Message::DialogCancel),
+                )
+                .control(
+                    widget::column::with_children(vec![
+                        widget::text::body(fl!("color-scheme-name")).into(),
+                        widget::text_input("", name.as_str())
+                            .id(self.dialog_text_input.clone())
+                            .on_input(move |name| {
+                                Message::DialogUpdate(DialogPage::SaveCurrentColorScheme(name))
+                            })
+                            .on_submit(Message::DialogComplete)
+                            .into(),
+                    ])
+                    .spacing(spacing.space_xxs),
+                ),
+            DialogPage::CreateSnapshot(name) => widget::dialog()
+                .title(fl!("create-snapshot"))
                 .body(fl!("create-snapshot-description"))
                 .primary_action(
                     widget::button::suggested(fl!("create"))
@@ -346,7 +348,8 @@ impl Application for TweakTool {
                     Status::Loading => None,
                 };
 
-                let mut dialog = widget::dialog(fl!("available"))
+                let mut dialog = widget::dialog()
+                    .title(fl!("available"))
                     .body(fl!("available-color-schemes-body"))
                     .secondary_action(
                         widget::button::standard(fl!("close")).on_press(Message::DialogCancel),
@@ -419,10 +422,10 @@ impl Application for TweakTool {
 
         let mut commands = vec![];
         match message {
-            Message::Cosmic(message) => {
-                commands.push(cosmic::app::command::message(cosmic::app::message::cosmic(
-                    message,
-                )));
+            Message::Open(url) => {
+                if let Err(err) = open::that_detached(url) {
+                    log::error!("{err}")
+                }
             }
             Message::FetchAvailableColorSchemes(provider, limit) => {
                 if self.offset == 0 {
