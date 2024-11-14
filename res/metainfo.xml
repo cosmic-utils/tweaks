@@ -35,11 +35,11 @@
   <icon type="remote" height="256" width="256">https://raw.githubusercontent.com/cosmic-utils/tweaks/master/res/icons/hicolor/scalable/apps/icon.svg</icon>
   <screenshots>
     <screenshot type="default">
-      <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/window-light.png</image>
+      <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/color-schemes-light.png</image>
       <caption>Light mode</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/window-dark.png</image>
+      <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/color-schemes-dark.png</image>
       <caption>Dark mode</caption>
     </screenshot>
   </screenshots>
