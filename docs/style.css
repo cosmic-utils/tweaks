@@ -1,0 +1,19 @@
+@media (prefers-color-scheme: dark) {
+    #screenshot {
+        content: url("https://raw.githubusercontent.com/cosmic-utils/tweaks/refs/heads/main/res/screenshots/color-schemes-dark.png?raw=true");
+    }
+
+    html {
+        background: linear-gradient(to right bottom, #005a41ff, #059f7aff);
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    #screenshot {
+        content: url("https://raw.githubusercontent.com/cosmic-utils/tweaks/refs/heads/main/res/screenshots/color-schemes-light.png?raw=true");
+    }
+
+    body {
+        background: linear-gradient(to right bottom, #88ffe1ff, #c9fff1ff);
+    }
+}
