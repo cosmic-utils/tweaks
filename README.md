@@ -1,7 +1,8 @@
 <div align="center">
     <img src="res/icons/hicolor/scalable/apps/icon.svg" width="300"/>
     <h1>Tweaks</h1>
-    <p>Customize your COSMIC™ desktop</p>
+    <h3>Beyond the limits of your desktop</h3>
+    <p>A tweaking tool offering access to advanced settings and features for <a href="https://system76.com/cosmic/">COSMIC™</a></p>
     <a href="https://flathub.org/apps/dev.edfloreshz.CosmicTweaks"><img src="https://flathub.org/api/badge?svg&locale=en" /></a>
     <br/><br/>
 </div>
