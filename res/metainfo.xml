@@ -2,7 +2,7 @@
 <component type="desktop-application">
   <id>dev.edfloreshz.CosmicTweaks</id>
   <name>Tweaks</name>
-  <summary>Customize your COSMIC™ desktop</summary>
+  <summary>Beyond the limits of your desktop</summary>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-only</project_license>
   <project_group>COSMIC</project_group>
@@ -19,28 +19,60 @@
   <url type="translate">https://github.com/cosmic-utils/tweaks/tree/main/i18n</url>
   <content_rating type="oars-1.1" />
   <description>
-    <p>Tweak and personalize your COSMIC desktop beyond infinity!</p>
+    <p>Personalize your COSMIC desktop beyond infinity</p>
     <ul>
-      <li>Save current color scheme</li>
-      <li>Import existing color schemes</li>
-      <li>Download color schemes from cosmic-themes.org</li>
+      <li>Save, import and download color schemes</li>
       <li>Customize the panel and dock</li>
+      <li>Replicate other desktop's layouts</li>
+      <li>Fearless tweaking with snapshots</li>
     </ul>
   </description>
   <branding>
-    <color type="primary" scheme_preference="light">#eaeaff</color>
-    <color type="primary" scheme_preference="dark">#280c4b</color>
+    <color type="primary" scheme_preference="light">#8affe1</color>
+    <color type="primary" scheme_preference="dark">#007d5c</color>
   </branding>
   <launchable type="desktop-id">dev.edfloreshz.CosmicTweaks.desktop</launchable>
   <icon type="remote" height="256" width="256">https://raw.githubusercontent.com/cosmic-utils/tweaks/master/res/icons/hicolor/scalable/apps/icon.svg</icon>
   <screenshots>
     <screenshot type="default">
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/color-schemes-light.png</image>
-      <caption>Light mode</caption>
+      <caption>Color schemes page with light mode</caption>
     </screenshot>
     <screenshot>
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/color-schemes-dark.png</image>
-      <caption>Dark mode</caption>
+      <caption>Color schemes page with dark mode</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/dock-light.png</image>
+      <caption>Dock page with light mode</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/dock-dark.png</image>
+      <caption>Dock page with dark mode</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/panel-light.png</image>
+      <caption>Panel page with light mode</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/panel-dark.png</image>
+      <caption>Panel page with dark mode</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/layouts-light.png</image>
+      <caption>Layouts page with light mode</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/layouts-dark.png</image>
+      <caption>Layouts page with dark mode</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/snapshots-light.png</image>
+      <caption>Snapshots page with light mode</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/snapshots-dark.png</image>
+      <caption>Snapshots page with dark mode</caption>
     </screenshot>
   </screenshots>
   <requires>
