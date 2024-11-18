@@ -1,4 +1,7 @@
-use std::path::PathBuf;
+use std::{
+    fmt::Display,
+    path::{Path, PathBuf},
+};
 
 use crate::{app::TweakTool, fl};
 use chrono::{NaiveDateTime, Utc};
@@ -9,16 +12,10 @@ use cosmic::{
 use cosmic_ext_config_templates::Schema;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Clone, Deserialize, PartialEq, CosmicConfigEntry)]
+#[derive(Debug, Serialize, Default, Clone, Deserialize, PartialEq, CosmicConfigEntry)]
 #[version = 1]
 pub struct SnapshotsConfig {
     pub snapshots: Vec<Snapshot>,
-}
-
-impl Default for SnapshotsConfig {
-    fn default() -> Self {
-        Self { snapshots: vec![] }
-    }
 }
 
 impl SnapshotsConfig {
@@ -56,19 +53,19 @@ pub enum SnapshotKind {
     User,
 }
 
-impl ToString for SnapshotKind {
-    fn to_string(&self) -> String {
+impl Display for SnapshotKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::System => fl!("system"),
-            Self::User => fl!("user"),
+            Self::System => write!(f, "{}", fl!("system")),
+            Self::User => write!(f, "{}", fl!("user")),
         }
     }
 }
 
 impl Snapshot {
-    pub fn new(name: &str, path: &PathBuf, kind: SnapshotKind) -> Self {
+    pub fn new(name: &str, path: &Path, kind: SnapshotKind) -> Self {
         let created = Utc::now().naive_local();
-        let path = path.join(&name).with_extension("ron");
+        let path = path.join(name).with_extension("ron");
 
         Self {
             name: name.to_string(),

@@ -4,7 +4,7 @@ use std::{
 };
 
 use cosmic::{
-    app::{self, Core},
+    app::{self, context_drawer::ContextDrawer, Core},
     cosmic_config::{self, Update},
     cosmic_theme::{self, ThemeMode},
     iced::{
@@ -88,6 +88,7 @@ pub enum Message {
     DialogCancel,
     SaveNewColorScheme(String),
     ToggleContextPage(ContextPage),
+    ToggleContextDrawer,
     ToggleDialogPage(DialogPage),
     AppTheme(usize),
     FetchAvailableColorSchemes(ColorSchemeProvider, usize),
@@ -182,7 +183,7 @@ impl Application for TweakTool {
                 ),
                 (fl!("repository"), "https://github.com/cosmic-utils/tweaks"),
             ])
-            .developers([("Eduardo Flores".into(), "edfloreshz@proton.me".into())]);
+            .developers([("Eduardo Flores", "edfloreshz@proton.me")]);
 
         let mut app = TweakTool {
             core,
@@ -269,14 +270,19 @@ impl Application for TweakTool {
         Task::batch(vec![self.set_window_title(title, win_id)])
     }
 
-    fn context_drawer(&self) -> Option<Element<Message>> {
+    fn context_drawer(&self) -> Option<ContextDrawer<Self::Message>> {
         if !self.core.window.show_context {
             return None;
         }
 
         Some(match self.context_page {
-            ContextPage::About => widget::about(&self.about, Message::Open),
-            ContextPage::Settings => self.settings(),
+            ContextPage::About => {
+                app::context_drawer::about(&self.about, Message::Open, Message::ToggleContextDrawer)
+            }
+            ContextPage::Settings => {
+                app::context_drawer::context_drawer(self.settings(), Message::ToggleContextDrawer)
+                    .title(self.context_page.title())
+            }
         })
     }
 
@@ -420,7 +426,7 @@ impl Application for TweakTool {
             };
         }
 
-        let mut commands = vec![];
+        let mut tasks = vec![];
         match message {
             Message::Open(url) => {
                 if let Err(err) = open::that_detached(url) {
@@ -437,7 +443,7 @@ impl Application for TweakTool {
                 self.offset += self.limit;
                 let limit = self.limit;
                 let offset = self.offset;
-                commands.push(Task::perform(
+                tasks.push(Task::perform(
                     async move {
                         let url = match provider {
                             ColorSchemeProvider::CosmicThemes => {
@@ -479,25 +485,27 @@ impl Application for TweakTool {
                 if self.context_page == page {
                     self.core.window.show_context = !self.core.window.show_context;
                 } else {
-                    self.context_page = page.clone();
+                    self.context_page = page;
                     self.core.window.show_context = true;
                 }
-                self.set_context_title(page.clone().title());
+            }
+            Message::ToggleContextDrawer => {
+                self.core.window.show_context = !self.core.window.show_context;
             }
             Message::Dock(message) => {
-                commands.push(self.dock.update(message).map(cosmic::app::Message::App))
+                tasks.push(self.dock.update(message).map(cosmic::app::Message::App))
             }
             Message::Panel(message) => {
-                commands.push(self.panel.update(message).map(cosmic::app::Message::App))
+                tasks.push(self.panel.update(message).map(cosmic::app::Message::App))
             }
-            Message::Layouts(message) => match message {
-                _ => commands.push(self.layouts.update(message).map(cosmic::app::Message::App)),
-            },
+            Message::Layouts(message) => {
+                tasks.push(self.layouts.update(message).map(cosmic::app::Message::App))
+            }
             Message::Snapshots(message) => match message {
-                pages::snapshots::Message::OpenSaveDialog => commands.push(self.update(
+                pages::snapshots::Message::OpenSaveDialog => tasks.push(self.update(
                     Message::ToggleDialogPage(DialogPage::CreateSnapshot(String::new())),
                 )),
-                _ => commands.push(
+                _ => tasks.push(
                     self.snapshots
                         .update(message)
                         .map(cosmic::app::Message::App),
@@ -505,14 +513,14 @@ impl Application for TweakTool {
             },
             Message::ColorSchemes(message) => match *message {
                 pages::color_schemes::Message::SaveCurrentColorScheme(None) => {
-                    commands.push(self.update(Message::ToggleDialogPage(
+                    tasks.push(self.update(Message::ToggleDialogPage(
                         DialogPage::SaveCurrentColorScheme(String::new()),
                     )))
                 }
-                pages::color_schemes::Message::OpenAvailableThemes => commands.push(
+                pages::color_schemes::Message::OpenAvailableThemes => tasks.push(
                     self.update(Message::ToggleDialogPage(DialogPage::AvailableColorSchemes)),
                 ),
-                _ => commands.push(
+                _ => tasks.push(
                     self.color_schemes
                         .update(*message)
                         .map(Box::new)
@@ -521,13 +529,13 @@ impl Application for TweakTool {
                 ),
             },
             Message::SaveNewColorScheme(name) => {
-                commands.push(self.update(Message::ColorSchemes(Box::new(
+                tasks.push(self.update(Message::ColorSchemes(Box::new(
                     pages::color_schemes::Message::SaveCurrentColorScheme(Some(name)),
                 ))))
             }
             Message::ToggleDialogPage(dialog_page) => {
                 self.dialog_pages.push_back(dialog_page);
-                commands.push(widget::text_input::focus(self.dialog_text_input.clone()));
+                tasks.push(widget::text_input::focus(self.dialog_text_input.clone()));
             }
             Message::DialogUpdate(dialog_page) => {
                 self.dialog_pages[0] = dialog_page;
@@ -536,10 +544,10 @@ impl Application for TweakTool {
                 if let Some(dialog_page) = self.dialog_pages.pop_front() {
                     match dialog_page {
                         DialogPage::SaveCurrentColorScheme(name) => {
-                            commands.push(self.update(Message::SaveNewColorScheme(name)))
+                            tasks.push(self.update(Message::SaveNewColorScheme(name)))
                         }
                         DialogPage::CreateSnapshot(name) => {
-                            commands.push(self.update(Message::Snapshots(
+                            tasks.push(self.update(Message::Snapshots(
                                 pages::snapshots::Message::CreateSnapshot(name, SnapshotKind::User),
                             )))
                         }
@@ -561,10 +569,10 @@ impl Application for TweakTool {
                 self.modifiers = modifiers;
             }
             Message::SystemThemeModeChange => {
-                commands.push(self.update_config());
+                tasks.push(self.update_config());
             }
         }
-        Task::batch(commands)
+        Task::batch(tasks)
     }
 
     fn subscription(&self) -> cosmic::iced::Subscription<Self::Message> {

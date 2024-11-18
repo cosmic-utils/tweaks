@@ -22,7 +22,7 @@ chrono = { version = "0.4.38", features = ["serde"] }
 [dependencies.libcosmic]
 git = "https://github.com/pop-os/libcosmic.git"
 default-features = false
-features = ["multi-window", "tokio", "winit", "wgpu", "desktop"]
+features = ["multi-window", "tokio", "winit", "wgpu", "about"]
 
 [dependencies.cosmic-ext-config-templates]
 git = "https://github.com/ryanabx/cosmic-ext-config-templates"
