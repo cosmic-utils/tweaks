@@ -33,6 +33,16 @@ impl IconCache {
                 );
             };
         }
+
+        // Menu items
+        bundle!("cross-small-square-filled-symbolic", 14);
+        bundle!("edit-symbolic", 14);
+        bundle!("face-smile-big-symbolic", 14);
+        bundle!("plus-square-filled-symbolic", 14);
+        bundle!("settings-symbolic", 14);
+        bundle!("tabs-stack-symbolic", 14);
+        bundle!("info-outline-symbolic", 14);
+
         bundle!("size-horizontally-symbolic", 18);
         bundle!("dock-bottom-symbolic", 18);
         bundle!("dock-top-symbolic", 18);

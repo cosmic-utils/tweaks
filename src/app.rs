@@ -24,7 +24,7 @@ use key_bind::key_binds;
 use pages::color_schemes::providers::cosmic_themes::CosmicTheme;
 
 use crate::{
-    core::nav::Page,
+    core::{icons, nav::Page},
     fl,
     pages::{
         self,
@@ -234,9 +234,17 @@ impl Application for TweakTool {
             menu::items(
                 &self.key_binds,
                 vec![
-                    menu::Item::Button(fl!("settings"), TweaksAction::Settings),
+                    menu::Item::Button(
+                        fl!("settings"),
+                        Some(icons::get_handle("settings-symbolic", 14)),
+                        TweaksAction::Settings,
+                    ),
                     menu::Item::Divider,
-                    menu::Item::Button(fl!("about"), TweaksAction::About),
+                    menu::Item::Button(
+                        fl!("about"),
+                        Some(icons::get_handle("info-outline-symbolic", 14)),
+                        TweaksAction::About,
+                    ),
                 ],
             ),
         )])
