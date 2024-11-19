@@ -24,7 +24,9 @@ use key_bind::key_binds;
 use pages::color_schemes::providers::cosmic_themes::CosmicTheme;
 
 use crate::{
-    core::{icons, nav::Page},
+    app::config::{AppTheme, TweaksConfig, CONFIG_VERSION},
+    app::nav::Page,
+    core::icons,
     fl,
     pages::{
         self,
@@ -34,10 +36,14 @@ use crate::{
         panel::Panel,
         snapshots::{config::SnapshotKind, Snapshots},
     },
-    settings::{AppTheme, TweaksSettings, CONFIG_VERSION},
 };
 
+pub mod config;
+pub mod cosmic_panel_button_config;
 mod key_bind;
+pub mod nav;
+pub mod resources;
+pub mod settings;
 pub mod style;
 
 pub struct TweakTool {
@@ -56,7 +62,7 @@ pub struct TweakTool {
     context_page: ContextPage,
     app_themes: Vec<String>,
     config_handler: Option<cosmic_config::Config>,
-    config: TweaksSettings,
+    config: TweaksConfig,
     available: Vec<ColorScheme>,
     status: Status,
     limit: usize,
@@ -133,7 +139,7 @@ impl Action for TweaksAction {
 #[derive(Clone, Debug)]
 pub struct Flags {
     pub config_handler: Option<cosmic_config::Config>,
-    pub config: TweaksSettings,
+    pub config: TweaksConfig,
 }
 
 impl Application for TweakTool {
@@ -215,7 +221,7 @@ impl Application for TweakTool {
             )),
             app.update(Message::Snapshots(
                 pages::snapshots::Message::CreateSnapshot(
-                    "Application opened".into(),
+                    fl!("application-opened"),
                     SnapshotKind::System,
                 ),
             )),

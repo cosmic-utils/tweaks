@@ -2,7 +2,7 @@ use super::{
     preview::{LayoutPreview, PanelProperties, Position},
     Message,
 };
-use crate::resources;
+use crate::app::resources;
 use cosmic::{widget, Element};
 use cosmic_ext_config_templates::Schema;
 use serde::{Deserialize, Serialize};

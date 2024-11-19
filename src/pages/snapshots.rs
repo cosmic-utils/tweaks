@@ -166,10 +166,10 @@ impl Snapshots {
                             match self.config.set_snapshots(helper, snapshots) {
                                 Ok(written) => {
                                     if !written {
-                                        log::error!("Failed to write layouts to config");
+                                        log::error!("Failed to write snapshots to config");
                                     }
                                 }
-                                Err(e) => log::error!("Failed to set layouts: {}", e),
+                                Err(e) => log::error!("Failed to set snapshots: {}", e),
                             }
                         }
                     }
@@ -195,10 +195,10 @@ impl Snapshots {
                     match self.config.set_snapshots(helper, snapshots) {
                         Ok(written) => {
                             if !written {
-                                log::error!("Failed to write layouts to config");
+                                log::error!("Failed to write snapshots to config");
                             }
                         }
-                        Err(e) => log::error!("Failed to set layouts: {}", e),
+                        Err(e) => log::error!("Failed to set snapshots: {}", e),
                     }
                 }
             }
