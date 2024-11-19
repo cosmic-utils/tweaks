@@ -22,7 +22,6 @@ installed = Installed
 available = Available
 loading = Loading...
 show-more = Show more
-settings = Settings
 about = About
 find-themes = Find themes
 

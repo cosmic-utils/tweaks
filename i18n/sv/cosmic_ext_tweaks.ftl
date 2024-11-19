@@ -16,7 +16,6 @@ installed = Installerat
 available = Tillgängligt
 loading = Laddar...
 show-more = Visa mer
-settings = Inställningar
 about = Om
 find-themes = Hitta teman
 
