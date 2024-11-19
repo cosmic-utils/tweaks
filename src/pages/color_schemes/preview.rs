@@ -29,7 +29,7 @@ pub fn installed<'a>(
             .padding(spacing.space_xxs)
             .into(),
             widget::row::with_children(vec![
-                widget::container(widget::text("Navigation"))
+                widget::container(widget::text(fl!("navigation")))
                     .padding(spacing.space_xxs)
                     .width(90.0)
                     .height(Length::Fill)
@@ -90,7 +90,7 @@ pub fn available<'a>(color_scheme: &ColorScheme) -> Element<'a, crate::app::Mess
             .padding([spacing.space_xxs, spacing.space_none])
             .into(),
         widget::row::with_children(vec![
-            widget::container(widget::text("Navigation"))
+            widget::container(widget::text(fl!("navigation")))
                 .padding(spacing.space_xxs)
                 .width(90.0)
                 .height(Length::Fill)

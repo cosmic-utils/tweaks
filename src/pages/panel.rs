@@ -6,10 +6,8 @@ use cosmic_panel_config::CosmicPanelConfig;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    core::{
-        cosmic_panel_button_config::{CosmicPanelButtonConfig, IndividualConfig, Override},
-        icons,
-    },
+    app::cosmic_panel_button_config::{CosmicPanelButtonConfig, IndividualConfig, Override},
+    core::icons,
     fl,
 };
 

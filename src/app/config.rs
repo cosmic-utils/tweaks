@@ -9,24 +9,24 @@ use crate::app::TweakTool;
 pub const CONFIG_VERSION: u64 = 1;
 
 #[derive(Clone, Default, Debug, Eq, PartialEq, Deserialize, Serialize, CosmicConfigEntry)]
-pub struct TweaksSettings {
+pub struct TweaksConfig {
     pub app_theme: AppTheme,
 }
 
-impl TweaksSettings {
+impl TweaksConfig {
     pub fn config_handler() -> Option<Config> {
         Config::new(TweakTool::APP_ID, CONFIG_VERSION).ok()
     }
 
-    pub fn config() -> TweaksSettings {
+    pub fn config() -> TweaksConfig {
         match Self::config_handler() {
             Some(config_handler) => {
-                TweaksSettings::get_entry(&config_handler).unwrap_or_else(|(errs, config)| {
+                TweaksConfig::get_entry(&config_handler).unwrap_or_else(|(errs, config)| {
                     log::info!("errors loading config: {:?}", errs);
                     config
                 })
             }
-            None => TweaksSettings::default(),
+            None => TweaksConfig::default(),
         }
     }
 }

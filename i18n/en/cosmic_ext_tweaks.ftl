@@ -5,15 +5,14 @@ app-description = A tool to customize your COSMIC desktop experience.
 home = Home
 dock = Dock
 panel = Panel
-layouts = Layouts
 color-schemes = Color schemes
+layouts = Layouts
 snapshots = Snapshots
 
 color-schemes-error = Error loading color schemes
 import-color-scheme = Import color scheme
 delete-color-scheme = Delete color scheme
-delete-layout = Delete layout
-available-color-schemes-body = Find and install color schemes.
+available-color-schemes-body = Find and install color schemes
 install-color-scheme = Install color scheme
 find-color-schemes = Find color schemes
 open-containing-folder = Open containing folder
@@ -22,10 +21,7 @@ installed = Installed
 available = Available
 loading = Loading...
 show-more = Show more
-about = About
-find-themes = Find themes
 
-# Panel only
 show-panel = Show panel
 force-icon-buttons-in-panel = Force icon buttons in panel
 
@@ -40,10 +36,10 @@ cancel = Cancel
 close = Close
 create = Create
 
+navigation = Navigation
+
 save-current-color-scheme = Save current color scheme
-
-save-current-layout = Save current layout
-
+color-scheme-name = Color scheme name
 create-snapshot = Create snapshot
 create-snapshot-description = You are about to create a snapshot, this will save the current state of your desktop and make it possible to restore it later on.
 restore-snapshot = Restore snapshot
@@ -57,9 +53,11 @@ actions = Actions
 system = System
 user = User
 
-color-scheme-name = Color scheme name
+## Snapshots
+application-opened = Application opened
 
 ## About
+about = About
 repository = Repository
 support = Support
 website = Website
