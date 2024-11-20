@@ -227,9 +227,7 @@ impl Application for TweakTool {
             )),
         ];
 
-        if let Some(id) = app.core.main_window_id() {
-            tasks.push(app.set_window_title(fl!("app-title"), id));
-        }
+        tasks.push(app.set_window_title(fl!("app-title")));
 
         (app, Task::batch(tasks))
     }
@@ -271,17 +269,13 @@ impl Application for TweakTool {
     ) -> cosmic::iced::Task<app::Message<Self::Message>> {
         self.nav_model.activate(id);
 
-        let Some(win_id) = self.core.main_window_id() else {
-            return Task::none();
-        };
-
         let title = if let Some(page) = self.nav_model.data::<Page>(id) {
             format!("{} - {}", page.title(), fl!("app-title"))
         } else {
             fl!("app-title")
         };
 
-        Task::batch(vec![self.set_window_title(title, win_id)])
+        Task::batch(vec![self.set_window_title(title)])
     }
 
     fn context_drawer(&self) -> Option<ContextDrawer<Self::Message>> {
