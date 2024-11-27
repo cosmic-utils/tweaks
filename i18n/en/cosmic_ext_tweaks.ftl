@@ -7,6 +7,7 @@ dock = Dock
 panel = Panel
 color-schemes = Color schemes
 layouts = Layouts
+shortcuts = Shortcuts
 snapshots = Snapshots
 
 color-schemes-error = Error loading color schemes
@@ -74,3 +75,9 @@ light = Light
 
 # Menu
 view = View
+
+
+## Shortcuts
+
+warning = Warning: this will remove your existing custom shortcuts. Make sure to take a snapshot before
+windows-desc = Super+Arrows to move windows. Ctrl+Alt+Arrows to navigate workspaces.

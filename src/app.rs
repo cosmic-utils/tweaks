@@ -24,8 +24,10 @@ use key_bind::key_binds;
 use pages::color_schemes::providers::cosmic_themes::CosmicTheme;
 
 use crate::{
-    app::config::{AppTheme, TweaksConfig, CONFIG_VERSION},
-    app::nav::Page,
+    app::{
+        config::{AppTheme, TweaksConfig, CONFIG_VERSION},
+        nav::Page,
+    },
     core::icons,
     fl,
     pages::{
@@ -34,6 +36,7 @@ use crate::{
         dock::Dock,
         layouts::Layouts,
         panel::Panel,
+        shortcuts::Shortcuts,
         snapshots::{config::SnapshotKind, Snapshots},
     },
 };
@@ -59,6 +62,7 @@ pub struct TweakTool {
     panel: Panel,
     layouts: Layouts,
     snapshots: Snapshots,
+    shorcuts: Shortcuts,
     context_page: ContextPage,
     app_themes: Vec<String>,
     config_handler: Option<cosmic_config::Config>,
@@ -87,6 +91,7 @@ pub enum Message {
     Dock(pages::dock::Message),
     Panel(pages::panel::Message),
     Layouts(pages::layouts::Message),
+    Shortcuts(pages::shortcuts::Message),
     Snapshots(pages::snapshots::Message),
     ColorSchemes(Box<pages::color_schemes::Message>),
     DialogUpdate(DialogPage),
@@ -212,6 +217,7 @@ impl Application for TweakTool {
             status: Status::Idle,
             limit: 15,
             offset: 0,
+            shorcuts: Shortcuts::new(),
         };
 
         let mut tasks = vec![
@@ -396,6 +402,7 @@ impl Application for TweakTool {
             Page::Panel => self.panel.view().map(Message::Panel),
             Page::Layouts => self.layouts.view().map(Message::Layouts),
             Page::Snapshots => self.snapshots.view().map(Message::Snapshots),
+            Page::Shortcuts => self.shorcuts.view().map(Message::Shortcuts),
         };
 
         widget::column::with_children(vec![view])
@@ -508,6 +515,9 @@ impl Application for TweakTool {
             }
             Message::Layouts(message) => {
                 tasks.push(self.layouts.update(message).map(cosmic::app::Message::App))
+            }
+            Message::Shortcuts(message) => {
+                tasks.push(self.shorcuts.update(message).map(cosmic::app::Message::App))
             }
             Message::Snapshots(message) => match message {
                 pages::snapshots::Message::OpenSaveDialog => tasks.push(self.update(
