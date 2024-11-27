@@ -6,8 +6,8 @@ home = Hem
 dock = Docka
 panel = Panel
 color-schemes = Färgscheman
-layouts = Layouts
-snapshots = Snapshots
+layouts = Layouter
+snapshots = Ögonblicksavbilder
 
 color-schemes-error = Ett fel uppstod när färgscheman skulle läsas in
 import-color-scheme = Importera färgschema
@@ -40,21 +40,21 @@ navigation = Navigation
 
 save-current-color-scheme = Spara nuvarande färgschema
 color-scheme-name = Färgschema namn
-create-snapshot = Create snapshot
-create-snapshot-description = You are about to create a snapshot, this will save the current state of your desktop and make it possible to restore it later on.
-restore-snapshot = Restore snapshot
-delete-snapshot = Delete snapshot
-no-snapshots = No snapshots available
-snapshot-name = Snapshot name
-name = Name
-type = Type
-created = Created
-actions = Actions
+create-snapshot = Skapa ögonblicksavbild
+create-snapshot-description = Du är på väg att skapa en ögonblicksavbild, detta kommer att spara det aktuella tillståndet av ditt skrivbord och göra det möjligt att återställa det senare.
+restore-snapshot = Återställ ögonblicksavbild
+delete-snapshot = Ta bort ögonblicksavbild
+no-snapshots = Inga ögonblicksavbilder tillgängliga
+snapshot-name = Namn på ögonblicksavbild
+name = Namn
+type = Typ
+created = Skapad
+actions = Åtgärder
 system = System
-user = User
+user = Användare
 
-## Snapshots
-application-opened = Application opened
+## Ögonblicksavbilder
+application-opened = Program öppnat
 
 ## Om
 about = Om
