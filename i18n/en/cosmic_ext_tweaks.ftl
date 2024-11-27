@@ -79,5 +79,5 @@ view = View
 
 ## Shortcuts
 
-warning = Warning: this will remove your existing custom shortcuts. Make sure to take a snapshot before
+warning = Warning: this will remove your existing custom shortcuts
 windows-desc = Super+Arrows to move windows. Ctrl+Alt+Arrows to navigate workspaces.
