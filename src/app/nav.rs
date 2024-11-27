@@ -11,6 +11,7 @@ pub enum Page {
     Dock,
     Panel,
     Layouts,
+    Shortcuts,
     Snapshots,
 }
 
@@ -27,6 +28,7 @@ impl Page {
             Self::Dock => fl!("dock"),
             Self::Panel => fl!("panel"),
             Self::Layouts => fl!("layouts"),
+            Self::Shortcuts => fl!("shortcuts"),
             Self::Snapshots => fl!("snapshots"),
         }
     }
@@ -37,6 +39,7 @@ impl Page {
             Self::Dock => icons::get_icon("dock-bottom-symbolic", 18),
             Self::Panel => icons::get_icon("dock-top-symbolic", 18),
             Self::Layouts => icons::get_icon("view-coverflow-symbolic", 18),
+            Self::Shortcuts => icons::get_icon("keyboard-symbolic", 18),
             Self::Snapshots => icons::get_icon("snapshots-symbolic", 18),
         }
     }
@@ -47,6 +50,7 @@ impl Page {
             Self::Dock,
             Self::Panel,
             Self::Layouts,
+            Self::Shortcuts,
             Self::Snapshots,
         ]
     }
