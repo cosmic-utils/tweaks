@@ -12,6 +12,7 @@ pub struct Dock {
     pub dock_config: Option<CosmicPanelConfig>,
     pub padding: u32,
     pub spacing: u32,
+    pub border_radius: u32,
 }
 
 impl Default for Dock {
@@ -29,11 +30,16 @@ impl Default for Dock {
             .clone()
             .map(|config| config.spacing)
             .unwrap_or(0);
+        let border_radius = dock_config
+            .clone()
+            .map(|config| config.border_radius)
+            .unwrap_or(0);
         Self {
             dock_helper,
             dock_config,
             padding,
             spacing,
+            border_radius,
         }
     }
 }
@@ -42,6 +48,7 @@ impl Default for Dock {
 pub enum Message {
     SetPadding(u32),
     SetSpacing(u32),
+    SetBorder(u32),
 }
 
 impl Dock {
@@ -73,6 +80,19 @@ impl Dock {
                             ])
                             .spacing(spacing.space_xxs),
                         ),
+                )
+                .add(
+                    widget::settings::item::builder(fl!("border_radius"))
+                        .description(fl!("border-radius-description"))
+                        .icon(icons::get_icon("size-horizontally-symbolic", 18))
+                        .control(
+                            widget::row::with_children(vec![
+                                widget::slider(0..=28, self.border_radius, Message::SetBorder)
+                                    .into(),
+                                widget::text::text(format!("{} px", self.border_radius)).into(),
+                            ])
+                            .spacing(spacing.space_xxs),
+                        ),
                 ),
         )
         .into()
@@ -99,6 +119,13 @@ impl Dock {
                 let update = dock_config.set_spacing(dock_helper, self.spacing);
                 if let Err(err) = update {
                     log::error!("Error updating dock spacing: {}", err);
+                }
+            }
+            Message::SetBorder(border_radius) => {
+                self.border_radius = border_radius;
+                let update = dock_config.set_border_radius(dock_helper, self.border_radius);
+                if let Err(err) = update {
+                    eprintln!("Error updating dock border radius: {}", err);
                 }
             }
         }
