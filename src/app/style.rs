@@ -297,7 +297,7 @@ pub fn appearance(
             }
         }
 
-        Button::Icon | Button::IconVertical | Button::HeaderBar => {
+        Button::Icon | Button::IconVertical | Button::HeaderBar | Button::NavToggle => {
             if matches!(style, Button::IconVertical) {
                 corner_radii = &cosmic.corner_radii.radius_m;
                 if selected {
@@ -305,6 +305,9 @@ pub fn appearance(
                         cosmic.icon_button.selected_state_color(),
                     )));
                 }
+            }
+            if matches!(style, Button::NavToggle) {
+                corner_radii = &cosmic.corner_radii.radius_s;
             }
 
             let (background, text, icon) = color(&cosmic.icon_button);
@@ -373,6 +376,22 @@ pub fn appearance(
             appearance.background = None;
             appearance.icon_color = None;
             appearance.text_color = None;
+        }
+
+        Button::ListItem => {
+            corner_radii = &[0.0; 4];
+            let (background, text, icon) = color(&cosmic.background.component);
+
+            if selected {
+                appearance.background =
+                    Some(Background::Color(cosmic.primary.component.hover.into()));
+                appearance.icon_color = Some(cosmic.accent.base.into());
+                appearance.text_color = Some(cosmic.accent.base.into());
+            } else {
+                appearance.background = Some(Background::Color(background));
+                appearance.icon_color = icon;
+                appearance.text_color = text;
+            }
         }
     }
 
