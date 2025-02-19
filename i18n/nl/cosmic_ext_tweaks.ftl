@@ -1,5 +1,6 @@
 app-title = COSMIC-tweaks
 app-description = Een hulpmiddel om uw COSMIC-werkomgeving te personaliseren.
+
 # Pages
 home = Startpagina
 dock = Dock
@@ -59,14 +60,14 @@ application-opened = Applicatie geopend
 ## About
 about = Over
 repository = Repository
-support = Ondersteuning
+support = Donatie
 website = Website
 
 ## Settings
 settings = Instellingen
 
 ### Appearance
-appearance = Uiterlijk
+appearance = Weergave
 theme = Thema
 match-desktop = Systeemstandaard
 dark = Donker
@@ -80,5 +81,3 @@ view = Beeld
 
 warning = Waarschuwing: hierdoor worden al uw bestaande aangepaste snelkoppelingen verwijderd
 windows-desc = Gebruik Super+Pijltjes om vensters te verplaatsen, en gebruik Ctrl+Alt+Pijltjes om tussen werkbladen te wisselen.
-
-
