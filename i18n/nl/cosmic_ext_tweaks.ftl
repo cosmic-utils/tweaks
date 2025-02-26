@@ -60,7 +60,7 @@ application-opened = Applicatie geopend
 ## About
 about = Over
 repository = Repository
-support = Donatie
+support = Ondersteuning
 website = Website
 
 ## Settings
