@@ -21,7 +21,6 @@ use cosmic::{
     Application, ApplicationExt, Apply, Element, Task,
 };
 use key_bind::key_binds;
-use pages::color_schemes::providers::cosmic_themes::CosmicTheme;
 
 use crate::{
     app::{
@@ -32,7 +31,7 @@ use crate::{
     fl,
     pages::{
         self,
-        color_schemes::{config::ColorScheme, preview, ColorSchemeProvider, ColorSchemes},
+        color_schemes::{self, ColorSchemes, Tab},
         dock::Dock,
         layouts::Layouts,
         panel::Panel,
@@ -67,23 +66,12 @@ pub struct TweakTool {
     app_themes: Vec<String>,
     config_handler: Option<cosmic_config::Config>,
     config: TweaksConfig,
-    available: Vec<ColorScheme>,
-    status: Status,
-    limit: usize,
-    offset: usize,
-}
-
-pub enum Status {
-    Idle,
-    Loading,
-    LoadingMore,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum DialogPage {
     SaveCurrentColorScheme(String),
     CreateSnapshot(String),
-    AvailableColorSchemes,
 }
 
 #[derive(Debug, Clone)]
@@ -102,8 +90,6 @@ pub enum Message {
     ToggleContextDrawer,
     ToggleDialogPage(DialogPage),
     AppTheme(usize),
-    FetchAvailableColorSchemes(ColorSchemeProvider, usize),
-    SetAvailableColorSchemes(Vec<ColorScheme>),
     Key(Modifiers, Key),
     Modifiers(Modifiers),
     SystemThemeModeChange,
@@ -213,18 +199,16 @@ impl Application for TweakTool {
             app_themes: vec![fl!("match-desktop"), fl!("dark"), fl!("light")],
             config_handler: flags.config_handler,
             config: flags.config,
-            available: vec![],
-            status: Status::Idle,
-            limit: 15,
-            offset: 0,
             shorcuts: Shortcuts::new(),
         };
 
         let mut tasks = vec![
-            app.update(Message::FetchAvailableColorSchemes(
-                ColorSchemeProvider::CosmicThemes,
-                app.limit,
-            )),
+            app.update(Message::ColorSchemes(Box::new(
+                color_schemes::Message::FetchAvailableColorSchemes(
+                    color_schemes::ColorSchemeProvider::CosmicThemes,
+                    app.color_schemes.limit,
+                ),
+            ))),
             app.update(Message::Snapshots(
                 pages::snapshots::Message::CreateSnapshot(
                     fl!("application-opened"),
@@ -349,39 +333,6 @@ impl Application for TweakTool {
                         })
                         .on_submit(Message::DialogComplete),
                 ),
-            DialogPage::AvailableColorSchemes => {
-                let show_more_button: Option<Element<Message>> = match self.status {
-                    Status::Idle => Some(
-                        widget::button::text(fl!("show-more"))
-                            .on_press(Message::FetchAvailableColorSchemes(
-                                ColorSchemeProvider::CosmicThemes,
-                                self.limit,
-                            ))
-                            .class(cosmic::style::Button::Standard)
-                            .into(),
-                    ),
-                    Status::LoadingMore => Some(
-                        widget::button::text(fl!("loading"))
-                            .class(cosmic::style::Button::Standard)
-                            .into(),
-                    ),
-                    Status::Loading => None,
-                };
-
-                let mut dialog = widget::dialog()
-                    .title(fl!("available"))
-                    .body(fl!("available-color-schemes-body"))
-                    .secondary_action(
-                        widget::button::standard(fl!("close")).on_press(Message::DialogCancel),
-                    )
-                    .control(self.available_themes());
-
-                if let Some(show_more_button) = show_more_button {
-                    dialog = dialog.primary_action(show_more_button);
-                }
-
-                dialog
-            }
         };
 
         Some(dialog.into())
@@ -411,6 +362,37 @@ impl Application for TweakTool {
             .height(Length::Fill)
             .align_x(Alignment::Center)
             .into()
+    }
+
+    fn footer(&self) -> Option<Element<Self::Message>> {
+        let spacing = cosmic::theme::active().cosmic().spacing;
+        if let Some(Tab::Installed) = self.color_schemes.model.active_data::<Tab>() {
+            Some(
+                widget::row()
+                    .push(widget::horizontal_space())
+                    .push(
+                        widget::button::standard(fl!("save-current-color-scheme"))
+                            .trailing_icon(icons::get_handle("arrow-into-box-symbolic", 16))
+                            .on_press(Message::ColorSchemes(Box::new(
+                                color_schemes::Message::SaveCurrentColorScheme(None),
+                            ))),
+                    )
+                    .push(
+                        widget::button::standard(fl!("import-color-scheme"))
+                            .trailing_icon(icons::get_handle("document-save-symbolic", 16))
+                            .on_press(Message::ColorSchemes(Box::new(
+                                color_schemes::Message::StartImport,
+                            ))),
+                    )
+                    .spacing(spacing.space_xxs)
+                    .apply(widget::container)
+                    .class(cosmic::style::Container::Card)
+                    .padding(spacing.space_xxs)
+                    .into(),
+            )
+        } else {
+            None
+        }
     }
 
     fn update(&mut self, message: Self::Message) -> cosmic::Task<app::Message<Self::Message>> {
@@ -447,45 +429,6 @@ impl Application for TweakTool {
                 if let Err(err) = open::that_detached(url) {
                     log::error!("{err}")
                 }
-            }
-            Message::FetchAvailableColorSchemes(provider, limit) => {
-                if self.offset == 0 {
-                    self.status = Status::Loading;
-                } else {
-                    self.status = Status::LoadingMore;
-                }
-                self.limit = limit;
-                self.offset += self.limit;
-                let limit = self.limit;
-                let offset = self.offset;
-                tasks.push(Task::perform(
-                    async move {
-                        let url = match provider {
-                            ColorSchemeProvider::CosmicThemes => {
-                                format!("https://cosmic-themes.org/api/themes/?order=name&limit={}&offset={}", limit, offset)
-                            }
-                        };
-
-                        let response = reqwest::get(url).await?;
-                        let themes: Vec<CosmicTheme> = response.json().await?;
-                        let available = themes
-                            .into_iter()
-                            .map(ColorScheme::from)
-                            .collect();
-                        Ok(available)
-                    },
-                    |res: Result<Vec<ColorScheme>, reqwest::Error>| match res {
-                        Ok(themes) => cosmic::app::Message::App(Message::SetAvailableColorSchemes(themes)),
-                        Err(e) => {
-                            log::error!("{e}");
-                            cosmic::app::Message::App(Message::SetAvailableColorSchemes(vec![]))
-                        }
-                    },
-                ));
-            }
-            Message::SetAvailableColorSchemes(mut available) => {
-                self.status = Status::Idle;
-                self.available.append(&mut available);
             }
             Message::AppTheme(index) => {
                 let app_theme = match index {
@@ -535,9 +478,6 @@ impl Application for TweakTool {
                         DialogPage::SaveCurrentColorScheme(String::new()),
                     )))
                 }
-                pages::color_schemes::Message::OpenAvailableThemes => tasks.push(
-                    self.update(Message::ToggleDialogPage(DialogPage::AvailableColorSchemes)),
-                ),
                 _ => tasks.push(
                     self.color_schemes
                         .update(*message)
@@ -569,7 +509,6 @@ impl Application for TweakTool {
                                 pages::snapshots::Message::CreateSnapshot(name, SnapshotKind::User),
                             )))
                         }
-                        DialogPage::AvailableColorSchemes => (),
                     }
                 }
             }
@@ -664,36 +603,6 @@ impl TweakTool {
                 )),
             )
             .into()])
-        .into()
-    }
-
-    fn available_themes<'a>(&self) -> Element<'a, Message> {
-        let spacing = cosmic::theme::active().cosmic().spacing;
-
-        let loading: Option<Element<'a, Message>> = if let Status::Loading = self.status {
-            Some(widget::text(fl!("loading")).into())
-        } else {
-            None
-        };
-
-        let available: Option<Element<'a, Message>> = match self.status {
-            Status::Idle | Status::LoadingMore => {
-                let themes: Vec<Element<Message>> =
-                    self.available.iter().map(preview::available).collect();
-                let widgets = widget::flex_row(themes)
-                    .row_spacing(spacing.space_xs)
-                    .column_spacing(spacing.space_xs)
-                    .apply(widget::container)
-                    .padding([0, spacing.space_xxs]);
-                Some(widgets.into())
-            }
-            Status::Loading => None,
-        };
-
-        widget::container(widget::scrollable(widget::column::with_children(
-            loading.into_iter().chain(available).collect(),
-        )))
-        .height(Length::Fixed(450.0))
         .into()
     }
 }
