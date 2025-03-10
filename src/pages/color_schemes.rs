@@ -326,46 +326,48 @@ impl ColorSchemes {
     pub fn view<'a>(&self) -> Element<'a, Message> {
         let spacing = cosmic::theme::active().cosmic().spacing;
 
-        widget::column::with_children(vec![
-            widget::row::with_children(vec![
-                widget::text::title3(fl!("color-schemes")).into(),
-                widget::horizontal_space().into(),
-                widget::tooltip::tooltip(
-                    icons::get_handle("arrow-into-box-symbolic", 16)
-                        .apply(widget::button::icon)
-                        .padding(spacing.space_xxs)
-                        .on_press(Message::SaveCurrentColorScheme(None))
-                        .class(cosmic::style::Button::Standard),
-                    widget::text(fl!("save-current-color-scheme")),
-                    tooltip::Position::Bottom,
-                )
-                .into(),
-                widget::tooltip::tooltip(
-                    icons::get_handle("document-save-symbolic", 16)
-                        .apply(widget::button::icon)
-                        .padding(spacing.space_xxs)
-                        .on_press(Message::StartImport)
-                        .class(cosmic::style::Button::Standard),
-                    widget::text(fl!("import-color-scheme")),
-                    tooltip::Position::Bottom,
-                )
-                .into(),
-                widget::tooltip::tooltip(
-                    icons::get_handle("search-global-symbolic", 16)
-                        .apply(widget::button::icon)
-                        .padding(spacing.space_xxs)
-                        .on_press(Message::OpenAvailableThemes)
-                        .class(cosmic::style::Button::Standard),
-                    widget::text(fl!("find-color-schemes")),
-                    tooltip::Position::Bottom,
-                )
-                .into(),
-            ])
-            .spacing(spacing.space_xxs)
-            .into(),
-            widget::settings::section()
-                .title(fl!("installed"))
-                .add({
+        widget::column()
+            .push(
+                widget::row::with_children(vec![
+                    widget::text::title3(fl!("color-schemes")).into(),
+                    widget::horizontal_space().into(),
+                    widget::tooltip::tooltip(
+                        icons::get_handle("arrow-into-box-symbolic", 16)
+                            .apply(widget::button::icon)
+                            .padding(spacing.space_xxs)
+                            .on_press(Message::SaveCurrentColorScheme(None))
+                            .class(cosmic::style::Button::Standard),
+                        widget::text(fl!("save-current-color-scheme")),
+                        tooltip::Position::Bottom,
+                    )
+                    .into(),
+                    widget::tooltip::tooltip(
+                        icons::get_handle("document-save-symbolic", 16)
+                            .apply(widget::button::icon)
+                            .padding(spacing.space_xxs)
+                            .on_press(Message::StartImport)
+                            .class(cosmic::style::Button::Standard),
+                        widget::text(fl!("import-color-scheme")),
+                        tooltip::Position::Bottom,
+                    )
+                    .into(),
+                    widget::tooltip::tooltip(
+                        icons::get_handle("search-global-symbolic", 16)
+                            .apply(widget::button::icon)
+                            .padding(spacing.space_xxs)
+                            .on_press(Message::OpenAvailableThemes)
+                            .class(cosmic::style::Button::Standard),
+                        widget::text(fl!("find-color-schemes")),
+                        tooltip::Position::Bottom,
+                    )
+                    .into(),
+                ])
+                .spacing(spacing.space_xxs),
+            )
+            .push(if self.installed.is_empty() {
+                widget::settings::section().add(widget::text("No color schemes installed"))
+            } else {
+                widget::settings::section().title(fl!("installed")).add({
                     let themes: Vec<Element<Message>> = self
                         .installed
                         .iter()
@@ -377,11 +379,10 @@ impl ColorSchemes {
                         .column_spacing(spacing.space_xs)
                         .apply(widget::container)
                 })
-                .into(),
-        ])
-        .spacing(spacing.space_xxs)
-        .apply(widget::scrollable)
-        .into()
+            })
+            .spacing(spacing.space_xxs)
+            .apply(widget::scrollable)
+            .into()
     }
 
     pub fn fetch_color_schemes() -> anyhow::Result<Vec<ColorScheme>> {
