@@ -74,3 +74,8 @@ light = Ljust
 
 # Meny
 view = Visa
+
+## Genvägar
+
+warning = Varning: detta kommer att ta bort dina existerande anpassade genvägar
+windows-desc = Super+Piltangenterna för att flytta fönster. Ctrl+Alt+Piltangenterna för att navigera bland dina arbetsytor.
