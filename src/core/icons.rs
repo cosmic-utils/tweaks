@@ -57,6 +57,7 @@ impl IconCache {
         bundle!("list-add-symbolic", 16);
         bundle!("symbolic-link-symbolic", 14);
         bundle!("user-trash-symbolic", 14);
+        bundle!("selection-mode-symbolic", 14);
         bundle!("folder-download-symbolic", 14);
         bundle!("arrow-circular-bottom-right-symbolic", 14);
 

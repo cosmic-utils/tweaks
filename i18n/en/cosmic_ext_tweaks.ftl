@@ -15,6 +15,7 @@ import-color-scheme = Import color scheme
 delete-color-scheme = Delete color scheme
 available-color-schemes-body = Find and install color schemes
 install-color-scheme = Install color scheme
+set-color-scheme = Set color scheme
 find-color-schemes = Find color schemes
 open-containing-folder = Open containing folder
 open-link = Open link
