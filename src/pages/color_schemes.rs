@@ -1,14 +1,18 @@
 use std::{path::PathBuf, sync::Arc};
 
 use self::config::ColorScheme;
-use crate::{core::icons, fl};
+use crate::fl;
 use ashpd::desktop::file_chooser::{FileFilter, SelectedFiles};
 use cosmic::{
     cosmic_config::{Config, CosmicConfigEntry},
     cosmic_theme::{Theme, ThemeBuilder, ThemeMode},
-    widget::{self, tooltip},
-    Apply, Element, Task,
+    widget::{
+        self,
+        segmented_button::{self, SingleSelect},
+    },
+    Element, Task,
 };
+use providers::cosmic_themes::CosmicTheme;
 
 pub mod config;
 pub mod preview;
@@ -17,11 +21,29 @@ pub mod providers;
 pub struct ColorSchemes {
     selected: ColorScheme,
     installed: Vec<ColorScheme>,
+    available: Vec<ColorScheme>,
     config_helper: Option<Config>,
     config: Option<ColorScheme>,
     theme_mode: ThemeMode,
     theme_builder_config: Option<Config>,
     theme_builder: ThemeBuilder,
+    pub model: segmented_button::Model<SingleSelect>,
+    pub status: Status,
+    pub limit: usize,
+    offset: usize,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum Status {
+    Idle,
+    Loading,
+    LoadingMore,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Tab {
+    Installed,
+    Available,
 }
 
 impl Default for ColorSchemes {
@@ -70,15 +92,24 @@ impl Default for ColorSchemes {
             },
         );
         let selected = config.clone().unwrap_or_default();
-        let installed = Self::fetch_color_schemes().unwrap_or_default();
+        let installed = Self::fetch_installed_color_schemes().unwrap_or_default();
+        let model = segmented_button::Model::builder()
+            .insert(|b| b.text("Installed").data(Tab::Installed).activate())
+            .insert(|b| b.text("Available").data(Tab::Available))
+            .build();
         Self {
             selected,
             installed,
+            available: vec![],
             config_helper,
             config,
             theme_mode,
             theme_builder_config,
             theme_builder,
+            model,
+            status: Status::Idle,
+            limit: 15,
+            offset: 0,
         }
     }
 }
@@ -93,10 +124,12 @@ pub enum Message {
     SetColorScheme(ColorScheme),
     DeleteColorScheme(ColorScheme),
     InstallColorScheme(ColorScheme),
+    FetchAvailableColorSchemes(ColorSchemeProvider, usize),
+    SetAvailableColorSchemes(Vec<ColorScheme>),
     OpenContainingFolder(ColorScheme),
     OpenLink(Option<String>),
     ReloadColorSchemes,
-    OpenAvailableThemes,
+    TabSelected(segmented_button::Entity),
 }
 
 #[derive(Debug, Clone)]
@@ -106,12 +139,12 @@ pub enum ColorSchemeProvider {
 
 impl ColorSchemes {
     pub fn update(&mut self, message: Message) -> Task<Message> {
-        let mut commands = vec![];
+        let mut tasks = vec![];
         match message {
-            Message::OpenAvailableThemes => {
-                commands.push(self.update(Message::OpenAvailableThemes))
+            Message::TabSelected(entity) => {
+                self.model.activate(entity);
             }
-            Message::StartImport => commands.push(Task::perform(
+            Message::StartImport => tasks.push(Task::perform(
                 async {
                     SelectedFiles::open_file()
                         .modal(true)
@@ -156,10 +189,10 @@ impl ColorSchemes {
                     theme: Default::default(),
                 };
 
-                commands.push(self.update(Message::SetColorScheme(color_scheme.clone())));
+                tasks.push(self.update(Message::SetColorScheme(color_scheme.clone())));
 
                 let file_path = path.clone();
-                commands.push(Task::perform(
+                tasks.push(Task::perform(
                     async move { (tokio::fs::read_to_string(path).await, file_path) },
                     move |(res, path)| {
                         if let Some(b) = res.ok().and_then(|theme| {
@@ -207,7 +240,7 @@ impl ColorSchemes {
                 if let Err(e) = new_theme.write_entry(&config) {
                     log::error!("Failed to write the theme config: {e}");
                 }
-                commands.push(self.update(Message::ReloadColorSchemes));
+                tasks.push(self.update(Message::ReloadColorSchemes));
             }
             Message::SetColorScheme(color_scheme) => {
                 self.selected = color_scheme.clone();
@@ -230,15 +263,15 @@ impl ColorSchemes {
                     log::info!("Theme is not default, setting the theme...");
                     if let Ok(theme) = &color_scheme.theme() {
                         log::info!("Color scheme has a theme, setting the theme...");
-                        commands.push(self.update(Message::ImportSuccess(Box::new(theme.clone()))))
+                        tasks.push(self.update(Message::ImportSuccess(Box::new(theme.clone()))))
                     }
                 }
             }
             Message::DeleteColorScheme(color_scheme) => {
                 if self.selected.name == color_scheme.name {
                     if let Some(color_scheme) = self.installed.first() {
-                        commands.push(self.update(Message::SetColorScheme(color_scheme.clone())));
-                        commands.push(self.update(Message::ReloadColorSchemes));
+                        tasks.push(self.update(Message::SetColorScheme(color_scheme.clone())));
+                        tasks.push(self.update(Message::ReloadColorSchemes));
                     }
                 }
                 let Some(path) = color_scheme.path else {
@@ -247,7 +280,7 @@ impl ColorSchemes {
                 std::fs::remove_file(&path).unwrap_or_else(|e| {
                     log::error!("There was an error deleting the color scheme: {e}")
                 });
-                commands.push(self.update(Message::ReloadColorSchemes));
+                tasks.push(self.update(Message::ReloadColorSchemes));
             }
             Message::InstallColorScheme(color_scheme) => {
                 let new_file = dirs::data_local_dir()
@@ -263,7 +296,46 @@ impl ColorSchemes {
                 {
                     log::error!("There was an error installing the color scheme: {e}");
                 }
-                commands.push(self.update(Message::ReloadColorSchemes));
+                tasks.push(self.update(Message::ReloadColorSchemes));
+            }
+            Message::FetchAvailableColorSchemes(provider, limit) => {
+                if self.offset == 0 {
+                    self.status = Status::Loading;
+                } else {
+                    self.status = Status::LoadingMore;
+                }
+                self.limit = limit;
+                self.offset += self.limit;
+                let limit = self.limit;
+                let offset = self.offset;
+                tasks.push(Task::perform(
+                    async move {
+                        let url = match provider {
+                            ColorSchemeProvider::CosmicThemes => {
+                                format!("https://cosmic-themes.org/api/themes/?order=name&limit={}&offset={}", limit, offset)
+                            }
+                        };
+
+                        let response = reqwest::get(url).await?;
+                        let themes: Vec<CosmicTheme> = response.json().await?;
+                        let available = themes
+                            .into_iter()
+                            .map(ColorScheme::from)
+                            .collect();
+                        Ok(available)
+                    },
+                    |res: Result<Vec<ColorScheme>, reqwest::Error>| match res {
+                        Ok(themes) => Message::SetAvailableColorSchemes(themes),
+                        Err(e) => {
+                            log::error!("{e}");
+                            Message::SetAvailableColorSchemes(vec![])
+                        }
+                    },
+                ));
+            }
+            Message::SetAvailableColorSchemes(mut available) => {
+                self.status = Status::Idle;
+                self.available.append(&mut available);
             }
             Message::OpenLink(link) => {
                 if let Some(link) = link {
@@ -283,7 +355,7 @@ impl ColorSchemes {
                 }
             }
             Message::ReloadColorSchemes => {
-                self.installed = Self::fetch_color_schemes().unwrap_or_default();
+                self.installed = Self::fetch_installed_color_schemes().unwrap_or_default();
             }
             Message::SaveCurrentColorScheme(name) => {
                 if let Some(name) = name {
@@ -313,78 +385,78 @@ impl ColorSchemes {
                         log::error!("failed to write the file to the themes directory: {e}");
                     }
 
-                    commands.push(self.update(Message::SetColorScheme(color_scheme)));
-                    commands.push(self.update(Message::ReloadColorSchemes))
+                    tasks.push(self.update(Message::SetColorScheme(color_scheme)));
+                    tasks.push(self.update(Message::ReloadColorSchemes))
                 } else {
-                    commands.push(self.update(Message::SaveCurrentColorScheme(None)))
+                    tasks.push(self.update(Message::SaveCurrentColorScheme(None)))
                 }
             }
         }
-        Task::batch(commands)
+        Task::batch(tasks)
     }
 
-    pub fn view<'a>(&self) -> Element<'a, Message> {
+    pub fn view<'a>(&'a self) -> Element<'a, Message> {
         let spacing = cosmic::theme::active().cosmic().spacing;
+        let active_tab = self.model.active_data::<Tab>().unwrap();
+        let title = widget::text::title3(fl!("color-schemes"));
+        let tabs = widget::segmented_button::horizontal(&self.model)
+            .padding(spacing.space_xxxs)
+            .button_alignment(cosmic::iced::Alignment::Center)
+            .on_activate(Message::TabSelected);
+        let active_tab = match active_tab {
+            Tab::Installed => {
+                if self.installed.is_empty() {
+                    widget::settings::section().add(widget::text("No color schemes installed"))
+                } else {
+                    widget::settings::section().add(self.installed_themes())
+                }
+            }
+            Tab::Available => widget::settings::section().add(self.available_themes()),
+        };
 
-        widget::column::with_children(vec![
-            widget::row::with_children(vec![
-                widget::text::title3(fl!("color-schemes")).into(),
-                widget::horizontal_space().into(),
-                widget::tooltip::tooltip(
-                    icons::get_handle("arrow-into-box-symbolic", 16)
-                        .apply(widget::button::icon)
-                        .padding(spacing.space_xxs)
-                        .on_press(Message::SaveCurrentColorScheme(None))
-                        .class(cosmic::style::Button::Standard),
-                    widget::text(fl!("save-current-color-scheme")),
-                    tooltip::Position::Bottom,
-                )
-                .into(),
-                widget::tooltip::tooltip(
-                    icons::get_handle("document-save-symbolic", 16)
-                        .apply(widget::button::icon)
-                        .padding(spacing.space_xxs)
-                        .on_press(Message::StartImport)
-                        .class(cosmic::style::Button::Standard),
-                    widget::text(fl!("import-color-scheme")),
-                    tooltip::Position::Bottom,
-                )
-                .into(),
-                widget::tooltip::tooltip(
-                    icons::get_handle("search-global-symbolic", 16)
-                        .apply(widget::button::icon)
-                        .padding(spacing.space_xxs)
-                        .on_press(Message::OpenAvailableThemes)
-                        .class(cosmic::style::Button::Standard),
-                    widget::text(fl!("find-color-schemes")),
-                    tooltip::Position::Bottom,
-                )
-                .into(),
-            ])
+        widget::column()
+            .push(title)
+            .push(tabs)
+            .push(active_tab)
             .spacing(spacing.space_xxs)
-            .into(),
-            widget::settings::section()
-                .title(fl!("installed"))
-                .add({
-                    let themes: Vec<Element<Message>> = self
-                        .installed
-                        .iter()
-                        .map(|color_scheme| preview::installed(color_scheme, &self.selected))
-                        .collect();
+            .into()
+    }
 
-                    widget::flex_row(themes)
-                        .row_spacing(spacing.space_xs)
-                        .column_spacing(spacing.space_xs)
-                        .apply(widget::container)
-                })
-                .into(),
-        ])
-        .spacing(spacing.space_xxs)
-        .apply(widget::scrollable)
+    fn installed_themes<'a>(&'a self) -> Element<'a, Message> {
+        widget::responsive(move |size| {
+            let spacing = cosmic::theme::active().cosmic().spacing;
+
+            widget::scrollable(ColorScheme::installed_grid(
+                &self.installed,
+                &self.selected,
+                spacing,
+                size.width as usize,
+            ))
+            .spacing(spacing.space_xxs)
+            .into()
+        })
         .into()
     }
 
-    pub fn fetch_color_schemes() -> anyhow::Result<Vec<ColorScheme>> {
+    fn available_themes<'a>(&'a self) -> Element<'a, Message> {
+        match self.status {
+            Status::Idle | Status::LoadingMore => widget::responsive(move |size| {
+                let spacing = cosmic::theme::active().cosmic().spacing;
+
+                widget::scrollable(ColorScheme::available_grid(
+                    &self.available,
+                    spacing,
+                    size.width as usize,
+                ))
+                .spacing(spacing.space_xxs)
+                .into()
+            })
+            .into(),
+            Status::Loading => widget::text(fl!("loading")).into(),
+        }
+    }
+
+    pub fn fetch_installed_color_schemes() -> anyhow::Result<Vec<ColorScheme>> {
         let mut color_schemes = vec![];
 
         let xdg_data_home = std::env::var("XDG_DATA_HOME")
@@ -441,5 +513,50 @@ impl ColorSchemes {
         }
 
         Ok(color_schemes)
+    }
+
+    pub fn refresh_theme_mode(&mut self) {
+        let theme_mode_config = ThemeMode::config().ok();
+        let theme_mode = theme_mode_config
+            .as_ref()
+            .map(|c| match ThemeMode::get_entry(c) {
+                Ok(t) => t,
+                Err((errors, t)) => {
+                    for e in errors {
+                        log::error!("{e}");
+                    }
+                    t
+                }
+            })
+            .unwrap_or_default();
+        let theme_builder_config = if theme_mode.is_dark {
+            ThemeBuilder::dark_config()
+        } else {
+            ThemeBuilder::light_config()
+        }
+        .ok();
+
+        let theme_builder = theme_builder_config.as_ref().map_or_else(
+            || {
+                if theme_mode.is_dark {
+                    ThemeBuilder::dark()
+                } else {
+                    ThemeBuilder::light()
+                }
+            },
+            |c| match ThemeBuilder::get_entry(c) {
+                Ok(t) => t,
+                Err((errors, t)) => {
+                    for e in errors {
+                        log::error!("{e}");
+                    }
+                    t
+                }
+            },
+        );
+
+        self.theme_mode = theme_mode;
+        self.theme_builder = theme_builder;
+        self.theme_builder_config = theme_builder_config;
     }
 }
