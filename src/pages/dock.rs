@@ -55,11 +55,10 @@ impl Dock {
                         .description(fl!("padding-description"))
                         .icon(icons::get_icon("resize-mode-symbolic", 18))
                         .control(
-                            widget::row::with_children(vec![
-                                widget::slider(0..=28, self.padding, Message::SetPadding).into(),
-                                widget::text::text(format!("{} px", self.padding)).into(),
-                            ])
-                            .spacing(spacing.space_xxs),
+                            widget::row()
+                                .push(widget::slider(0..=28, self.padding, Message::SetPadding))
+                                .push(widget::text::text(format!("{} px", self.padding)))
+                                .spacing(spacing.space_xxs),
                         ),
                 )
                 .add(
@@ -67,11 +66,10 @@ impl Dock {
                         .description(fl!("spacing-description"))
                         .icon(icons::get_icon("size-horizontally-symbolic", 18))
                         .control(
-                            widget::row::with_children(vec![
-                                widget::slider(0..=28, self.spacing, Message::SetSpacing).into(),
-                                widget::text::text(format!("{} px", self.spacing)).into(),
-                            ])
-                            .spacing(spacing.space_xxs),
+                            widget::row()
+                                .push(widget::slider(0..=28, self.spacing, Message::SetSpacing))
+                                .push(widget::text::text(format!("{} px", self.spacing)))
+                                .spacing(spacing.space_xxs),
                         ),
                 ),
         )

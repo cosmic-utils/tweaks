@@ -107,10 +107,10 @@ impl Snapshots {
         widget::scrollable(
             widget::column()
                 .push(
-                    widget::row::with_children(vec![
-                        widget::text::title3(fl!("snapshots")).into(),
-                        widget::horizontal_space().into(),
-                        widget::tooltip::tooltip(
+                    widget::row()
+                        .push(widget::text::title3(fl!("snapshots")))
+                        .push(widget::horizontal_space())
+                        .push(widget::tooltip::tooltip(
                             icons::get_handle("list-add-symbolic", 16)
                                 .apply(widget::button::icon)
                                 .padding(spacing.space_xxs)
@@ -118,10 +118,8 @@ impl Snapshots {
                                 .class(cosmic::style::Button::Standard),
                             widget::text(fl!("create-snapshot")),
                             widget::tooltip::Position::Bottom,
-                        )
-                        .into(),
-                    ])
-                    .spacing(spacing.space_xxs),
+                        ))
+                        .spacing(spacing.space_xxs),
                 )
                 .push_maybe(header)
                 .push(snapshots)
