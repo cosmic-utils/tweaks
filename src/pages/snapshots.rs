@@ -1,22 +1,22 @@
 use config::{Snapshot, SnapshotKind, SnapshotsConfig};
-use cosmic::{cosmic_config::Config, iced::Length, widget, Application, Apply, Element, Task};
+use cosmic::{iced::Length, widget, Application, Apply, Element, Task};
 use cosmic_ext_config_templates::{load_template, panel::PanelSchema, Schema};
 use dirs::data_local_dir;
 
-use crate::{app::TweakTool, core::icons, fl};
+use crate::{app::App, core::icons, fl};
 
 pub mod config;
 
 #[derive(Debug)]
 pub struct Snapshots {
-    pub helper: Option<Config>,
     pub config: SnapshotsConfig,
 }
 
 impl Default for Snapshots {
     fn default() -> Self {
-        let (helper, config) = (SnapshotsConfig::helper(), SnapshotsConfig::config());
-        Self { helper, config }
+        Self {
+            config: SnapshotsConfig::config(),
+        }
     }
 }
 
@@ -140,7 +140,7 @@ impl Snapshots {
             Message::CreateSnapshot(name, kind) => {
                 let path = data_local_dir()
                     .unwrap()
-                    .join(TweakTool::APP_ID)
+                    .join(App::APP_ID)
                     .join("snapshots");
                 if !path.exists() {
                     if let Err(e) = std::fs::create_dir_all(&path) {
@@ -152,23 +152,24 @@ impl Snapshots {
                     .and_then(|panel_schema| Schema::Panel(panel_schema).save(&snapshot.path))
                 {
                     Ok(_) => {
-                        if let Some(helper) = &self.helper {
-                            let mut snapshots = self.config.snapshots.clone();
-                            snapshots.push(snapshot.clone());
-                            snapshots.sort_by(|a, b| {
-                                b.created
-                                    .and_utc()
-                                    .timestamp()
-                                    .cmp(&a.created.and_utc().timestamp())
-                            });
-                            match self.config.set_snapshots(helper, snapshots) {
-                                Ok(written) => {
-                                    if !written {
-                                        log::error!("Failed to write snapshots to config");
-                                    }
+                        let mut snapshots = self.config.snapshots.clone();
+                        snapshots.push(snapshot.clone());
+                        snapshots.sort_by(|a, b| {
+                            b.created
+                                .and_utc()
+                                .timestamp()
+                                .cmp(&a.created.and_utc().timestamp())
+                        });
+                        match self
+                            .config
+                            .set_snapshots(&SnapshotsConfig::helper(), snapshots)
+                        {
+                            Ok(written) => {
+                                if !written {
+                                    log::error!("Failed to write snapshots to config");
                                 }
-                                Err(e) => log::error!("Failed to set snapshots: {}", e),
                             }
+                            Err(e) => log::error!("Failed to set snapshots: {}", e),
                         }
                     }
                     Err(e) => log::error!("Failed to generate template: {}", e),
@@ -189,15 +190,16 @@ impl Snapshots {
                         .timestamp()
                         .cmp(&a.created.and_utc().timestamp())
                 });
-                if let Some(helper) = &self.helper {
-                    match self.config.set_snapshots(helper, snapshots) {
-                        Ok(written) => {
-                            if !written {
-                                log::error!("Failed to write snapshots to config");
-                            }
+                match self
+                    .config
+                    .set_snapshots(&SnapshotsConfig::helper(), snapshots)
+                {
+                    Ok(written) => {
+                        if !written {
+                            log::error!("Failed to write snapshots to config");
                         }
-                        Err(e) => log::error!("Failed to set snapshots: {}", e),
                     }
+                    Err(e) => log::error!("Failed to set snapshots: {}", e),
                 }
             }
         }

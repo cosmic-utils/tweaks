@@ -13,8 +13,8 @@ pub fn settings() -> cosmic::app::Settings {
 
 pub fn flags() -> crate::app::Flags {
     crate::app::Flags {
-        config_handler: crate::app::config::TweaksConfig::config_handler(),
-        config: crate::app::config::TweaksConfig::config(),
+        handler: crate::app::config::TweaksConfig::config(),
+        config: crate::app::config::TweaksConfig::new(),
     }
 }
 
