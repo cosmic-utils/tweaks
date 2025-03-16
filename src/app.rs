@@ -5,8 +5,8 @@ use std::{
 
 use cosmic::{
     app::{self, context_drawer::ContextDrawer, Core},
-    cosmic_config::{self, Update},
-    cosmic_theme::{self, ThemeMode},
+    cosmic_config::{self, Config, Update},
+    cosmic_theme::{self, Spacing, ThemeMode},
     iced::{
         event,
         keyboard::{Event as KeyEvent, Key, Modifiers},
@@ -20,7 +20,7 @@ use cosmic::{
     },
     Application, ApplicationExt, Apply, Element, Task,
 };
-use key_bind::key_binds;
+use key_bindings::KeyBindings;
 
 use crate::{
     app::{
@@ -42,13 +42,20 @@ use crate::{
 
 pub mod config;
 pub mod cosmic_panel_button_config;
-mod key_bind;
+mod key_bindings;
 pub mod nav;
 pub mod resources;
 pub mod settings;
 pub mod style;
 
-pub struct TweakTool {
+pub struct App {
+    cosmic: Cosmic,
+    pages: Pages,
+    handler: Config,
+    config: TweaksConfig,
+}
+
+pub struct Cosmic {
     core: Core,
     nav_model: segmented_button::SingleSelectModel,
     about: About,
@@ -56,16 +63,18 @@ pub struct TweakTool {
     dialog_text_input: widget::Id,
     key_binds: HashMap<KeyBind, TweaksAction>,
     modifiers: Modifiers,
+    context_page: ContextPage,
+    app_themes: Vec<String>,
+    spacing: Spacing,
+}
+
+pub struct Pages {
     color_schemes: ColorSchemes,
     dock: Dock,
     panel: Panel,
     layouts: Layouts,
     snapshots: Snapshots,
     shorcuts: Shortcuts,
-    context_page: ContextPage,
-    app_themes: Vec<String>,
-    config_handler: Option<cosmic_config::Config>,
-    config: TweaksConfig,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -129,11 +138,11 @@ impl Action for TweaksAction {
 
 #[derive(Clone, Debug)]
 pub struct Flags {
-    pub config_handler: Option<cosmic_config::Config>,
+    pub handler: Config,
     pub config: TweaksConfig,
 }
 
-impl Application for TweakTool {
+impl Application for App {
     type Executor = cosmic::executor::Default;
 
     type Flags = Flags;
@@ -143,14 +152,14 @@ impl Application for TweakTool {
     const APP_ID: &'static str = "dev.edfloreshz.CosmicTweaks";
 
     fn core(&self) -> &Core {
-        &self.core
+        &self.cosmic.core
     }
 
     fn core_mut(&mut self) -> &mut Core {
-        &mut self.core
+        &mut self.cosmic.core
     }
 
-    fn init(core: Core, flags: Self::Flags) -> (Self, Task<app::Message<Self::Message>>) {
+    fn init(core: Core, flags: Self::Flags) -> (Self, app::Task<Self::Message>) {
         log::info!("Starting Cosmic Tweak Tool...");
 
         let mut nav_model = segmented_button::SingleSelectModel::default();
@@ -182,31 +191,36 @@ impl Application for TweakTool {
             ])
             .developers([("Eduardo Flores", "edfloreshz@proton.me")]);
 
-        let mut app = TweakTool {
-            core,
-            nav_model,
-            about,
-            dialog_pages: VecDeque::new(),
-            dialog_text_input: widget::Id::unique(),
-            key_binds: key_binds(),
-            modifiers: Modifiers::empty(),
-            color_schemes: ColorSchemes::default(),
-            layouts: Layouts::default(),
-            dock: Dock::default(),
-            panel: Panel::default(),
-            snapshots: Snapshots::default(),
-            context_page: ContextPage::About,
-            app_themes: vec![fl!("match-desktop"), fl!("dark"), fl!("light")],
-            config_handler: flags.config_handler,
+        let mut app = App {
+            cosmic: Cosmic {
+                core,
+                nav_model,
+                about,
+                dialog_pages: VecDeque::new(),
+                dialog_text_input: widget::Id::unique(),
+                key_binds: KeyBindings::new(),
+                modifiers: Modifiers::empty(),
+                context_page: ContextPage::About,
+                app_themes: vec![fl!("match-desktop"), fl!("dark"), fl!("light")],
+                spacing: cosmic::theme::active().cosmic().spacing,
+            },
+            pages: Pages {
+                color_schemes: ColorSchemes::default(),
+                layouts: Layouts::default(),
+                dock: Dock::default(),
+                panel: Panel::default(),
+                snapshots: Snapshots::default(),
+                shorcuts: Shortcuts::new(),
+            },
+            handler: flags.handler,
             config: flags.config,
-            shorcuts: Shortcuts::new(),
         };
 
         let mut tasks = vec![
             app.update(Message::ColorSchemes(Box::new(
                 color_schemes::Message::FetchAvailableColorSchemes(
                     color_schemes::ColorSchemeProvider::CosmicThemes,
-                    app.color_schemes.limit,
+                    app.pages.color_schemes.limit,
                 ),
             ))),
             app.update(Message::Snapshots(
@@ -226,7 +240,7 @@ impl Application for TweakTool {
         let menu_bar = menu::bar(vec![menu::Tree::with_children(
             menu::root(fl!("view")),
             menu::items(
-                &self.key_binds,
+                &self.cosmic.key_binds,
                 vec![
                     menu::Item::Button(
                         fl!("settings"),
@@ -250,16 +264,13 @@ impl Application for TweakTool {
     }
 
     fn nav_model(&self) -> Option<&widget::nav_bar::Model> {
-        Some(&self.nav_model)
+        Some(&self.cosmic.nav_model)
     }
 
-    fn on_nav_select(
-        &mut self,
-        id: widget::nav_bar::Id,
-    ) -> cosmic::iced::Task<app::Message<Self::Message>> {
-        self.nav_model.activate(id);
+    fn on_nav_select(&mut self, id: widget::nav_bar::Id) -> app::Task<Self::Message> {
+        self.cosmic.nav_model.activate(id);
 
-        let title = if let Some(page) = self.nav_model.data::<Page>(id) {
+        let title = if let Some(page) = self.cosmic.nav_model.data::<Page>(id) {
             format!("{} - {}", page.title(), fl!("app-title"))
         } else {
             fl!("app-title")
@@ -269,28 +280,28 @@ impl Application for TweakTool {
     }
 
     fn context_drawer(&self) -> Option<ContextDrawer<Self::Message>> {
-        if !self.core.window.show_context {
+        if !self.core().window.show_context {
             return None;
         }
 
-        Some(match self.context_page {
-            ContextPage::About => {
-                app::context_drawer::about(&self.about, Message::Open, Message::ToggleContextDrawer)
-            }
+        Some(match self.cosmic.context_page {
+            ContextPage::About => app::context_drawer::about(
+                &self.cosmic.about,
+                Message::Open,
+                Message::ToggleContextDrawer,
+            ),
             ContextPage::Settings => {
                 app::context_drawer::context_drawer(self.settings(), Message::ToggleContextDrawer)
-                    .title(self.context_page.title())
+                    .title(self.cosmic.context_page.title())
             }
         })
     }
 
     fn dialog(&self) -> Option<Element<Self::Message>> {
-        let dialog_page = match self.dialog_pages.front() {
+        let dialog_page = match self.cosmic.dialog_pages.front() {
             Some(some) => some,
             None => return None,
         };
-
-        let spacing = cosmic::theme::active().cosmic().spacing;
 
         let dialog = match dialog_page {
             DialogPage::SaveCurrentColorScheme(name) => widget::dialog()
@@ -307,13 +318,13 @@ impl Application for TweakTool {
                         .push(widget::text::body(fl!("color-scheme-name")))
                         .push(
                             widget::text_input("", name.as_str())
-                                .id(self.dialog_text_input.clone())
+                                .id(self.cosmic.dialog_text_input.clone())
                                 .on_input(move |name| {
                                     Message::DialogUpdate(DialogPage::SaveCurrentColorScheme(name))
                                 })
-                                .on_submit(Message::DialogComplete),
+                                .on_submit(|_| Message::DialogComplete),
                         )
-                        .spacing(spacing.space_xxs),
+                        .spacing(self.cosmic.spacing.space_xxs),
                 ),
             DialogPage::CreateSnapshot(name) => widget::dialog()
                 .title(fl!("create-snapshot"))
@@ -327,11 +338,11 @@ impl Application for TweakTool {
                 )
                 .control(
                     widget::text_input(fl!("snapshot-name"), name.as_str())
-                        .id(self.dialog_text_input.clone())
+                        .id(self.cosmic.dialog_text_input.clone())
                         .on_input(move |name| {
                             Message::DialogUpdate(DialogPage::CreateSnapshot(name))
                         })
-                        .on_submit(Message::DialogComplete),
+                        .on_submit(|_| Message::DialogComplete),
                 ),
         };
 
@@ -339,26 +350,30 @@ impl Application for TweakTool {
     }
 
     fn view(&self) -> Element<Self::Message> {
-        let spacing = cosmic::theme::active().cosmic().spacing;
-        let entity = self.nav_model.active();
-        let nav_page = self.nav_model.data::<Page>(entity).unwrap_or_default();
+        let entity = self.cosmic.nav_model.active();
+        let nav_page = self
+            .cosmic
+            .nav_model
+            .data::<Page>(entity)
+            .unwrap_or_default();
 
         let view = match nav_page {
             Page::ColorSchemes => self
+                .pages
                 .color_schemes
                 .view()
                 .map(Box::new)
                 .map(Message::ColorSchemes),
-            Page::Dock => self.dock.view().map(Message::Dock),
-            Page::Panel => self.panel.view().map(Message::Panel),
-            Page::Layouts => self.layouts.view().map(Message::Layouts),
-            Page::Snapshots => self.snapshots.view().map(Message::Snapshots),
-            Page::Shortcuts => self.shorcuts.view().map(Message::Shortcuts),
+            Page::Dock => self.pages.dock.view().map(Message::Dock),
+            Page::Panel => self.pages.panel.view().map(Message::Panel),
+            Page::Layouts => self.pages.layouts.view().map(Message::Layouts),
+            Page::Snapshots => self.pages.snapshots.view().map(Message::Snapshots),
+            Page::Shortcuts => self.pages.shorcuts.view().map(Message::Shortcuts),
         };
 
         widget::column()
             .push(view)
-            .padding(spacing.space_xs)
+            .padding(self.cosmic.spacing.space_xs)
             .width(Length::Fill)
             .height(Length::Fill)
             .align_x(Alignment::Center)
@@ -366,10 +381,8 @@ impl Application for TweakTool {
     }
 
     fn footer(&self) -> Option<Element<Self::Message>> {
-        let spacing = cosmic::theme::active().cosmic().spacing;
-
-        match self.nav_model.active_data::<Page>() {
-            Some(Page::ColorSchemes) => match self.color_schemes.model.active_data::<Tab>() {
+        match self.cosmic.nav_model.active_data::<Page>() {
+            Some(Page::ColorSchemes) => match self.pages.color_schemes.model.active_data::<Tab>() {
                 Some(Tab::Installed) => Some(
                     widget::row()
                         .push(widget::horizontal_space())
@@ -387,16 +400,16 @@ impl Application for TweakTool {
                                     color_schemes::Message::StartImport,
                                 ))),
                         )
-                        .spacing(spacing.space_xxs)
+                        .spacing(self.cosmic.spacing.space_xxs)
                         .apply(widget::container)
                         .class(cosmic::style::Container::Card)
-                        .padding(spacing.space_xxs)
+                        .padding(self.cosmic.spacing.space_xxs)
                         .into(),
                 ),
                 Some(Tab::Available) => Some(
                     widget::row()
                         .push(widget::horizontal_space())
-                        .push(match self.color_schemes.status {
+                        .push(match self.pages.color_schemes.status {
                             Status::Idle => widget::button::standard(fl!("show-more"))
                                 .leading_icon(crate::core::icons::get_handle(
                                     "content-loading-symbolic",
@@ -405,17 +418,17 @@ impl Application for TweakTool {
                                 .on_press(Message::ColorSchemes(Box::new(
                                     color_schemes::Message::FetchAvailableColorSchemes(
                                         color_schemes::ColorSchemeProvider::CosmicThemes,
-                                        self.color_schemes.limit,
+                                        self.pages.color_schemes.limit,
                                     ),
                                 ))),
                             Status::LoadingMore | Status::Loading => {
                                 widget::button::standard(fl!("loading"))
                             }
                         })
-                        .spacing(spacing.space_xxs)
+                        .spacing(self.cosmic.spacing.space_xxs)
                         .apply(widget::container)
                         .class(cosmic::style::Container::Card)
-                        .padding(spacing.space_xxs)
+                        .padding(self.cosmic.spacing.space_xxs)
                         .into(),
                 ),
                 None => None,
@@ -424,34 +437,7 @@ impl Application for TweakTool {
         }
     }
 
-    fn update(&mut self, message: Self::Message) -> cosmic::Task<app::Message<Self::Message>> {
-        // Helper for updating config values efficiently
-        macro_rules! config_set {
-            ($name: ident, $value: expr) => {
-                match &self.config_handler {
-                    Some(config_handler) => {
-                        match paste::paste! { self.config.[<set_ $name>](config_handler, $value) } {
-                            Ok(_) => {}
-                            Err(err) => {
-                                log::warn!(
-                                    "failed to save config {:?}: {}",
-                                    stringify!($name),
-                                    err
-                                );
-                            }
-                        }
-                    }
-                    None => {
-                        self.config.$name = $value;
-                        log::warn!(
-                            "failed to save config {:?}: no config handler",
-                            stringify!($name)
-                        );
-                    }
-                }
-            };
-        }
-
+    fn update(&mut self, message: Self::Message) -> app::Task<Self::Message> {
         let mut tasks = vec![];
         match message {
             Message::Open(url) => {
@@ -465,40 +451,43 @@ impl Application for TweakTool {
                     2 => AppTheme::Light,
                     _ => AppTheme::System,
                 };
-                config_set!(app_theme, app_theme);
-                return self.update_config();
+                if let Err(err) = self.config.set_app_theme(&self.handler, app_theme) {
+                    log::warn!("failed to save config: {}", err);
+                };
+                tasks.push(self.update_config());
             }
             Message::ToggleContextPage(page) => {
-                if self.context_page == page {
-                    self.core.window.show_context = !self.core.window.show_context;
+                if self.cosmic.context_page == page {
+                    self.core_mut().window.show_context = !self.core().window.show_context;
                 } else {
-                    self.context_page = page;
-                    self.core.window.show_context = true;
+                    self.cosmic.context_page = page;
+                    self.core_mut().window.show_context = true;
                 }
             }
             Message::ToggleContextDrawer => {
-                self.core.window.show_context = !self.core.window.show_context;
+                self.core_mut().window.show_context = !self.core().window.show_context;
             }
             Message::Dock(message) => {
-                tasks.push(self.dock.update(message).map(cosmic::app::Message::App))
+                tasks.push(self.pages.dock.update(message).map(cosmic::action::app))
             }
             Message::Panel(message) => {
-                tasks.push(self.panel.update(message).map(cosmic::app::Message::App))
+                tasks.push(self.pages.panel.update(message).map(cosmic::action::app))
             }
             Message::Layouts(message) => {
-                tasks.push(self.layouts.update(message).map(cosmic::app::Message::App))
+                tasks.push(self.pages.layouts.update(message).map(cosmic::action::app))
             }
             Message::Shortcuts(message) => {
-                tasks.push(self.shorcuts.update(message).map(cosmic::app::Message::App))
+                tasks.push(self.pages.shorcuts.update(message).map(cosmic::action::app))
             }
             Message::Snapshots(message) => match message {
                 pages::snapshots::Message::OpenSaveDialog => tasks.push(self.update(
                     Message::ToggleDialogPage(DialogPage::CreateSnapshot(String::new())),
                 )),
                 _ => tasks.push(
-                    self.snapshots
+                    self.pages
+                        .snapshots
                         .update(message)
-                        .map(cosmic::app::Message::App),
+                        .map(cosmic::action::app),
                 ),
             },
             Message::ColorSchemes(message) => match *message {
@@ -508,11 +497,12 @@ impl Application for TweakTool {
                     )))
                 }
                 _ => tasks.push(
-                    self.color_schemes
+                    self.pages
+                        .color_schemes
                         .update(*message)
                         .map(Box::new)
                         .map(Message::ColorSchemes)
-                        .map(cosmic::app::Message::App),
+                        .map(cosmic::action::app),
                 ),
             },
             Message::SaveNewColorScheme(name) => {
@@ -521,14 +511,16 @@ impl Application for TweakTool {
                 ))))
             }
             Message::ToggleDialogPage(dialog_page) => {
-                self.dialog_pages.push_back(dialog_page);
-                tasks.push(widget::text_input::focus(self.dialog_text_input.clone()));
+                self.cosmic.dialog_pages.push_back(dialog_page);
+                tasks.push(widget::text_input::focus(
+                    self.cosmic.dialog_text_input.clone(),
+                ));
             }
             Message::DialogUpdate(dialog_page) => {
-                self.dialog_pages[0] = dialog_page;
+                self.cosmic.dialog_pages[0] = dialog_page;
             }
             Message::DialogComplete => {
-                if let Some(dialog_page) = self.dialog_pages.pop_front() {
+                if let Some(dialog_page) = self.cosmic.dialog_pages.pop_front() {
                     match dialog_page {
                         DialogPage::SaveCurrentColorScheme(name) => {
                             tasks.push(self.update(Message::SaveNewColorScheme(name)))
@@ -542,17 +534,17 @@ impl Application for TweakTool {
                 }
             }
             Message::DialogCancel => {
-                self.dialog_pages.pop_front();
+                self.cosmic.dialog_pages.pop_front();
             }
             Message::Key(modifiers, key) => {
-                for (key_bind, action) in &self.key_binds {
+                for (key_bind, action) in &self.cosmic.key_binds {
                     if key_bind.matches(modifiers, &key) {
                         return self.update(action.message());
                     }
                 }
             }
             Message::Modifiers(modifiers) => {
-                self.modifiers = modifiers;
+                self.cosmic.modifiers = modifiers;
             }
             Message::SystemThemeModeChange => {
                 tasks.push(self.update_config());
@@ -611,10 +603,15 @@ impl Application for TweakTool {
     }
 }
 
-impl TweakTool {
-    fn update_config(&mut self) -> Task<cosmic::app::Message<Message>> {
-        self.color_schemes.refresh_theme_mode();
-        app::command::set_theme(self.config.app_theme.theme())
+impl App
+where
+    App: Application,
+{
+    fn update_config(&mut self) -> app::Task<Message> {
+        self.pages.color_schemes.theme_builder = ColorSchemes::current_theme();
+        Task::batch(vec![cosmic::command::set_theme(
+            self.config.app_theme.theme(),
+        )])
     }
 
     fn settings(&self) -> Element<Message> {
@@ -627,7 +624,7 @@ impl TweakTool {
             .title(fl!("appearance"))
             .add(
                 widget::settings::item::builder(fl!("theme")).control(widget::dropdown(
-                    &self.app_themes,
+                    &self.cosmic.app_themes,
                     Some(app_theme_selected),
                     Message::AppTheme,
                 )),

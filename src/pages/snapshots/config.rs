@@ -3,7 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::{app::TweakTool, fl};
+use crate::{app::App, fl};
 use chrono::{NaiveDateTime, Utc};
 use cosmic::{
     cosmic_config::{self, cosmic_config_derive::CosmicConfigEntry, Config, CosmicConfigEntry},
@@ -19,20 +19,18 @@ pub struct SnapshotsConfig {
 }
 
 impl SnapshotsConfig {
-    pub fn helper() -> Option<Config> {
-        Config::new(TweakTool::APP_ID, Self::VERSION).ok()
+    pub fn helper() -> Config {
+        match Config::new(App::APP_ID, Self::VERSION) {
+            Ok(config) => config,
+            Err(err) => panic!("error loading config: {}", err),
+        }
     }
 
     pub fn config() -> SnapshotsConfig {
-        match Self::helper() {
-            Some(config_handler) => {
-                SnapshotsConfig::get_entry(&config_handler).unwrap_or_else(|(errs, config)| {
-                    log::info!("errors loading config: {:?}", errs);
-                    config
-                })
-            }
-            None => SnapshotsConfig::default(),
-        }
+        SnapshotsConfig::get_entry(&Self::helper()).unwrap_or_else(|(errs, config)| {
+            log::info!("errors loading config: {:?}", errs);
+            config
+        })
     }
 }
 

@@ -4,7 +4,7 @@ use cosmic::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::app::TweakTool;
+use crate::app::App;
 
 pub const CONFIG_VERSION: u64 = 1;
 
@@ -14,20 +14,18 @@ pub struct TweaksConfig {
 }
 
 impl TweaksConfig {
-    pub fn config_handler() -> Option<Config> {
-        Config::new(TweakTool::APP_ID, CONFIG_VERSION).ok()
+    pub fn config() -> Config {
+        match Config::new(App::APP_ID, CONFIG_VERSION) {
+            Ok(config) => config,
+            Err(err) => panic!("Failed to fetch config for application: {err}"),
+        }
     }
 
-    pub fn config() -> TweaksConfig {
-        match Self::config_handler() {
-            Some(config_handler) => {
-                TweaksConfig::get_entry(&config_handler).unwrap_or_else(|(errs, config)| {
-                    log::info!("errors loading config: {:?}", errs);
-                    config
-                })
-            }
-            None => TweaksConfig::default(),
-        }
+    pub fn new() -> TweaksConfig {
+        TweaksConfig::get_entry(&Self::config()).unwrap_or_else(|(errs, config)| {
+            log::info!("errors loading config: {:?}", errs);
+            config
+        })
     }
 }
 

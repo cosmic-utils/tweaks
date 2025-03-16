@@ -3,9 +3,7 @@ use std::path::PathBuf;
 use cosmic::{
     cosmic_config::{self, Config},
     cosmic_theme::ThemeBuilder,
-    iced::{Alignment, Length},
-    widget::{self, JustifyContent},
-    Element,
+    widget, Element,
 };
 use cosmic_config::cosmic_config_derive::CosmicConfigEntry;
 use cosmic_config::CosmicConfigEntry;
@@ -32,8 +30,11 @@ impl ColorScheme {
     }
 
     /// Get the config for the theme
-    pub fn config() -> Result<Config, cosmic_config::Error> {
-        Config::new(COLOR_SCHEME_CONFIG_ID, Self::VERSION)
+    pub fn config() -> Config {
+        match Config::new(COLOR_SCHEME_CONFIG_ID, Self::VERSION) {
+            Ok(config) => config,
+            Err(err) => panic!("Failed to load config: {}", err),
+        }
     }
 
     pub fn theme(&self) -> anyhow::Result<ThemeBuilder> {
@@ -79,11 +80,6 @@ impl ColorScheme {
         }
         grid.column_spacing(column_spacing)
             .row_spacing(column_spacing)
-            .row_alignment(Alignment::Center)
-            .column_alignment(Alignment::Center)
-            .justify_content(JustifyContent::Center)
-            .width(Length::Fill)
-            .height(Length::Fill)
             .into()
     }
 
@@ -112,11 +108,6 @@ impl ColorScheme {
 
         grid.column_spacing(column_spacing)
             .row_spacing(column_spacing)
-            .row_alignment(Alignment::Center)
-            .column_alignment(Alignment::Center)
-            .justify_content(JustifyContent::Center)
-            .width(Length::Fill)
-            .height(Length::Fill)
             .into()
     }
 }

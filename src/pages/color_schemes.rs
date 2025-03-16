@@ -4,7 +4,7 @@ use self::config::ColorScheme;
 use crate::fl;
 use ashpd::desktop::file_chooser::{FileFilter, SelectedFiles};
 use cosmic::{
-    cosmic_config::{Config, CosmicConfigEntry},
+    cosmic_config::CosmicConfigEntry,
     cosmic_theme::{Theme, ThemeBuilder, ThemeMode},
     widget::{
         self,
@@ -19,14 +19,10 @@ pub mod preview;
 pub mod providers;
 
 pub struct ColorSchemes {
-    selected: ColorScheme,
     installed: Vec<ColorScheme>,
     available: Vec<ColorScheme>,
-    config_helper: Option<Config>,
-    config: Option<ColorScheme>,
-    theme_mode: ThemeMode,
-    theme_builder_config: Option<Config>,
-    theme_builder: ThemeBuilder,
+    color_scheme: ColorScheme,
+    pub theme_builder: ThemeBuilder,
     pub model: segmented_button::Model<SingleSelect>,
     pub status: Status,
     pub limit: usize,
@@ -48,65 +44,21 @@ pub enum Tab {
 
 impl Default for ColorSchemes {
     fn default() -> Self {
-        let config_helper = ColorScheme::config().ok();
-        let config = config_helper.as_ref().and_then(|config_helper| {
-            let config = ColorScheme::get_entry(config_helper).ok()?;
-            Some(config)
-        });
-        let theme_mode_config = ThemeMode::config().ok();
-        let theme_mode = theme_mode_config
-            .as_ref()
-            .map(|c| match ThemeMode::get_entry(c) {
-                Ok(t) => t,
-                Err((errors, t)) => {
-                    for e in errors {
-                        log::error!("{e}");
-                    }
-                    t
-                }
-            })
-            .unwrap_or_default();
-        let theme_builder_config = if theme_mode.is_dark {
-            ThemeBuilder::dark_config()
-        } else {
-            ThemeBuilder::light_config()
-        }
-        .ok();
-
-        let theme_builder = theme_builder_config.as_ref().map_or_else(
-            || {
-                if theme_mode.is_dark {
-                    ThemeBuilder::dark()
-                } else {
-                    ThemeBuilder::light()
-                }
-            },
-            |c| match ThemeBuilder::get_entry(c) {
-                Ok(t) => t,
-                Err((errors, t)) => {
-                    for e in errors {
-                        log::error!("{e}");
-                    }
-                    t
-                }
-            },
-        );
-        let selected = config.clone().unwrap_or_default();
-        let installed = Self::fetch_installed_color_schemes().unwrap_or_default();
-        let model = segmented_button::Model::builder()
-            .insert(|b| b.text("Installed").data(Tab::Installed).activate())
-            .insert(|b| b.text("Available").data(Tab::Available))
-            .build();
         Self {
-            selected,
-            installed,
+            installed: Self::fetch_installed_color_schemes().unwrap_or_default(),
             available: vec![],
-            config_helper,
-            config,
-            theme_mode,
-            theme_builder_config,
-            theme_builder,
-            model,
+            color_scheme: match ColorScheme::get_entry(&ColorScheme::config()) {
+                Ok(config) => config,
+                Err((errors, default)) => {
+                    log::error!("Failed to load color scheme config: {errors:#?}");
+                    default
+                }
+            },
+            model: segmented_button::Model::builder()
+                .insert(|b| b.text("Installed").data(Tab::Installed).activate())
+                .insert(|b| b.text("Available").data(Tab::Available))
+                .build(),
+            theme_builder: ColorSchemes::current_theme(),
             status: Status::Idle,
             limit: 15,
             offset: 0,
@@ -214,48 +166,48 @@ impl ColorSchemes {
                 ))
             }
             Message::ImportSuccess(builder) => {
-                self.theme_builder = *builder;
+                let theme_mode_config = ThemeMode::config().ok();
+                let theme_mode = theme_mode_config
+                    .as_ref()
+                    .map(|c| match ThemeMode::get_entry(c) {
+                        Ok(t) => t,
+                        Err((errors, t)) => {
+                            for e in errors {
+                                log::error!("{e}");
+                            }
+                            t
+                        }
+                    })
+                    .unwrap_or_default();
 
-                let Some(config) = self.theme_builder_config.as_ref() else {
-                    log::error!("Failed to get the theme config.");
-                    return Task::none();
-                };
-
-                if let Err(e) = self.theme_builder.write_entry(config) {
-                    log::error!("Failed to write the theme config: {e}");
-                }
-
-                let config = if self.theme_mode.is_dark {
+                let config = if theme_mode.is_dark {
                     Theme::dark_config()
                 } else {
                     Theme::light_config()
                 };
-                let new_theme = self.theme_builder.clone().build();
 
                 let Some(config) = config.ok() else {
                     log::error!("Failed to get the theme config.");
                     return Task::none();
                 };
 
-                if let Err(e) = new_theme.write_entry(&config) {
+                if let Err(e) = builder.build().write_entry(&config) {
                     log::error!("Failed to write the theme config: {e}");
                 }
                 tasks.push(self.update(Message::ReloadColorSchemes));
             }
             Message::SetColorScheme(color_scheme) => {
-                self.selected = color_scheme.clone();
-                let Some(config_helper) = &self.config_helper else {
-                    log::error!("Failed to get the config helper.");
-                    return Task::none();
-                };
-                let Some(config) = &mut self.config else {
-                    log::error!("Failed to get the config.");
-                    return Task::none();
-                };
-                if let Err(e) = config.set_name(config_helper, self.selected.name.clone()) {
+                let config = ColorScheme::config();
+                if let Err(e) = self
+                    .color_scheme
+                    .set_name(&config, color_scheme.name.clone())
+                {
                     log::error!("There was an error selecting the color scheme: {e}");
                 }
-                if let Err(e) = config.set_path(config_helper, self.selected.path.clone()) {
+                if let Err(e) = self
+                    .color_scheme
+                    .set_path(&config, color_scheme.path.clone())
+                {
                     log::error!("There was an error selecting the color scheme: {e}");
                 }
 
@@ -268,7 +220,7 @@ impl ColorSchemes {
                 }
             }
             Message::DeleteColorScheme(color_scheme) => {
-                if self.selected.name == color_scheme.name {
+                if self.color_scheme.name == color_scheme.name {
                     if let Some(color_scheme) = self.installed.first() {
                         tasks.push(self.update(Message::SetColorScheme(color_scheme.clone())));
                         tasks.push(self.update(Message::ReloadColorSchemes));
@@ -404,13 +356,7 @@ impl ColorSchemes {
             .button_alignment(cosmic::iced::Alignment::Center)
             .on_activate(Message::TabSelected);
         let active_tab = match active_tab {
-            Tab::Installed => {
-                if self.installed.is_empty() {
-                    widget::settings::section().add(widget::text("No color schemes installed"))
-                } else {
-                    widget::settings::section().add(self.installed_themes())
-                }
-            }
+            Tab::Installed => widget::settings::section().add(self.installed_themes()),
             Tab::Available => widget::settings::section().add(self.available_themes()),
         };
 
@@ -423,35 +369,45 @@ impl ColorSchemes {
     }
 
     fn installed_themes<'a>(&'a self) -> Element<'a, Message> {
-        widget::responsive(move |size| {
-            let spacing = cosmic::theme::active().cosmic().spacing;
-
-            widget::scrollable(ColorScheme::installed_grid(
-                &self.installed,
-                &self.selected,
-                spacing,
-                size.width as usize,
-            ))
-            .spacing(spacing.space_xxs)
-            .into()
-        })
-        .into()
-    }
-
-    fn available_themes<'a>(&'a self) -> Element<'a, Message> {
-        match self.status {
-            Status::Idle | Status::LoadingMore => widget::responsive(move |size| {
+        if self.installed.is_empty() {
+            widget::text("No color schemes installed").into()
+        } else {
+            widget::responsive(move |size| {
                 let spacing = cosmic::theme::active().cosmic().spacing;
 
-                widget::scrollable(ColorScheme::available_grid(
-                    &self.available,
+                widget::scrollable(ColorScheme::installed_grid(
+                    &self.installed,
+                    &self.color_scheme,
                     spacing,
                     size.width as usize,
                 ))
                 .spacing(spacing.space_xxs)
                 .into()
             })
-            .into(),
+            .into()
+        }
+    }
+
+    fn available_themes<'a>(&'a self) -> Element<'a, Message> {
+        match self.status {
+            Status::Idle | Status::LoadingMore => {
+                if self.available.is_empty() {
+                    widget::text("No color schemes found").into()
+                } else {
+                    widget::responsive(move |size| {
+                        let spacing = cosmic::theme::active().cosmic().spacing;
+
+                        widget::scrollable(ColorScheme::available_grid(
+                            &self.available,
+                            spacing,
+                            size.width as usize,
+                        ))
+                        .spacing(spacing.space_xxs)
+                        .into()
+                    })
+                    .into()
+                }
+            }
             Status::Loading => widget::text(fl!("loading")).into(),
         }
     }
@@ -515,7 +471,7 @@ impl ColorSchemes {
         Ok(color_schemes)
     }
 
-    pub fn refresh_theme_mode(&mut self) {
+    pub fn current_theme() -> ThemeBuilder {
         let theme_mode_config = ThemeMode::config().ok();
         let theme_mode = theme_mode_config
             .as_ref()
@@ -536,7 +492,7 @@ impl ColorSchemes {
         }
         .ok();
 
-        let theme_builder = theme_builder_config.as_ref().map_or_else(
+        theme_builder_config.as_ref().map_or_else(
             || {
                 if theme_mode.is_dark {
                     ThemeBuilder::dark()
@@ -553,10 +509,6 @@ impl ColorSchemes {
                     t
                 }
             },
-        );
-
-        self.theme_mode = theme_mode;
-        self.theme_builder = theme_builder;
-        self.theme_builder_config = theme_builder_config;
+        )
     }
 }
