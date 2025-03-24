@@ -1,7 +1,7 @@
 use std::{path::PathBuf, sync::Arc};
 
 use self::config::ColorScheme;
-use crate::fl;
+use crate::{core::grid::GridMetrics, fl};
 use ashpd::desktop::file_chooser::{FileFilter, SelectedFiles};
 use cosmic::{
     cosmic_config::CosmicConfigEntry,
@@ -12,11 +12,11 @@ use cosmic::{
     },
     Element, Task,
 };
-use providers::cosmic_themes::CosmicTheme;
+use cosmic_theme::CosmicTheme;
 
 pub mod config;
+pub mod cosmic_theme;
 pub mod preview;
-pub mod providers;
 
 pub struct ColorSchemes {
     installed: Vec<ColorScheme>,
@@ -375,7 +375,7 @@ impl ColorSchemes {
             widget::responsive(move |size| {
                 let spacing = cosmic::theme::active().cosmic().spacing;
 
-                widget::scrollable(ColorScheme::installed_grid(
+                widget::scrollable(Self::installed_grid(
                     &self.installed,
                     &self.color_scheme,
                     spacing,
@@ -397,7 +397,7 @@ impl ColorSchemes {
                     widget::responsive(move |size| {
                         let spacing = cosmic::theme::active().cosmic().spacing;
 
-                        widget::scrollable(ColorScheme::available_grid(
+                        widget::scrollable(Self::available_grid(
                             &self.available,
                             spacing,
                             size.width as usize,
@@ -410,6 +410,66 @@ impl ColorSchemes {
             }
             Status::Loading => widget::text(fl!("loading")).into(),
         }
+    }
+
+    pub fn installed_grid<'a>(
+        color_schemes: &'a [ColorScheme],
+        selected: &ColorScheme,
+        spacing: cosmic::cosmic_theme::Spacing,
+        width: usize,
+    ) -> Element<'a, Message> {
+        let GridMetrics {
+            cols,
+            item_width,
+            column_spacing,
+        } = GridMetrics::custom(&spacing, width);
+
+        let mut grid = widget::grid();
+        let mut col = 0;
+        for color_scheme in color_schemes.iter() {
+            if col >= cols {
+                grid = grid.insert_row();
+                col = 0;
+            }
+            grid = grid.push(preview::installed(
+                color_scheme,
+                &selected,
+                &spacing,
+                item_width,
+            ));
+            col += 1;
+        }
+        grid.column_spacing(column_spacing)
+            .row_spacing(column_spacing)
+            .into()
+    }
+
+    pub fn available_grid<'a>(
+        color_schemes: &'a [ColorScheme],
+        spacing: cosmic::cosmic_theme::Spacing,
+        width: usize,
+    ) -> Element<'a, Message> {
+        let GridMetrics {
+            cols,
+            item_width,
+            column_spacing,
+        } = GridMetrics::custom(&spacing, width);
+
+        let mut grid = widget::grid();
+        let mut col = 0;
+        for color_scheme in color_schemes.iter() {
+            if col >= cols {
+                grid = grid.insert_row();
+                col = 0;
+            }
+
+            grid = grid.push(preview::available(color_scheme, &spacing, item_width));
+            col += 1;
+        }
+
+        grid.column_spacing(column_spacing)
+            .row_spacing(column_spacing)
+            .into()
     }
 
     pub fn fetch_installed_color_schemes() -> anyhow::Result<Vec<ColorScheme>> {
