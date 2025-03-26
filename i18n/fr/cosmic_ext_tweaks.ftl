@@ -14,6 +14,7 @@ color-schemes-error = Erreur de chargement des thèmes
 import-color-scheme = Importer un thème
 delete-color-scheme = Supprimer un thème
 available-color-schemes-body = Trouver et installer des thèmes
+set-color-scheme = Activer le thème
 install-color-scheme = Installer un thème
 find-color-schemes = Trouver des thèmes
 open-containing-folder = Ouvrir le dossier
