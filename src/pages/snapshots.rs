@@ -30,7 +30,7 @@ pub enum Message {
 
 impl Snapshots {
     pub fn view(&self) -> Element<Message> {
-        let spacing = cosmic::theme::active().cosmic().spacing;
+        let spacing = cosmic::theme::spacing();
 
         let snapshots = self
             .config

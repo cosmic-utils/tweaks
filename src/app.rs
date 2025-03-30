@@ -31,7 +31,7 @@ use crate::{
     fl,
     pages::{
         self,
-        color_schemes::{self, ColorSchemes, Status, Tab},
+        color_schemes::{self, config::ColorScheme, ColorSchemes, Status, Tab},
         dock::Dock,
         layouts::Layouts,
         panel::Panel,
@@ -42,6 +42,7 @@ use crate::{
 
 pub mod config;
 pub mod cosmic_panel_button_config;
+pub mod error;
 mod key_bindings;
 pub mod nav;
 pub mod resources;
@@ -202,7 +203,7 @@ impl Application for App {
                 modifiers: Modifiers::empty(),
                 context_page: ContextPage::About,
                 app_themes: vec![fl!("match-desktop"), fl!("dark"), fl!("light")],
-                spacing: cosmic::theme::active().cosmic().spacing,
+                spacing: cosmic::theme::spacing(),
             },
             pages: Pages {
                 color_schemes: ColorSchemes::default(),
@@ -608,7 +609,7 @@ where
     App: Application,
 {
     fn update_config(&mut self) -> app::Task<Message> {
-        self.pages.color_schemes.theme_builder = ColorSchemes::current_theme();
+        self.pages.color_schemes.theme_builder = ColorScheme::current_theme();
         Task::batch(vec![cosmic::command::set_theme(
             self.config.app_theme.theme(),
         )])

@@ -132,7 +132,7 @@ pub enum Message {
 
 impl Panel {
     pub fn view<'a>(&self) -> Element<'a, Message> {
-        let spacing = cosmic::theme::active().cosmic().spacing;
+        let spacing = cosmic::theme::spacing();
 
         widget::scrollable(
             widget::settings::section()

@@ -1,4 +1,4 @@
-use std::{path::PathBuf, sync::Arc};
+use std::sync::Arc;
 
 use self::config::ColorScheme;
 use crate::{core::grid::GridMetrics, fl};
@@ -45,7 +45,7 @@ pub enum Tab {
 impl Default for ColorSchemes {
     fn default() -> Self {
         Self {
-            installed: Self::fetch_installed_color_schemes().unwrap_or_default(),
+            installed: ColorScheme::installed().unwrap_or_default(),
             available: vec![],
             color_scheme: match ColorScheme::get_entry(&ColorScheme::config()) {
                 Ok(config) => config,
@@ -58,7 +58,7 @@ impl Default for ColorSchemes {
                 .insert(|b| b.text("Installed").data(Tab::Installed).activate())
                 .insert(|b| b.text("Available").data(Tab::Available))
                 .build(),
-            theme_builder: ColorSchemes::current_theme(),
+            theme_builder: ColorScheme::current_theme(),
             status: Status::Idle,
             limit: 15,
             offset: 0,
@@ -213,7 +213,7 @@ impl ColorSchemes {
 
                 if color_scheme.theme != ThemeBuilder::default() {
                     log::info!("Theme is not default, setting the theme...");
-                    if let Ok(theme) = &color_scheme.theme() {
+                    if let Ok(theme) = &color_scheme.read_theme() {
                         log::info!("Color scheme has a theme, setting the theme...");
                         tasks.push(self.update(Message::ImportSuccess(Box::new(theme.clone()))))
                     }
@@ -307,7 +307,7 @@ impl ColorSchemes {
                 }
             }
             Message::ReloadColorSchemes => {
-                self.installed = Self::fetch_installed_color_schemes().unwrap_or_default();
+                self.installed = ColorScheme::installed().unwrap_or_default();
             }
             Message::SaveCurrentColorScheme(name) => {
                 if let Some(name) = name {
@@ -348,7 +348,7 @@ impl ColorSchemes {
     }
 
     pub fn view<'a>(&'a self) -> Element<'a, Message> {
-        let spacing = cosmic::theme::active().cosmic().spacing;
+        let spacing = cosmic::theme::spacing();
         let active_tab = self.model.active_data::<Tab>().unwrap();
         let title = widget::text::title3(fl!("color-schemes"));
         let tabs = widget::segmented_button::horizontal(&self.model)
@@ -373,14 +373,34 @@ impl ColorSchemes {
             widget::text("No color schemes installed").into()
         } else {
             widget::responsive(move |size| {
-                let spacing = cosmic::theme::active().cosmic().spacing;
+                let spacing = cosmic::theme::spacing();
 
-                widget::scrollable(Self::installed_grid(
-                    &self.installed,
-                    &self.color_scheme,
-                    spacing,
-                    size.width as usize,
-                ))
+                let GridMetrics {
+                    cols,
+                    item_width,
+                    column_spacing,
+                } = GridMetrics::custom(&spacing, size.width as usize);
+
+                let mut grid = widget::grid();
+                let mut col = 0;
+                for color_scheme in self.installed.iter() {
+                    if col >= cols {
+                        grid = grid.insert_row();
+                        col = 0;
+                    }
+                    grid = grid.push(preview::installed(
+                        color_scheme,
+                        &self.color_scheme,
+                        &spacing,
+                        item_width,
+                    ));
+                    col += 1;
+                }
+
+                widget::scrollable(
+                    grid.column_spacing(column_spacing)
+                        .row_spacing(column_spacing),
+                )
                 .spacing(spacing.space_xxs)
                 .into()
             })
@@ -395,13 +415,31 @@ impl ColorSchemes {
                     widget::text("No color schemes found").into()
                 } else {
                     widget::responsive(move |size| {
-                        let spacing = cosmic::theme::active().cosmic().spacing;
+                        let spacing = cosmic::theme::spacing();
 
-                        widget::scrollable(Self::available_grid(
-                            &self.available,
-                            spacing,
-                            size.width as usize,
-                        ))
+                        let GridMetrics {
+                            cols,
+                            item_width,
+                            column_spacing,
+                        } = GridMetrics::custom(&spacing, size.width as usize);
+
+                        let mut grid = widget::grid();
+                        let mut col = 0;
+                        for color_scheme in self.available.iter() {
+                            if col >= cols {
+                                grid = grid.insert_row();
+                                col = 0;
+                            }
+
+                            grid =
+                                grid.push(preview::available(color_scheme, &spacing, item_width));
+                            col += 1;
+                        }
+
+                        widget::scrollable(
+                            grid.column_spacing(column_spacing)
+                                .row_spacing(column_spacing),
+                        )
                         .spacing(spacing.space_xxs)
                         .into()
                     })
@@ -410,165 +448,5 @@ impl ColorSchemes {
             }
             Status::Loading => widget::text(fl!("loading")).into(),
         }
-    }
-
-    pub fn installed_grid<'a>(
-        color_schemes: &'a [ColorScheme],
-        selected: &ColorScheme,
-        spacing: cosmic::cosmic_theme::Spacing,
-        width: usize,
-    ) -> Element<'a, Message> {
-        let GridMetrics {
-            cols,
-            item_width,
-            column_spacing,
-        } = GridMetrics::custom(&spacing, width);
-
-        let mut grid = widget::grid();
-        let mut col = 0;
-        for color_scheme in color_schemes.iter() {
-            if col >= cols {
-                grid = grid.insert_row();
-                col = 0;
-            }
-            grid = grid.push(preview::installed(
-                color_scheme,
-                &selected,
-                &spacing,
-                item_width,
-            ));
-            col += 1;
-        }
-        grid.column_spacing(column_spacing)
-            .row_spacing(column_spacing)
-            .into()
-    }
-
-    pub fn available_grid<'a>(
-        color_schemes: &'a [ColorScheme],
-        spacing: cosmic::cosmic_theme::Spacing,
-        width: usize,
-    ) -> Element<'a, Message> {
-        let GridMetrics {
-            cols,
-            item_width,
-            column_spacing,
-        } = GridMetrics::custom(&spacing, width);
-
-        let mut grid = widget::grid();
-        let mut col = 0;
-        for color_scheme in color_schemes.iter() {
-            if col >= cols {
-                grid = grid.insert_row();
-                col = 0;
-            }
-
-            grid = grid.push(preview::available(color_scheme, &spacing, item_width));
-            col += 1;
-        }
-
-        grid.column_spacing(column_spacing)
-            .row_spacing(column_spacing)
-            .into()
-    }
-
-    pub fn fetch_installed_color_schemes() -> anyhow::Result<Vec<ColorScheme>> {
-        let mut color_schemes = vec![];
-
-        let xdg_data_home = std::env::var("XDG_DATA_HOME")
-            .ok()
-            .and_then(|value| {
-                if value.is_empty() {
-                    None
-                } else {
-                    Some(PathBuf::from(value))
-                }
-            })
-            .or_else(dirs::data_local_dir)
-            .map(|dir| dir.join("themes/cosmic"));
-
-        if let Some(ref xdg_data_home) = xdg_data_home {
-            if !xdg_data_home.exists() {
-                if let Err(e) = std::fs::create_dir_all(xdg_data_home) {
-                    log::error!("failed to create the themes directory: {e}")
-                };
-            }
-        }
-
-        let xdg_data_dirs = std::env::var("XDG_DATA_DIRS").ok();
-
-        let xdg_data_dirs = xdg_data_dirs
-            .as_deref()
-            .or(Some("/usr/local/share/:/usr/share/"))
-            .into_iter()
-            .flat_map(|arg| std::env::split_paths(arg).map(|dir| dir.join("themes/cosmic")));
-
-        for themes_directory in xdg_data_dirs.chain(xdg_data_home) {
-            let Ok(read_dir) = std::fs::read_dir(&themes_directory) else {
-                continue;
-            };
-
-            for entry in read_dir.filter_map(Result::ok) {
-                let path = entry.path();
-                let color_scheme = std::fs::read_to_string(&path)?;
-                let theme: ThemeBuilder = ron::from_str(&color_scheme)?;
-                let name = path
-                    .file_stem()
-                    .and_then(|name| name.to_str())
-                    .map(|name| name.to_string())
-                    .unwrap_or_default();
-                let color_scheme = ColorScheme {
-                    name,
-                    path: Some(path),
-                    link: None,
-                    author: None,
-                    theme,
-                };
-                color_schemes.push(color_scheme);
-            }
-        }
-
-        Ok(color_schemes)
-    }
-
-    pub fn current_theme() -> ThemeBuilder {
-        let theme_mode_config = ThemeMode::config().ok();
-        let theme_mode = theme_mode_config
-            .as_ref()
-            .map(|c| match ThemeMode::get_entry(c) {
-                Ok(t) => t,
-                Err((errors, t)) => {
-                    for e in errors {
-                        log::error!("{e}");
-                    }
-                    t
-                }
-            })
-            .unwrap_or_default();
-        let theme_builder_config = if theme_mode.is_dark {
-            ThemeBuilder::dark_config()
-        } else {
-            ThemeBuilder::light_config()
-        }
-        .ok();
-
-        theme_builder_config.as_ref().map_or_else(
-            || {
-                if theme_mode.is_dark {
-                    ThemeBuilder::dark()
-                } else {
-                    ThemeBuilder::light()
-                }
-            },
-            |c| match ThemeBuilder::get_entry(c) {
-                Ok(t) => t,
-                Err((errors, t)) => {
-                    for e in errors {
-                        log::error!("{e}");
-                    }
-                    t
-                }
-            },
-        )
     }
 }
