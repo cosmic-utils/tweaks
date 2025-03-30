@@ -60,7 +60,7 @@ impl LayoutPreview {
     pub fn view<'a>(&self) -> Element<'a, Message> {
         let column = widget::column().width(188).height(98);
         let row = widget::row().width(188).height(98);
-        let spacing = cosmic::theme::active().cosmic().spacing;
+        let spacing = cosmic::theme::spacing();
 
         let panel = widget::container(widget::text(""));
 

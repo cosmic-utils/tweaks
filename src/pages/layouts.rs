@@ -29,7 +29,7 @@ pub enum Message {
 
 impl Layouts {
     pub fn view(&self) -> Element<Message> {
-        let spacing = cosmic::theme::active().cosmic().spacing;
+        let spacing = cosmic::theme::spacing();
         let layouts = self
             .layouts
             .iter()
