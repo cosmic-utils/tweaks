@@ -41,7 +41,6 @@ use crate::{
 };
 
 pub mod config;
-pub mod cosmic_panel_button_config;
 pub mod error;
 mod key_bindings;
 pub mod nav;

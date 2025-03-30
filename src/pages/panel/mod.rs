@@ -5,11 +5,11 @@ use cosmic::{
 use cosmic_panel_config::CosmicPanelConfig;
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    app::cosmic_panel_button_config::{CosmicPanelButtonConfig, IndividualConfig, Override},
-    core::icons,
-    fl,
-};
+use crate::{core::icons, fl};
+
+use config::{CosmicPanelButtonConfig, IndividualConfig, Override};
+
+pub mod config;
 
 #[derive(Debug)]
 pub struct Panel {
