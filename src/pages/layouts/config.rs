@@ -5,7 +5,7 @@ use std::{
 
 use super::{
     preview::{LayoutPreview, PanelProperties, Position},
-    Message,
+    TweakMessage,
 };
 use crate::{app::TweakTool, fl, resources};
 use cosmic::{
@@ -54,10 +54,10 @@ pub enum LayoutsAction {
 }
 
 impl Action for LayoutsAction {
-    type Message = Message;
+    type Message = TweakMessage;
     fn message(&self) -> Self::Message {
         match self {
-            LayoutsAction::DeleteLayout => Message::DeleteLayout,
+            LayoutsAction::DeleteLayout => TweakMessage::DeleteLayout,
         }
     }
 }
@@ -82,7 +82,7 @@ impl Layout {
         }
     }
 
-    pub fn preview(&self) -> Element<Message> {
+    pub fn preview(&self) -> Element<TweakMessage> {
         let layout = match self {
             Layout::Cosmic => LayoutPreview::new(
                 Some(PanelProperties::new(Position::Top, true, 10.0)),
@@ -118,7 +118,7 @@ impl Layout {
 
         widget::mouse_area(widget::context_menu(
             widget::button::custom(layout.view())
-                .on_press(Message::ApplyLayout(self.clone()))
+                .on_press(TweakMessage::ApplyLayout(self.clone()))
                 .class(cosmic::style::Button::Image),
             if self.is_custom() {
                 Some(widget::menu::items(
@@ -132,7 +132,7 @@ impl Layout {
                 None
             },
         ))
-        .on_right_press(Message::SelectLayout(self.clone()))
+        .on_right_press(TweakMessage::SelectLayout(self.clone()))
         .into()
     }
 

@@ -6,6 +6,7 @@ use cosmic_panel_config::CosmicPanelConfig;
 use serde::{Deserialize, Serialize};
 
 use crate::{
+    app::TweakMessage,
     core::{
         cosmic_panel_button_config::{CosmicPanelButtonConfig, IndividualConfig, Override},
         icons,
@@ -124,16 +125,8 @@ impl Default for Panel {
     }
 }
 
-#[derive(Debug, Clone)]
-pub enum Message {
-    SetPadding(u32),
-    SetSpacing(u32),
-    ShowPanel(bool),
-    ForceIcons(bool),
-}
-
 impl Panel {
-    pub fn view<'a>(&self) -> Element<'a, Message> {
+    pub fn view<'a>(&self) -> Element<'a, TweakMessage> {
         let spacing = cosmic::theme::active().cosmic().spacing;
 
         widget::scrollable(
@@ -141,11 +134,11 @@ impl Panel {
                 .title("Panel")
                 .add(
                     widget::settings::item::builder(fl!("show-panel"))
-                        .toggler(self.show_panel, Message::ShowPanel),
+                        .toggler(self.show_panel, TweakMessage::ShowPanel),
                 )
                 .add(
                     widget::settings::item::builder(fl!("force-icon-buttons-in-panel"))
-                        .toggler(self.force_icons, Message::ForceIcons),
+                        .toggler(self.force_icons, TweakMessage::ForceIcons),
                 )
                 .add(
                     widget::settings::item::builder(fl!("padding"))
@@ -153,7 +146,7 @@ impl Panel {
                         .icon(icons::get_icon("resize-mode-symbolic", 18))
                         .control(
                             widget::row::with_children(vec![
-                                widget::slider(0..=20, self.padding, Message::SetPadding).into(),
+                                widget::slider(0..=20, self.padding, TweakMessage::SetPanelPadding).into(),
                                 widget::text::text(format!("{} px", self.padding)).into(),
                             ])
                             .spacing(spacing.space_xxs),
@@ -165,7 +158,7 @@ impl Panel {
                         .icon(icons::get_icon("size-horizontally-symbolic", 18))
                         .control(
                             widget::row::with_children(vec![
-                                widget::slider(0..=28, self.spacing, Message::SetSpacing).into(),
+                                widget::slider(0..=28, self.spacing, TweakMessage::SetPanelSpacing).into(),
                                 widget::text::text(format!("{} px", self.spacing)).into(),
                             ])
                             .spacing(spacing.space_xxs),
@@ -175,7 +168,7 @@ impl Panel {
         .into()
     }
 
-    pub fn update(&mut self, message: Message) -> Task<crate::app::Message> {
+    pub fn update(&mut self, message: TweakMessage) -> Task<crate::app::Message> {
         let Some(panel_helper) = &mut self.panel_helper else {
             return cosmic::Task::none();
         };
@@ -184,21 +177,21 @@ impl Panel {
         };
 
         match message {
-            Message::SetPadding(padding) => {
+            TweakMessage::SetPanelPadding(padding) => {
                 self.padding = padding;
                 let update = panel_config.set_padding(panel_helper, self.padding);
                 if let Err(err) = update {
                     log::error!("Error updating panel padding: {}", err);
                 }
             }
-            Message::SetSpacing(spacing) => {
+            TweakMessage::SetPanelSpacing(spacing) => {
                 self.spacing = spacing;
                 let update = panel_config.set_spacing(panel_helper, self.spacing);
                 if let Err(err) = update {
                     log::error!("Error updating panel spacing: {}", err);
                 }
             }
-            Message::ForceIcons(force) => {
+            TweakMessage::ForceIcons(force) => {
                 let mut configs = self.cosmic_panel_button_config.configs.clone();
                 if let Some(inner_config) = configs.get_mut("Panel") {
                     inner_config.force_presentation =
@@ -221,7 +214,7 @@ impl Panel {
                     }
                 }
             }
-            Message::ShowPanel(show) => {
+            TweakMessage::ShowPanel(show) => {
                 if show {
                     if !self
                         .cosmic_panel_config
@@ -258,6 +251,8 @@ impl Panel {
                     }
                 }
             }
+            // Ignore any message that isn't for the Panel
+            _ => {}
         }
         Task::none()
     }

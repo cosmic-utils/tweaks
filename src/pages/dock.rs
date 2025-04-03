@@ -4,7 +4,7 @@ use cosmic::{
 };
 use cosmic_panel_config::CosmicPanelConfig;
 
-use crate::{core::icons, fl};
+use crate::{app::TweakMessage, core::icons, fl};
 
 #[derive(Debug)]
 pub struct Dock {
@@ -38,14 +38,8 @@ impl Default for Dock {
     }
 }
 
-#[derive(Debug, Clone)]
-pub enum Message {
-    SetPadding(u32),
-    SetSpacing(u32),
-}
-
 impl Dock {
-    pub fn view<'a>(&self) -> Element<'a, Message> {
+    pub fn view<'a>(&self) -> Element<'a, TweakMessage> {
         let spacing = cosmic::theme::active().cosmic().spacing;
         widget::scrollable(
             widget::settings::section()
@@ -56,7 +50,7 @@ impl Dock {
                         .icon(icons::get_icon("resize-mode-symbolic", 18))
                         .control(
                             widget::row::with_children(vec![
-                                widget::slider(0..=28, self.padding, Message::SetPadding).into(),
+                                widget::slider(0..=28, self.padding, TweakMessage::SetDockPadding).into(),
                                 widget::text::text(format!("{} px", self.padding)).into(),
                             ])
                             .spacing(spacing.space_xxs),
@@ -68,7 +62,7 @@ impl Dock {
                         .icon(icons::get_icon("size-horizontally-symbolic", 18))
                         .control(
                             widget::row::with_children(vec![
-                                widget::slider(0..=28, self.spacing, Message::SetSpacing).into(),
+                                widget::slider(0..=28, self.spacing, TweakMessage::SetDockSpacing).into(),
                                 widget::text::text(format!("{} px", self.spacing)).into(),
                             ])
                             .spacing(spacing.space_xxs),
@@ -78,7 +72,7 @@ impl Dock {
         .into()
     }
 
-    pub fn update(&mut self, message: Message) -> Task<crate::app::Message> {
+    pub fn update(&mut self, message: TweakMessage) -> Task<crate::app::Message> {
         let Some(dock_helper) = &mut self.dock_helper else {
             return cosmic::Task::none();
         };
@@ -87,20 +81,22 @@ impl Dock {
         };
 
         match message {
-            Message::SetPadding(padding) => {
+            TweakMessage::SetDockPadding(padding) => {
                 self.padding = padding;
                 let update = dock_config.set_padding(dock_helper, self.padding);
                 if let Err(err) = update {
                     log::error!("Error updating dock padding: {}", err);
                 }
             }
-            Message::SetSpacing(spacing) => {
+            TweakMessage::SetDockSpacing(spacing) => {
                 self.spacing = spacing;
                 let update = dock_config.set_spacing(dock_helper, self.spacing);
                 if let Err(err) = update {
                     log::error!("Error updating dock spacing: {}", err);
                 }
             }
+            // Ignore any message that isn't a dock message
+            _ => {}
         }
         Task::none()
     }

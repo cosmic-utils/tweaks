@@ -5,14 +5,14 @@ use cosmic::{
     Apply, Element,
 };
 
-use crate::core::icons;
+use crate::{app::TweakMessage, core::icons};
 
 use super::config::ColorScheme;
 
 pub fn installed<'a>(
     color_scheme: &ColorScheme,
     selected: &ColorScheme,
-) -> Element<'a, super::Message> {
+) -> Element<'a, TweakMessage> {
     let theme = color_scheme.theme.clone().build();
     let spacing = cosmic::theme::active().cosmic().spacing;
     let color_scheme_name = color_scheme.name.clone();
@@ -38,7 +38,7 @@ pub fn installed<'a>(
                         .apply(widget::button::icon)
                         .class(cosmic::style::Button::Link)
                         .padding(spacing.space_xxs)
-                        .on_press(super::Message::OpenContainingFolder(color_scheme.clone())),
+                        .on_press(TweakMessage::OpenContainingFolder(color_scheme.clone())),
                     widget::text(fl!("open-containing-folder")),
                     tooltip::Position::Bottom,
                 )
@@ -48,7 +48,7 @@ pub fn installed<'a>(
                         .apply(widget::button::icon)
                         .class(cosmic::style::Button::Destructive)
                         .padding(spacing.space_xxs)
-                        .on_press(super::Message::DeleteColorScheme(color_scheme.clone())),
+                        .on_press(TweakMessage::DeleteColorScheme(color_scheme.clone())),
                     widget::text(fl!("delete-color-scheme")),
                     tooltip::Position::Bottom,
                 )
@@ -66,7 +66,7 @@ pub fn installed<'a>(
     )
     .selected(selected.name == color_scheme.name)
     .class(cosmic::style::Button::Image)
-    .on_press(super::Message::SetColorScheme(color_scheme.clone()))
+    .on_press(TweakMessage::SetColorScheme(color_scheme.clone()))
     .into()
 }
 
@@ -101,7 +101,7 @@ pub fn available<'a>(color_scheme: &ColorScheme) -> Element<'a, crate::app::Mess
                         .class(cosmic::style::Button::Link)
                         .padding(spacing.space_xxs)
                         .on_press(crate::app::Message::ColorSchemes(Box::new(
-                            super::Message::OpenLink(color_scheme.link.clone()),
+                            TweakMessage::OpenLink(color_scheme.link.clone()),
                         ))),
                     widget::text(fl!("open-link")),
                     cosmic::widget::tooltip::Position::Bottom,
@@ -113,7 +113,7 @@ pub fn available<'a>(color_scheme: &ColorScheme) -> Element<'a, crate::app::Mess
                         .class(cosmic::style::Button::Suggested)
                         .padding(spacing.space_xxs)
                         .on_press(crate::app::Message::ColorSchemes(Box::new(
-                            super::Message::InstallColorScheme(color_scheme.clone()),
+                            TweakMessage::InstallColorScheme(color_scheme.clone()),
                         ))),
                     widget::text(fl!("install-color-scheme")),
                     cosmic::widget::tooltip::Position::Bottom,
@@ -131,7 +131,7 @@ pub fn available<'a>(color_scheme: &ColorScheme) -> Element<'a, crate::app::Mess
     )
     .class(cosmic::style::Button::Image)
     .on_press(crate::app::Message::ColorSchemes(Box::new(
-        super::Message::SetColorScheme(color_scheme.clone()),
+        TweakMessage::SetColorScheme(color_scheme.clone()),
     )))
     .into()
 }

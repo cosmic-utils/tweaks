@@ -11,6 +11,7 @@ pub enum NavPage {
     Dock,
     Panel,
     Layouts,
+    ThemePacks,
 }
 
 impl Default for &NavPage {
@@ -26,6 +27,7 @@ impl NavPage {
             Self::Dock => fl!("dock"),
             Self::Panel => fl!("panel"),
             Self::Layouts => fl!("layouts"),
+            Self::ThemePacks => format!("Theme Packs"), // Figure out fl!() for this
         }
     }
 
@@ -35,10 +37,11 @@ impl NavPage {
             Self::Dock => icons::get_icon("dock-bottom-symbolic", 18),
             Self::Panel => icons::get_icon("dock-top-symbolic", 18),
             Self::Layouts => icons::get_icon("view-coverflow-symbolic", 18),
+            Self::ThemePacks => icons::get_icon("view-coverflow-symbolic", 18),
         }
     }
 
     pub fn all() -> &'static [Self] {
-        &[Self::ColorSchemes, Self::Dock, Self::Panel, Self::Layouts]
+        &[Self::ColorSchemes, Self::Dock, Self::Panel, Self::Layouts, Self::ThemePacks]
     }
 }

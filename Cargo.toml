@@ -20,7 +20,7 @@ anyhow = "1.0.91"
 
 [dependencies.libcosmic]
 git = "https://github.com/pop-os/libcosmic.git"
-default-features = false
+#default-features = false
 features = ["multi-window", "tokio", "winit", "wgpu"]
 
 [dependencies.cosmic-ext-config-templates]

@@ -5,7 +5,7 @@ use cosmic::{
 use cosmic_ext_config_templates::{load_template, panel::PanelSchema, Schema};
 use dirs::data_local_dir;
 
-use crate::{app::TweakTool, core::icons, fl};
+use crate::{app::{TweakTool, TweakMessage}, core::icons, fl};
 
 pub mod config;
 pub mod preview;
@@ -28,17 +28,17 @@ impl Default for Layouts {
     }
 }
 
-#[derive(Debug, Clone)]
+/*#[derive(Debug, Clone)]
 pub enum Message {
     ApplyLayout(Layout),
     SelectLayout(Layout),
     DeleteLayout,
     OpenSaveDialog,
     SaveCurrentLayout(String),
-}
+}*/
 
 impl Layouts {
-    pub fn view(&self) -> Element<Message> {
+    pub fn view(&self) -> Element<TweakMessage> {
         let spacing = cosmic::theme::active().cosmic().spacing;
         let layouts = self
             .config
@@ -52,7 +52,7 @@ impl Layouts {
                     .align_x(Horizontal::Center)
                     .into()
             })
-            .collect::<Vec<Element<Message>>>();
+            .collect::<Vec<Element<TweakMessage>>>();
 
         widget::scrollable(
             widget::column::with_children(vec![
@@ -63,7 +63,7 @@ impl Layouts {
                         icons::get_handle("arrow-into-box-symbolic", 16)
                             .apply(widget::button::icon)
                             .padding(spacing.space_xxs)
-                            .on_press(Message::OpenSaveDialog)
+                            .on_press(TweakMessage::OpenSaveDialog)
                             .class(cosmic::style::Button::Standard),
                         widget::text(fl!("save-current-layout")),
                         widget::tooltip::Position::Bottom,
@@ -87,17 +87,17 @@ impl Layouts {
         .into()
     }
 
-    pub fn update(&mut self, message: Message) -> Task<crate::app::Message> {
+    pub fn update(&mut self, message: TweakMessage) -> Task<crate::app::Message> {
         let mut commands = vec![];
         match message {
-            Message::ApplyLayout(layout) => {
+            TweakMessage::ApplyLayout(layout) => {
                 if let Err(e) = load_template(layout.schema().clone()) {
                     eprintln!("Failed to load template: {}", e);
                 }
             }
-            Message::SelectLayout(layout) => self.selected_layout = Some(layout),
-            Message::OpenSaveDialog => commands.push(self.update(Message::OpenSaveDialog)),
-            Message::SaveCurrentLayout(name) => {
+            TweakMessage::SelectLayout(layout) => self.selected_layout = Some(layout),
+            TweakMessage::OpenSaveDialog => commands.push(self.update(TweakMessage::OpenSaveDialog)),
+            TweakMessage::SaveCurrentLayout(name) => {
                 let path = data_local_dir()
                     .unwrap()
                     .join(TweakTool::APP_ID)
@@ -131,7 +131,7 @@ impl Layouts {
                     Err(e) => log::error!("Failed to generate template: {}", e),
                 }
             }
-            Message::DeleteLayout => {
+            TweakMessage::DeleteLayout => {
                 if let Some(layout) = &self.selected_layout {
                     if let Layout::Custom(existing_layout) = &layout {
                         if existing_layout.path().exists() {
@@ -155,6 +155,8 @@ impl Layouts {
                     }
                 }
             }
+            // Ignore any message that's not a layout message
+            _ => {}
         }
         Task::batch(commands)
     }

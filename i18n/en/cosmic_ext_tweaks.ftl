@@ -6,6 +6,7 @@ dock = Dock
 panel = Panel
 layouts = Layouts
 color-schemes = Color schemes
+theme-packs = Theme Packs
 color-schemes-error = Error loading color schemes
 import-color-scheme = Import color scheme
 delete-color-scheme = Delete color scheme
@@ -21,6 +22,7 @@ show-more = Show more
 settings = Settings
 about = About
 find-themes = Find themes
+find-theme-packs = Find theme packs
 
 # Panel only
 show-panel = Show panel
@@ -36,7 +38,9 @@ save = Save
 cancel = Cancel
 save-current-color-scheme = Save current color scheme
 save-current-layout = Save current layout
+save-current-theme-pack = Save current color scheme and layout as theme pack
 color-scheme-name = Color scheme name
+theme-pack-name = Theme pack name
 
 ## About
 git-description = Git commit {$hash} on {$date}

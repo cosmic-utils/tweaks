@@ -6,8 +6,8 @@ use cosmic::{
     widget::{self, horizontal_space, vertical_space},
     Apply, Element,
 };
+use crate::app::TweakMessage;
 
-use super::Message;
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct LayoutPreview {
     panel: Option<PanelProperties>,
@@ -57,7 +57,7 @@ impl LayoutPreview {
         }
     }
 
-    pub fn view<'a>(&self) -> Element<'a, Message> {
+    pub fn view<'a>(&self) -> Element<'a, TweakMessage> {
         let column = widget::column().width(188).height(98);
         let row = widget::row().width(188).height(98);
         let spacing = cosmic::theme::active().cosmic().spacing;
@@ -330,7 +330,7 @@ impl LayoutPreview {
     }
 }
 
-pub fn square<'a>(size: f32) -> Element<'a, Message> {
+pub fn square<'a>(size: f32) -> Element<'a, TweakMessage> {
     widget::container(widget::text(""))
         .width(Length::Fixed(size))
         .height(Length::Fixed(size))

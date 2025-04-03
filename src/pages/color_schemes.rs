@@ -1,7 +1,7 @@
 use std::{path::PathBuf, sync::Arc};
 
 use self::config::ColorScheme;
-use crate::{core::icons, fl};
+use crate::{app::TweakMessage, core::icons, fl};
 use ashpd::desktop::file_chooser::{FileFilter, SelectedFiles};
 use cosmic::{
     cosmic_config::{Config, CosmicConfigEntry},
@@ -14,9 +14,10 @@ pub mod config;
 pub mod preview;
 pub mod providers;
 
+#[derive(Debug, Clone)]
 pub struct ColorSchemes {
-    selected: ColorScheme,
-    installed: Vec<ColorScheme>,
+    pub(crate) selected: ColorScheme,
+    pub(crate) installed: Vec<ColorScheme>,
     config_helper: Option<Config>,
     config: Option<ColorScheme>,
     theme_mode: ThemeMode,
@@ -83,7 +84,7 @@ impl Default for ColorSchemes {
     }
 }
 
-#[derive(Debug, Clone)]
+/*#[derive(Debug, Clone)]
 pub enum Message {
     StartImport,
     ImportError,
@@ -97,7 +98,7 @@ pub enum Message {
     OpenLink(Option<String>),
     ReloadColorSchemes,
     OpenAvailableThemes,
-}
+}*/
 
 #[derive(Debug, Clone)]
 pub enum ColorSchemeProvider {
@@ -105,7 +106,7 @@ pub enum ColorSchemeProvider {
 }
 
 impl ColorSchemes {
-    pub fn view<'a>(&self) -> Element<'a, Message> {
+    pub fn view<'a>(&self) -> Element<'a, TweakMessage> {
         let spacing = cosmic::theme::active().cosmic().spacing;
 
         widget::column::with_children(vec![
@@ -116,7 +117,7 @@ impl ColorSchemes {
                     icons::get_handle("arrow-into-box-symbolic", 16)
                         .apply(widget::button::icon)
                         .padding(spacing.space_xxs)
-                        .on_press(Message::SaveCurrentColorScheme(None))
+                        .on_press(TweakMessage::SaveCurrentColorScheme(None))
                         .class(cosmic::style::Button::Standard),
                     widget::text(fl!("save-current-color-scheme")),
                     tooltip::Position::Bottom,
@@ -126,7 +127,7 @@ impl ColorSchemes {
                     icons::get_handle("document-save-symbolic", 16)
                         .apply(widget::button::icon)
                         .padding(spacing.space_xxs)
-                        .on_press(Message::StartImport)
+                        .on_press(TweakMessage::StartColorSchemeImport)
                         .class(cosmic::style::Button::Standard),
                     widget::text(fl!("import-color-scheme")),
                     tooltip::Position::Bottom,
@@ -136,7 +137,7 @@ impl ColorSchemes {
                     icons::get_handle("search-global-symbolic", 16)
                         .apply(widget::button::icon)
                         .padding(spacing.space_xxs)
-                        .on_press(Message::OpenAvailableThemes)
+                        .on_press(TweakMessage::OpenAvailableThemes)
                         .class(cosmic::style::Button::Standard),
                     widget::text(fl!("find-color-schemes")),
                     tooltip::Position::Bottom,
@@ -148,7 +149,7 @@ impl ColorSchemes {
             widget::settings::section()
                 .title(fl!("installed"))
                 .add({
-                    let themes: Vec<Element<Message>> = self
+                    let themes: Vec<Element<TweakMessage>> = self
                         .installed
                         .iter()
                         .map(|color_scheme| preview::installed(color_scheme, &self.selected))
@@ -167,13 +168,13 @@ impl ColorSchemes {
         .into()
     }
 
-    pub fn update(&mut self, message: Message) -> Task<Message> {
+    pub fn update(&mut self, message: TweakMessage) -> Task<TweakMessage> {
         let mut commands = vec![];
         match message {
-            Message::OpenAvailableThemes => {
-                commands.push(self.update(Message::OpenAvailableThemes))
+            TweakMessage::OpenAvailableThemes => {
+                commands.push(self.update(TweakMessage::OpenAvailableThemes))
             }
-            Message::StartImport => commands.push(Task::perform(
+            TweakMessage::StartColorSchemeImport => commands.push(Task::perform(
                 async {
                     SelectedFiles::open_file()
                         .modal(true)
@@ -184,16 +185,16 @@ impl ColorSchemes {
                 },
                 |res| {
                     if let Ok(f) = res {
-                        Message::ImportFile(Arc::new(f))
+                        TweakMessage::ColorSchemeImportFile(Arc::new(f))
                     } else {
                         // TODO Error toast?
                         log::error!("failed to select a file for importing a custom theme.");
-                        Message::ImportError
+                        TweakMessage::ColorSchemeImportError
                     }
                 },
             )),
-            Message::ImportError => log::error!("failed to import a custom theme."),
-            Message::ImportFile(f) => {
+            TweakMessage::ColorSchemeImportError => log::error!("failed to import a custom theme."),
+            TweakMessage::ColorSchemeImportFile(f) => {
                 let Some(f) = f.uris().first() else {
                     return Task::none();
                 };
@@ -218,7 +219,7 @@ impl ColorSchemes {
                     theme: Default::default(),
                 };
 
-                commands.push(self.update(Message::SetColorScheme(color_scheme.clone())));
+                commands.push(self.update(TweakMessage::SetColorScheme(color_scheme.clone())));
 
                 let file_path = path.clone();
                 commands.push(Task::perform(
@@ -234,15 +235,15 @@ impl ColorSchemes {
                             }
                             ron::de::from_str(&theme).ok()
                         }) {
-                            Message::ImportSuccess(Box::new(b))
+                            TweakMessage::ColorSchemeImportSuccess(Box::new(b))
                         } else {
                             log::error!("failed to import a file for a custom theme.");
-                            Message::ImportError
+                            TweakMessage::ColorSchemeImportError
                         }
                     },
                 ))
             }
-            Message::ImportSuccess(builder) => {
+            TweakMessage::ColorSchemeImportSuccess(builder) => {
                 self.theme_builder = *builder;
 
                 let Some(config) = self.theme_builder_config.as_ref() else {
@@ -269,9 +270,9 @@ impl ColorSchemes {
                 if let Err(e) = new_theme.write_entry(&config) {
                     log::error!("Failed to write the theme config: {e}");
                 }
-                commands.push(self.update(Message::ReloadColorSchemes));
+                commands.push(self.update(TweakMessage::ReloadColorSchemes));
             }
-            Message::SetColorScheme(color_scheme) => {
+            TweakMessage::SetColorScheme(color_scheme) => {
                 self.selected = color_scheme.clone();
                 let Some(config_helper) = &self.config_helper else {
                     log::error!("Failed to get the config helper.");
@@ -292,15 +293,15 @@ impl ColorSchemes {
                     log::info!("Theme is not default, setting the theme...");
                     if let Ok(theme) = &color_scheme.theme() {
                         log::info!("Color scheme has a theme, setting the theme...");
-                        commands.push(self.update(Message::ImportSuccess(Box::new(theme.clone()))))
+                        commands.push(self.update(TweakMessage::ColorSchemeImportSuccess(Box::new(theme.clone()))))
                     }
                 }
             }
-            Message::DeleteColorScheme(color_scheme) => {
+            TweakMessage::DeleteColorScheme(color_scheme) => {
                 if self.selected.name == color_scheme.name {
                     if let Some(color_scheme) = self.installed.first() {
-                        commands.push(self.update(Message::SetColorScheme(color_scheme.clone())));
-                        commands.push(self.update(Message::ReloadColorSchemes));
+                        commands.push(self.update(TweakMessage::SetColorScheme(color_scheme.clone())));
+                        commands.push(self.update(TweakMessage::ReloadColorSchemes));
                     }
                 }
                 let Some(path) = color_scheme.path else {
@@ -309,9 +310,9 @@ impl ColorSchemes {
                 std::fs::remove_file(&path).unwrap_or_else(|e| {
                     log::error!("There was an error deleting the color scheme: {e}")
                 });
-                commands.push(self.update(Message::ReloadColorSchemes));
+                commands.push(self.update(TweakMessage::ReloadColorSchemes));
             }
-            Message::InstallColorScheme(color_scheme) => {
+            TweakMessage::InstallColorScheme(color_scheme) => {
                 let new_file = dirs::data_local_dir()
                     .map(|dir| {
                         dir.join("themes/cosmic")
@@ -325,16 +326,16 @@ impl ColorSchemes {
                 {
                     log::error!("There was an error installing the color scheme: {e}");
                 }
-                commands.push(self.update(Message::ReloadColorSchemes));
+                commands.push(self.update(TweakMessage::ReloadColorSchemes));
             }
-            Message::OpenLink(link) => {
+            TweakMessage::OpenLink(link) => {
                 if let Some(link) = link {
                     open::that_detached(link).unwrap_or_else(|e| {
                         log::error!("There was an error opening the link: {e}")
                     });
                 }
             }
-            Message::OpenContainingFolder(color_scheme) => {
+            TweakMessage::OpenContainingFolder(color_scheme) => {
                 let Some(path) = color_scheme.path else {
                     return Task::none();
                 };
@@ -344,10 +345,10 @@ impl ColorSchemes {
                     }
                 }
             }
-            Message::ReloadColorSchemes => {
+            TweakMessage::ReloadColorSchemes => {
                 self.installed = Self::fetch_color_schemes().unwrap_or_default();
             }
-            Message::SaveCurrentColorScheme(name) => {
+            TweakMessage::SaveCurrentColorScheme(name) => {
                 if let Some(name) = name {
                     let path = dirs::data_local_dir()
                         .map(|dir| dir.join("themes/cosmic").join(&name).with_extension("ron"))
@@ -375,12 +376,14 @@ impl ColorSchemes {
                         log::error!("failed to write the file to the themes directory: {e}");
                     }
 
-                    commands.push(self.update(Message::SetColorScheme(color_scheme)));
-                    commands.push(self.update(Message::ReloadColorSchemes))
+                    commands.push(self.update(TweakMessage::SetColorScheme(color_scheme)));
+                    commands.push(self.update(TweakMessage::ReloadColorSchemes))
                 } else {
-                    commands.push(self.update(Message::SaveCurrentColorScheme(None)))
+                    commands.push(self.update(TweakMessage::SaveCurrentColorScheme(None)))
                 }
             }
+            // Ignore non-color scheme messages
+            _ => {}
         }
         Task::batch(commands)
     }

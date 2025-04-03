@@ -26,15 +26,16 @@ use crate::{
     core::nav::NavPage,
     fl,
     pages::{
-        self,
-        color_schemes::{config::ColorScheme, preview, ColorSchemeProvider, ColorSchemes},
-        layouts::Layouts,
+        self, color_schemes::{config::ColorScheme, preview, ColorSchemeProvider, ColorSchemes}, dock::Dock, layouts::Layouts, theme_pack::ThemePack
     },
     settings::{AppTheme, TweaksSettings, CONFIG_VERSION},
 };
 
 mod key_bind;
 pub mod style;
+pub(crate) mod message;
+
+pub(crate) use message::Message as TweakMessage;
 
 pub struct TweakTool {
     core: Core,
@@ -69,10 +70,11 @@ pub enum DialogPage {
 
 #[derive(Debug, Clone)]
 pub enum Message {
-    Dock(pages::dock::Message),
-    Panel(pages::panel::Message),
-    Layouts(pages::layouts::Message),
-    ColorSchemes(Box<pages::color_schemes::Message>),
+    Dock(TweakMessage),
+    Panel(TweakMessage),
+    Layouts(TweakMessage),
+    ColorSchemes(Box<TweakMessage>),
+    ThemePacks(TweakMessage),
     OpenSaveCurrentColorScheme,
     OpenSaveCurrentLayout,
     DialogUpdate(DialogPage),
@@ -282,9 +284,11 @@ impl Application for TweakTool {
                 .view()
                 .map(Box::new)
                 .map(Message::ColorSchemes),
-            NavPage::Dock => pages::dock::Dock::default().view().map(Message::Dock),
+            NavPage::Dock => Dock::
+            default().view().map(Message::Dock),
             NavPage::Panel => pages::panel::Panel::default().view().map(Message::Panel),
             NavPage::Layouts => self.layouts.view().map(Message::Layouts),
+            NavPage::ThemePacks => pages::theme_pack::ThemePack::default().view().map(Message::ThemePacks),
         };
 
         widget::column::with_children(vec![view])
@@ -399,16 +403,21 @@ impl Application for TweakTool {
                     .map(cosmic::app::Message::App),
             ),
             Message::Layouts(message) => match message {
-                pages::layouts::Message::OpenSaveDialog => {
+                TweakMessage::OpenSaveDialog => {
                     commands.push(self.update(Message::OpenSaveCurrentLayout))
                 }
                 _ => commands.push(self.layouts.update(message).map(cosmic::app::Message::App)),
             },
+            Message::ThemePacks(message) => commands.push(
+                pages::theme_pack::ThemePack::default()
+                    .update(message)
+                    .map(cosmic::app::Message::App),
+            ),
             Message::ColorSchemes(message) => match *message {
-                pages::color_schemes::Message::SaveCurrentColorScheme(None) => {
+                TweakMessage::SaveCurrentColorScheme(None) => {
                     commands.push(self.update(Message::OpenSaveCurrentColorScheme))
                 }
-                pages::color_schemes::Message::OpenAvailableThemes => commands
+                TweakMessage::OpenAvailableThemes => commands
                     .push(self.update(Message::ToggleContextPage(ContextPage::AvailableThemes))),
                 _ => commands.push(
                     self.color_schemes
@@ -420,11 +429,11 @@ impl Application for TweakTool {
             },
             Message::SaveNewColorScheme(name) => {
                 commands.push(self.update(Message::ColorSchemes(Box::new(
-                    pages::color_schemes::Message::SaveCurrentColorScheme(Some(name)),
+                    TweakMessage::SaveCurrentColorScheme(Some(name)),
                 ))))
             }
             Message::SaveNewLayout(name) => commands.push(self.update(Message::Layouts(
-                pages::layouts::Message::SaveCurrentLayout(name),
+                TweakMessage::SaveCurrentLayout(name),
             ))),
             Message::OpenSaveCurrentColorScheme => {
                 self.dialog_pages
