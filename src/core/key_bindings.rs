@@ -4,7 +4,7 @@ use cosmic::iced::keyboard::Key;
 use cosmic::widget::menu::key_bind::KeyBind;
 use cosmic::widget::menu::key_bind::Modifier;
 
-use crate::app::TweaksAction;
+use crate::app::action::TweaksAction;
 
 pub struct KeyBindings;
 

@@ -55,7 +55,7 @@ impl Layouts {
             .into()
     }
 
-    pub fn update(&mut self, message: Message) -> Task<crate::app::Message> {
+    pub fn update(&mut self, message: Message) -> Task<crate::app::message::Message> {
         match message {
             Message::ApplyLayout(layout) => {
                 self.selected_layout = Some(layout.clone());

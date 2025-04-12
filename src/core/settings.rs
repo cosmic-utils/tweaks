@@ -1,4 +1,4 @@
-use crate::core::localize;
+use crate::{app::flags::Flags, core::localize};
 
 use super::icons::{IconCache, ICON_CACHE};
 use std::sync::Mutex;
@@ -11,10 +11,10 @@ pub fn settings() -> cosmic::app::Settings {
     )
 }
 
-pub fn flags() -> crate::app::Flags {
-    crate::app::Flags {
-        handler: crate::app::config::TweaksConfig::config(),
-        config: crate::app::config::TweaksConfig::new(),
+pub fn flags() -> Flags {
+    Flags {
+        handler: crate::core::config::TweaksConfig::config(),
+        config: crate::core::config::TweaksConfig::new(),
     }
 }
 

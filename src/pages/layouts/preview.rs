@@ -95,7 +95,7 @@ impl LayoutPreview {
                     .align_y(Vertical::Center)
                     .padding(5)
                     .class(if dock_props.extend {
-                        cosmic::style::Container::custom(crate::app::style::panel_style)
+                        cosmic::style::Container::custom(crate::core::style::panel_style)
                     } else {
                         cosmic::style::Container::Background
                     });
@@ -120,7 +120,7 @@ impl LayoutPreview {
             }
             (Some(panel_props), None) => {
                 let panel = panel.class(if panel_props.extend {
-                    cosmic::style::Container::custom(crate::app::style::panel_style)
+                    cosmic::style::Container::custom(crate::core::style::panel_style)
                 } else {
                     cosmic::style::Container::Background
                 });
@@ -152,7 +152,7 @@ impl LayoutPreview {
             }
             (Some(panel_props), Some(dock_props)) => {
                 let panel = panel.class(if panel_props.extend {
-                    cosmic::style::Container::custom(crate::app::style::panel_style)
+                    cosmic::style::Container::custom(crate::core::style::panel_style)
                 } else {
                     cosmic::style::Container::Background
                 });
@@ -189,7 +189,7 @@ impl LayoutPreview {
                     .align_y(Vertical::Center)
                     .padding(5)
                     .class(if dock_props.extend {
-                        cosmic::style::Container::custom(crate::app::style::panel_style)
+                        cosmic::style::Container::custom(crate::core::style::panel_style)
                     } else {
                         cosmic::style::Container::Background
                     });
