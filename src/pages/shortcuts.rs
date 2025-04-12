@@ -46,7 +46,7 @@ impl Shortcuts {
         Self {}
     }
 
-    pub fn update(&mut self, message: Message) -> Task<crate::app::Message> {
+    pub fn update(&mut self, message: Message) -> Task<crate::app::message::Message> {
         match message {
             Message::ApplyShortcuts(shortcut) => {
                 let path = Path::new(&env::var("HOME").unwrap())

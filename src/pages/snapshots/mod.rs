@@ -128,7 +128,7 @@ impl Snapshots {
         .into()
     }
 
-    pub fn update(&mut self, message: Message) -> Task<crate::app::Message> {
+    pub fn update(&mut self, message: Message) -> Task<crate::app::message::Message> {
         let mut commands = vec![];
         match message {
             Message::RestoreSnapshot(snapshot) => {

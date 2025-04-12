@@ -171,7 +171,7 @@ impl Panel {
         .into()
     }
 
-    pub fn update(&mut self, message: Message) -> Task<crate::app::Message> {
+    pub fn update(&mut self, message: Message) -> Task<crate::app::message::Message> {
         let Some(panel_helper) = &mut self.panel_helper else {
             return cosmic::Task::none();
         };

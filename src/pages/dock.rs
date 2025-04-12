@@ -76,7 +76,7 @@ impl Dock {
         .into()
     }
 
-    pub fn update(&mut self, message: Message) -> Task<crate::app::Message> {
+    pub fn update(&mut self, message: Message) -> Task<crate::app::message::Message> {
         let Some(dock_helper) = &mut self.dock_helper else {
             return cosmic::Task::none();
         };
