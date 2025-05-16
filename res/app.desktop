@@ -1,11 +1,14 @@
 [Desktop Entry]
 Name=Tweaks for COSMIC
 Name[fr]=Tweaks pour COSMIC
+Name[pt]=Ajustes do COSMIC
 GenericName = COSMIC tweaks
 Comment=Tweaks your COSMIC desktop environment
 Comment[fr]=Améliorez votre environnement de bureau COSMIC
+Comment[pt]=Ajustes adicionais para seu ambiente de trabalho COSMIC
 Keywords=Folder;Manager
 Keywords[fr]=ajustement
+Keywords[pt]=layout;tweaks;melhorias;configurações
 
 Exec=cosmic-ext-tweaks
 Terminal=false
