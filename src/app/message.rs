@@ -11,6 +11,7 @@ pub enum Message {
     Shortcuts(pages::shortcuts::Message),
     Snapshots(pages::snapshots::Message),
     ColorSchemes(Box<pages::color_schemes::Message>),
+    ThemePacks(pages::theme_packs::Message),
     DialogUpdate(DialogPage),
     DialogComplete,
     DialogCancel,

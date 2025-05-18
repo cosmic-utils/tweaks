@@ -43,6 +43,7 @@ use crate::{
         shortcuts::Shortcuts,
         snapshots::{config::SnapshotKind, Snapshots},
     },
+    pages::theme_packs::ThemePacks,
 };
 
 pub struct Cosmic {
@@ -126,6 +127,7 @@ impl Application for App {
             panel: Panel::default(),
             snapshots: Snapshots::default(),
             shorcuts: Shortcuts::new(),
+            theme_packs: ThemePacks::new(),
         };
 
         let mut tasks = vec![
@@ -211,10 +213,7 @@ impl Application for App {
 
     fn dialog(&self) -> Option<Element<Self::Message>> {
         let spacing = cosmic::theme::spacing();
-        let dialog_page = match self.cosmic.dialog_pages.front() {
-            Some(some) => some,
-            None => return None,
-        };
+        let dialog_page = self.cosmic.dialog_pages.front()?;
 
         let dialog = match dialog_page {
             DialogPage::SaveCurrentColorScheme(name) => widget::dialog()
@@ -282,6 +281,7 @@ impl Application for App {
             Page::Layouts => self.layouts.view().map(Message::Layouts),
             Page::Snapshots => self.snapshots.view().map(Message::Snapshots),
             Page::Shortcuts => self.shorcuts.view().map(Message::Shortcuts),
+            Page::ThemePacks => self.theme_packs.view().map(Message::ThemePacks),
         };
 
         widget::column()
@@ -414,6 +414,9 @@ impl Application for App {
                         .map(cosmic::action::app),
                 ),
             },
+            Message::ThemePacks(message) => {
+                tasks.push(self.theme_packs.update(message).map(cosmic::action::app))
+            }
             Message::SaveNewColorScheme(name) => {
                 tasks.push(self.update(Message::ColorSchemes(Box::new(
                     pages::color_schemes::Message::SaveCurrentColorScheme(Some(name)),

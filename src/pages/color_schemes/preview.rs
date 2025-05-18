@@ -95,8 +95,7 @@ pub fn available<'a>(
                 .push_maybe(
                     color_scheme
                         .author
-                        .as_ref()
-                        .and_then(|author| Some(widget::text::caption(author.clone()))),
+                        .as_ref().map(|author| widget::text::caption(author.clone())),
                 )
                 .width(Length::Fill)
                 .align_x(Alignment::Center)
