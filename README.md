@@ -18,18 +18,21 @@ Theme Packs allow you to save, load, and share complete desktop configurations i
 - Panel and dock layouts
 - Desktop appearance settings
 
-Theme packs are stored as `.ctp` files in `~/.config/cosmic/theme_packs/`.
+Theme packs are stored as `.ctp` files in the `~/.local/share/theme-packs/cosmic/` directory.
 
 To create a theme pack:
-1. Navigate to the Theme Packs section
-2. Enter a name, author, and description
-3. Click "Export Theme"
+1. Create you color scheme in the COSMIC Settings -> Appearance page
+2. Either choose a Tweaks Layout or create your own through COSMIC Settings
+2. In Tweaks, navigate to the Theme Packs section
+3. Enter a name, author, and description
+4. Click "Export Theme Pack"
 
 To import a theme pack:
 1. Navigate to the Theme Packs section
-2. Click "Import Color Scheme"
+2. Click "Import Theme Pack"
 3. Select a `.ctp` file using the file dialog
-4. Select and apply the imported theme
+4. Click the imported theme pack
+5. Click "Apply Theme Pack"
 
 ## Getting Started
 Clone this repository to your local machine and open it in your code editor.
