@@ -33,7 +33,19 @@ pub fn create_theme_pack(
     description: impl Into<String>,
 ) -> Result<ThemePack, ron::error::Error> {
     // Get the current color scheme
-    let color_scheme = ColorScheme::current_theme();
+    let theme_builder = ColorScheme::current_theme();
+    let name = name.into();
+    let author = author.into();
+
+    // Create a ColorScheme
+    let color_scheme = ColorScheme {
+        name: name.clone(),
+        author: Some(author.clone()),
+        path: None,
+        link: None,
+        theme: theme_builder,
+    };
+
     let color_scheme_ron = ron::to_string(&color_scheme)?;
 
     // Generate a Schema for the current panel/dock configuration
@@ -45,8 +57,8 @@ pub fn create_theme_pack(
         });
 
     Ok(ThemePack {
-        name: name.into(),
-        author: author.into(),
+        name: name,
+        author: author,
         description: description.into(),
         version: "1.0.0".into(),
         color_scheme: ColorSchemeConfig {

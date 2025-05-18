@@ -59,13 +59,14 @@ system = System
 user = User
 
 # Theme Packs
-available-themes = Available Themes
-no-themes-available = No themes available
-create-new-theme = Create New Theme
-export-theme = Export Theme
+available-theme-packs = Available Theme Packs
+no-theme-packs-available = No theme packs available
+create-new-theme-pack = Create New Theme Pack
+import-theme-pack = Import Theme Pack
+export-theme-pack = Export Theme Pack
 author = Author
 description = Description
-save-theme-confirmation = Do you want to save this theme pack?
+save-theme-pack-confirmation = Do you want to save this theme pack?
 
 ## Snapshots
 application-opened = Application opened

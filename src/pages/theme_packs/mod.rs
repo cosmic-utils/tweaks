@@ -7,7 +7,11 @@ use cosmic::{
     cosmic_config::CosmicConfigEntry,
     cosmic_theme::ThemeBuilder,
     dialog::file_chooser::{self, FileFilter},
-    iced, widget, Element, Task,
+    iced::Length,
+    widget::{
+        self, button, column, container, horizontal_space, radio, row, scrollable, settings, text,
+    },
+    Element, Task,
 };
 use std::{fs, path::PathBuf};
 use url::Url;
@@ -28,7 +32,6 @@ pub enum Message {
     SelectTheme(usize),
     ApplyThemePack,
     DeleteThemePack,
-    RefreshThemes,
     FileDialogCancelled,
     FileDialogError(String),
     FileDialogSelected(Url),
@@ -72,13 +75,38 @@ impl ThemePacks {
 
     /// Get the default theme pack directory
     pub fn get_theme_dir() -> PathBuf {
-        let mut path = dirs::config_dir().unwrap_or_default();
-        path.push("cosmic");
-        path.push("theme_packs");
+        let xdg_data_home = std::env::var("XDG_DATA_HOME")
+            .ok()
+            .and_then(|value| {
+                if value.is_empty() {
+                    None
+                } else {
+                    Some(PathBuf::from(value))
+                }
+            })
+            .or_else(dirs::data_local_dir)
+            .map(|dir| dir.join("theme-packs/cosmic"));
 
-        if !path.exists() {
-            let _ = fs::create_dir_all(&path);
+        if let Some(ref xdg_data_home) = xdg_data_home {
+            if !xdg_data_home.exists() {
+                if let Err(e) = std::fs::create_dir_all(xdg_data_home) {
+                    log::error!("failed to create theme packs directory: {e}")
+                };
+            }
         }
+
+        let path = if let Some(xdg_data_home) = xdg_data_home {
+            println!("xdg_data_home: {}", xdg_data_home.display());
+            xdg_data_home
+        } else {
+            let _ = std::fs::create_dir_all(
+                xdg_data_home
+                    .clone()
+                    .expect("expected to get xdg_data_home"),
+            );
+            log::info!("Recreated xdg_data_home/theme-packs/cosmic");
+            xdg_data_home.unwrap().clone()
+        };
 
         path
     }
@@ -162,7 +190,6 @@ impl ThemePacks {
                     }
                 }
             }
-            Message::RefreshThemes => self.refresh_themes(),
             Message::ImportThemePack => {
                 // Use XDG portal file dialog for selecting theme packs
                 return cosmic::task::future(async move {
@@ -242,7 +269,7 @@ impl ThemePacks {
 
         // Create theme form
         let create_theme_form = widget::column()
-            .push(widget::text::title4(fl!("create-new-theme")))
+            .push(widget::text::title4(fl!("create-new-theme-pack")))
             .push(
                 widget::column()
                     .push(widget::text::body(fl!("name")))
@@ -277,7 +304,7 @@ impl ThemePacks {
                 widget::row()
                     .push(widget::horizontal_space())
                     .push(
-                        widget::button::standard(fl!("export-theme"))
+                        widget::button::standard(fl!("export-theme-pack"))
                             .on_press(Message::ExportThemePack),
                     )
                     .spacing(spacing.space_xxs),
@@ -292,38 +319,35 @@ impl ThemePacks {
 
         // Available themes section with import button
         let available_themes_header = widget::row()
-            .push(widget::text::title4(fl!("available-themes")))
+            .push(widget::text::title4(fl!("available-theme-packs")))
             .push(widget::horizontal_space())
             .push(
-                widget::button::standard(fl!("import-color-scheme")) // Reuse existing translation
+                widget::button::standard(fl!("import-theme-pack"))
                     .on_press(Message::ImportThemePack),
             )
-            .width(iced::Length::Fill);
+            .width(Length::Fill);
 
         let available_themes_section = if self.available_themes.is_empty() {
-            widget::column()
-                .push(available_themes_header)
-                .push(widget::text::body(fl!("no-themes-available")))
-                .spacing(spacing.space_m)
-                .padding(spacing.space_m)
-                .width(iced::Length::Fill)
+            scrollable(
+                column()
+                    .push(available_themes_header)
+                    .push(text::body(fl!("no-theme-packs-available")))
+                    .spacing(spacing.space_m)
+                    .padding(spacing.space_m)
+                    .width(Length::Fill),
+            )
         } else {
             let mut column = widget::column()
                 .push(available_themes_header)
                 .spacing(spacing.space_m)
                 .padding(spacing.space_m)
-                .width(iced::Length::Fill);
+                .width(Length::Fill);
 
             // Create a list of available themes
             for (idx, (name, _)) in self.available_themes.iter().enumerate() {
-                let theme_row = widget::row()
-                    .push(widget::text::body(name.clone()).width(iced::Length::Fill))
-                    .push(widget::radio(
-                        "",
-                        idx,
-                        self.selected_theme,
-                        Message::SelectTheme,
-                    ))
+                let theme_row = row()
+                    .push(text::body(name.clone()).width(Length::Fill))
+                    .push(radio("", idx, self.selected_theme, Message::SelectTheme))
                     .spacing(spacing.space_m);
 
                 column = column.push(theme_row);
@@ -332,62 +356,53 @@ impl ThemePacks {
             // Add action buttons for selected theme
             if self.selected_theme.is_some() {
                 column = column.push(
-                    widget::row()
+                    row()
                         .push(widget::horizontal_space())
-                        .push(
-                            widget::button::standard(fl!("apply"))
-                                .on_press(Message::ApplyThemePack),
-                        )
-                        .push(
-                            widget::button::destructive(fl!("delete"))
-                                .on_press(Message::DeleteThemePack),
-                        )
+                        .push(button::standard(fl!("apply")).on_press(Message::ApplyThemePack))
+                        .push(button::destructive(fl!("delete")).on_press(Message::DeleteThemePack))
                         .spacing(spacing.space_xxs),
                 );
             }
 
-            column
+            scrollable(column)
         };
 
-        let available_themes_container = widget::container(available_themes_section)
+        let available_themes_container = container(available_themes_section)
             .padding(spacing.space_m)
-            .style(|_| widget::container::Style::default());
+            .style(|_| container::Style::default());
 
         // If save dialog is open, show the confirmation dialog
         if self.save_dialog_open {
-            widget::container(
-                widget::column()
-                    .push(widget::text::title4(fl!("save-theme-confirmation")))
+            container(
+                column()
+                    .push(text::title4(fl!("save-theme-pack-confirmation")))
                     .push(
-                        widget::row()
-                            .push(widget::horizontal_space())
+                        row()
+                            .push(horizontal_space())
                             .push(
-                                widget::button::standard(fl!("cancel"))
+                                button::standard(fl!("cancel"))
                                     .on_press(Message::CancelSaveThemePack),
                             )
-                            .push(
-                                widget::button::suggested(fl!("save"))
-                                    .on_press(Message::SaveThemePack),
-                            )
+                            .push(button::suggested(fl!("save")).on_press(Message::SaveThemePack))
                             .spacing(spacing.space_xxs),
                     )
                     .spacing(spacing.space_m)
                     .padding(spacing.space_m),
             )
-            .width(iced::Length::Fill)
-            .height(iced::Length::Fill)
-            .style(|_| widget::container::Style::default())
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .style(|_| container::Style::default())
             .into()
         } else {
             // Main layout with content section
-            let content = widget::column()
+            let content = column()
                 .push(create_form_container)
                 .push(available_themes_container)
                 .spacing(spacing.space_m);
 
-            widget::settings::view_column(vec![widget::settings::section()
+            settings::view_column(vec![settings::section()
                 .title(fl!("theme-packs"))
-                .add(content)
+                .add(scrollable(content))
                 .into()])
             .into()
         }
