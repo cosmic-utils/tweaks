@@ -13,6 +13,7 @@ pub enum Page {
     Layouts,
     Shortcuts,
     Snapshots,
+    ThemePacks,
 }
 
 impl Default for &Page {
@@ -30,6 +31,7 @@ impl Page {
             Self::Layouts => fl!("layouts"),
             Self::Shortcuts => fl!("shortcuts"),
             Self::Snapshots => fl!("snapshots"),
+            Self::ThemePacks => fl!("theme-packs"),
         }
     }
 
@@ -41,6 +43,7 @@ impl Page {
             Self::Layouts => icons::get_icon("view-coverflow-symbolic", 18),
             Self::Shortcuts => icons::get_icon("keyboard-symbolic", 18),
             Self::Snapshots => icons::get_icon("snapshots-symbolic", 18),
+            Self::ThemePacks => icons::get_icon("preferences-color-symbolic", 18),
         }
     }
 
@@ -52,6 +55,7 @@ impl Page {
             Self::Layouts,
             Self::Shortcuts,
             Self::Snapshots,
+            Self::ThemePacks,
         ]
     }
 }

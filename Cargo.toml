@@ -15,6 +15,8 @@ ron = "0.8.1"
 rust-embed = "8.3.0"
 chrono = { version = "0.4.38", features = ["serde"] }
 thiserror = "2.0.12"
+serde_json = "1.0.140"
+url = "2.5.0"
 
 [dependencies.ashpd]
 version = "0.8.1"
@@ -24,7 +26,7 @@ features = ["async-std"]
 [dependencies.libcosmic]
 git = "https://github.com/pop-os/libcosmic.git"
 default-features = false
-features = ["tokio", "winit", "wgpu", "about"]
+features = ["tokio", "winit", "wgpu", "about", "xdg-portal"]
 
 [dependencies.cosmic-ext-config-templates]
 git = "https://github.com/ryanabx/cosmic-ext-config-templates"

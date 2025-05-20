@@ -10,6 +10,30 @@
 ![color-schemes-light.png](res/screenshots/color-schemes-light.png#gh-light-mode-only)
 ![color-schemes-dark.png](res/screenshots/color-schemes-dark.png#gh-dark-mode-only)
 
+## Features
+
+### Theme Packs
+Theme Packs allow you to save, load, and share complete desktop configurations including:
+- Color schemes
+- Panel and dock layouts
+- Desktop appearance settings
+
+Theme packs are stored as `.ctp` files in the `~/.local/share/theme-packs/cosmic/` directory.
+
+To create a theme pack:
+1. Create you color scheme in the COSMIC Settings -> Appearance page
+2. Either choose a Tweaks Layout or create your own through COSMIC Settings
+2. In Tweaks, navigate to the Theme Packs section
+3. Enter a name, author, and description
+4. Click "Export Theme Pack"
+
+To import a theme pack:
+1. Navigate to the Theme Packs section
+2. Click "Import Theme Pack"
+3. Select a `.ctp` file using the file dialog
+4. Click the imported theme pack
+5. Click "Apply Theme Pack"
+
 ## Getting Started
 Clone this repository to your local machine and open it in your code editor.
 
