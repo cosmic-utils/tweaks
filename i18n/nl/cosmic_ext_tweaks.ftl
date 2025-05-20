@@ -1,4 +1,4 @@
-app-title = COSMIC-tweaks
+app-title = Tweaks voor COSMIC™
 app-description = Een hulpmiddel om uw COSMIC-werkomgeving te personaliseren.
 
 # Pages
