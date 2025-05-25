@@ -1,22 +1,22 @@
 app-title = Tweaks voor COSMIC™
-app-description = Een hulpmiddel om uw COSMIC-werkomgeving te personaliseren.
+app-description = Een tool om uw COSMIC™ desktop te personaliseren.
 
 # Pages
 home = Startpagina
 dock = Dock
 panel = Paneel
-color-schemes = Kleurschema's
+color-schemes = Kleurpaletten
 layouts = Layouts
 shortcuts = Sneltoetsen
 snapshots = Momentopnames
 
-color-schemes-error = Kon kleurschema's niet laden
-import-color-scheme = Kleurenschema importeren
-delete-color-scheme = Kleurenschema verwijderen
-available-color-schemes-body = Kleurenschema's zoeken en installeren
-install-color-scheme = Kleurenschema installeren
-set-color-scheme = Kleurenschema toepassen
-find-color-schemes = Kleurenschema's zoeken
+color-schemes-error = Kon geen kleurpaletten laden
+import-color-scheme = Kleurpalet importeren
+delete-color-scheme = Kleurpalet verwijderen
+available-color-schemes-body = Naar beschikbare kleurpaletten zoeken
+install-color-scheme = Kleurpalet installeren
+set-color-scheme = Kleurpalet gebruiken
+find-color-schemes = Kleurpaletten zoeken
 open-containing-folder = Map openen
 open-link = Link openen
 installed = Geïnstalleerd
@@ -25,12 +25,12 @@ loading = Laden...
 show-more = Meer tonen
 
 show-panel = Paneel tonen
-force-icon-buttons-in-panel = Pictogramknoppen in het paneel forceren
+force-icon-buttons-in-panel = Pictogramknoppen ipv tekstknoppen in het paneel forceren 
 
 padding = Opvulling
 padding-description = De ruimte tussen de inhoud en de randen van de dock of het paneel aanpassen.
 
-spacing = Icoon-spatiëring 
+spacing = Spatiëring
 spacing-description = De ruimte tussen de pictogrammen in de dock of het paneel aanpassen.
 
 save = Opslaan
@@ -40,10 +40,10 @@ create = Aanmaken
 
 navigation = Navigatie
 
-save-current-color-scheme = Huidig kleurenschema opslaan
-color-scheme-name = Naam kleurenschema
+save-current-color-scheme = Huidig kleurpalet opslaan
+color-scheme-name = Naam kleurpalet
 create-snapshot = Momentopname maken
-create-snapshot-description = U staat op het punt een momentopname te maken, hiermee wordt de huidige staat van uw COSMIC-werkomgeving opgeslagen zodat u die later kunt herstellen.
+create-snapshot-description = U staat op het punt een momentopname te maken, hiermee wordt de huidige staat van uw COSMIC™ desktop opgeslagen zodat u die later kunt herstellen.
 restore-snapshot = Momentopname herstellen
 delete-snapshot = Momentopname verwijderen
 no-snapshots = Geen momentopnamen beschikbaar
