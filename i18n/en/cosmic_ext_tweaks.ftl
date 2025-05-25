@@ -1,5 +1,5 @@
-app-title = Tweaks for COSMIC
-app-description = A tool to customize your COSMIC desktop experience.
+app-title = Tweaks for COSMIC™
+app-description = A tool to customize your COSMIC™ desktop experience.
 
 # Pages
 home = Home
