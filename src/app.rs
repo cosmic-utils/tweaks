@@ -22,6 +22,7 @@ pub struct App {
     layouts: pages::Layouts,
     snapshots: pages::Snapshots,
     shorcuts: pages::Shortcuts,
+    theme_packs: pages::ThemePacks,
 }
 
 impl App {
