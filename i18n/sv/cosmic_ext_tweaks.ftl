@@ -7,6 +7,7 @@ dock = Docka
 panel = Panel
 color-schemes = Färgscheman
 layouts = Layouter
+shortcuts = Genvägar
 snapshots = Ögonblicksavbilder
 
 color-schemes-error = Ett fel uppstod när färgscheman skulle läsas in
@@ -33,10 +34,10 @@ spacing-description = Avståndet är utrymmet mellan ikonerna i dockan eller pan
 
 save = Spara
 cancel = Avbryt
-close = Close
-create = Create
+close = Stäng
+create = Skapa
 
-navigation = Navigation
+navigation = Navigering
 
 save-current-color-scheme = Spara nuvarande färgschema
 color-scheme-name = Färgschema namn
