@@ -1,5 +1,5 @@
-app-title = Tweaks för COSMIC
-app-description = Ett verktyg för att anpassa din COSMIC-skrivbordsupplevelse.
+app-title = Tweaks för COSMIC™
+app-description = Ett verktyg för att anpassa din COSMIC™ skrivbordsupplevelse.
 
 # Pages
 home = Hem
