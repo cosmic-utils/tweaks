@@ -9,6 +9,24 @@ layouts = Acomodos de escritorio
 color-schemes = Esquemas de color
 snapshots = Copia de seguridad
 
+create-layout = Crear acomodo
+layout-name = Nombre del acomodo
+dock-icons = Iconos del dock
+show-window = Mostrar ventana
+preview = Vista previa
+layout-exists-error = Ya existe un acomodo con este nombre.
+layout-name-required = El nombre es obligatorio.
+panel-properties = Propiedades del panel
+dock-properties = Propiedades del dock
+position = Posición
+extend = Extender
+size = Tamaño
+top = Arriba
+bottom = Abajo
+left = Izquierda
+right = Derecha
+enable = Habilitar
+
 color-schemes-error = Error al cargar los esquemas de color
 import-color-scheme = Importar esquema de color
 delete-color-scheme = Eliminar esquema de color

@@ -1,19 +1,25 @@
 use config::Layout;
 use cosmic::{
     iced::{alignment::Horizontal, Length},
-    widget, Element, Task,
+    widget::{
+        self,
+        segmented_button::{self, SingleSelect},
+    },
+    Element, Task,
 };
 use cosmic_ext_config_templates::load_template;
+use preview::{LayoutPreview, Position};
 
 use crate::{core::grid::GridMetrics, fl, Error};
 
 pub mod config;
 pub mod preview;
 
-#[derive(Debug)]
 pub struct Layouts {
     layouts: Vec<Layout>,
     selected_layout: Option<Layout>,
+    pub panel_model: segmented_button::Model<SingleSelect>,
+    pub dock_model: segmented_button::Model<SingleSelect>,
 }
 
 impl Default for Layouts {
@@ -21,6 +27,18 @@ impl Default for Layouts {
         Self {
             layouts: Vec::new(),
             selected_layout: None,
+            panel_model: segmented_button::Model::builder()
+                .insert(|b| b.text(fl!("left")).data(Position::Left))
+                .insert(|b| b.text(fl!("top")).data(Position::Top).activate())
+                .insert(|b| b.text(fl!("right")).data(Position::Right))
+                .insert(|b| b.text(fl!("bottom")).data(Position::Bottom))
+                .build(),
+            dock_model: segmented_button::Model::builder()
+                .insert(|b| b.text(fl!("left")).data(Position::Left))
+                .insert(|b| b.text(fl!("top")).data(Position::Top))
+                .insert(|b| b.text(fl!("right")).data(Position::Right))
+                .insert(|b| b.text(fl!("bottom")).data(Position::Bottom).activate())
+                .build(),
         }
     }
 }
@@ -29,6 +47,7 @@ impl Default for Layouts {
 pub enum Message {
     ApplyLayout(Layout),
     LoadLayouts(Vec<Layout>),
+    CreateLayout(String, LayoutPreview),
 }
 
 impl Layouts {
@@ -50,7 +69,7 @@ impl Layouts {
                 }
                 grid = grid.push(
                     widget::column()
-                        .push(layout.preview(&spacing, item_width))
+                        .push(layout.preview(&spacing, item_width, 130))
                         .push(widget::text(&layout.name))
                         .spacing(spacing.space_xs)
                         .align_x(Horizontal::Center),
@@ -66,9 +85,8 @@ impl Layouts {
             .into()
         });
 
-        widget::settings::section()
-            .title(fl!("layouts"))
-            .add(grid)
+        widget::column()
+            .push(widget::settings::section().title(fl!("layouts")).add(grid))
             .into()
     }
 
@@ -82,6 +100,25 @@ impl Layouts {
                 if let Err(e) = load_template(layout.schema.clone()) {
                     eprintln!("Failed to load template: {}", e);
                 }
+            }
+            Message::CreateLayout(name, preview) => {
+                let layouts_dir = dirs::data_local_dir().unwrap().join("tweaks/layouts");
+                let file_path = layouts_dir.join(&name).with_extension("ron");
+                if file_path.exists() {
+                    return Task::none();
+                }
+
+                let layout = Layout::new(name, preview);
+
+                match std::fs::write(&file_path, ron::to_string(&layout).unwrap()) {
+                    Ok(_) => match crate::pages::layouts::config::Layout::list() {
+                        Ok(layouts) => self.layouts = layouts,
+                        Err(e) => eprintln!("Failed to reload layouts: {e}"),
+                    },
+                    Err(e) => {
+                        log::error!("Failed to write layout: {}", e);
+                    }
+                };
             }
         }
         Task::none()

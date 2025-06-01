@@ -8,22 +8,23 @@ use cosmic::{
 };
 use serde::{Deserialize, Serialize};
 
-use super::Message;
+use crate::core::icons;
+
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub struct LayoutPreview {
-    panel: Option<PanelProperties>,
-    dock: Option<PanelProperties>,
-    dock_icons: u8,
-    show_window: bool,
+    pub panel: PanelProperties,
+    pub dock: PanelProperties,
+    pub dock_icons: u8,
+    pub show_window: bool,
 }
 
 impl Default for LayoutPreview {
     fn default() -> Self {
         Self {
-            panel: None,
-            dock: None,
-            dock_icons: 0,
-            show_window: false,
+            panel: PanelProperties::new(Position::Top, true, false, 20.0),
+            dock: PanelProperties::new(Position::Bottom, true, false, 20.0),
+            dock_icons: 6,
+            show_window: true,
         }
     }
 }
@@ -32,21 +33,22 @@ impl Default for LayoutPreview {
 pub struct PanelProperties {
     pub position: Position,
     pub extend: bool,
+    pub hidden: bool,
     pub size: f32,
 }
 
 impl PanelProperties {
-    pub fn new(position: Position, extend: bool, size: f32) -> Self {
+    pub fn new(position: Position, extend: bool, hidden: bool, size: f32) -> Self {
         Self {
             position,
             extend,
+            hidden,
             size,
         }
     }
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
-#[allow(unused)]
 pub enum Position {
     Top,
     Bottom,
@@ -54,42 +56,44 @@ pub enum Position {
     Right,
 }
 
-impl LayoutPreview {
-    pub fn new(
-        panel: Option<PanelProperties>,
-        dock: Option<PanelProperties>,
-        dock_icons: u8,
-        show_window: bool,
-    ) -> Self {
-        Self {
-            panel,
-            dock,
-            dock_icons,
-            show_window,
+impl ToString for Position {
+    fn to_string(&self) -> String {
+        match self {
+            Position::Top => "Top".to_string(),
+            Position::Bottom => "Bottom".to_string(),
+            Position::Left => "Left".to_string(),
+            Position::Right => "Right".to_string(),
         }
     }
+}
 
-    pub fn view<'a>(&self, spacing: &cosmic::cosmic_theme::Spacing) -> Element<'a, Message> {
-        let column = widget::column().height(98);
-        let row = widget::row().height(98);
+impl LayoutPreview {
+    pub fn view<'a, Message: Clone + 'a>(
+        &self,
+        spacing: &cosmic::cosmic_theme::Spacing,
+        height: u16,
+    ) -> Element<'a, Message> {
+        let column = widget::column().height(height);
+        let row = widget::row().height(height);
 
-        let panel = widget::container(widget::text(""));
+        let panel = widget::container(widget::icon(icons::get_handle("resize-mode-symbolic", 18)))
+            .center(Length::Fill);
 
-        let content: Element<_> = match (self.panel, self.dock) {
-            (None, None) => column.into(),
-            (None, Some(dock_props)) => {
-                let extend_dock = if dock_props.extend {
+        let content: Element<_> = match (self.panel.hidden, self.dock.hidden) {
+            (true, true) => column.into(),
+            (true, false) => {
+                let extend_dock = if self.dock.extend {
                     Length::Fill
                 } else {
                     Length::Shrink
                 };
 
                 let icons = (0..self.dock_icons)
-                    .map(|_| square(dock_props.size - 5.0))
+                    .map(|_| square::<Message>(self.dock.size - 5.0))
                     .collect();
 
                 let icons: Element<_> =
-                    if matches!(dock_props.position, Position::Top | Position::Bottom) {
+                    if matches!(self.dock.position, Position::Top | Position::Bottom) {
                         widget::row::with_children(icons)
                             .spacing(spacing.space_xxs)
                             .align_y(Vertical::Center)
@@ -105,13 +109,13 @@ impl LayoutPreview {
                     .align_x(Horizontal::Center)
                     .align_y(Vertical::Center)
                     .padding(5)
-                    .class(if dock_props.extend {
+                    .class(if self.dock.extend {
                         cosmic::style::Container::custom(crate::core::style::panel_style)
                     } else {
                         cosmic::style::Container::Background
                     });
 
-                match dock_props.position {
+                match self.dock.position {
                     Position::Top => column
                         .push(dock.width(extend_dock))
                         .align_x(Horizontal::Center)
@@ -129,61 +133,62 @@ impl LayoutPreview {
                         .into(),
                 }
             }
-            (Some(panel_props), None) => {
-                let panel = panel.class(if panel_props.extend {
+            (false, true) => {
+                let panel = panel.class(if self.panel.extend {
                     cosmic::style::Container::custom(crate::core::style::panel_style)
                 } else {
                     cosmic::style::Container::Background
                 });
-                let extend_panel = if panel_props.extend {
+                let extend_panel = if self.panel.extend {
                     Length::Fill
                 } else {
                     Length::Shrink
                 };
-                match panel_props.position {
+                match self.panel.position {
                     Position::Top => column
-                        .push(panel.width(extend_panel).height(panel_props.size))
+                        .push(panel.width(extend_panel).height(self.panel.size))
                         .align_x(Horizontal::Center)
                         .into(),
                     Position::Bottom => column
                         .push(vertical_space())
-                        .push(panel.width(extend_panel).height(panel_props.size))
+                        .push(panel.width(extend_panel).height(self.panel.size))
                         .align_x(Horizontal::Center)
                         .into(),
                     Position::Left => row
-                        .push(panel.width(panel_props.size).height(extend_panel))
+                        .push(panel.width(self.panel.size).height(extend_panel))
+                        .push(horizontal_space())
                         .align_y(Vertical::Center)
                         .into(),
                     Position::Right => row
                         .push(horizontal_space())
-                        .push(panel.width(panel_props.size).height(extend_panel))
+                        .push(panel.width(self.panel.size).height(extend_panel))
                         .align_y(Vertical::Center)
                         .into(),
                 }
             }
-            (Some(panel_props), Some(dock_props)) => {
-                let panel = panel.class(if panel_props.extend {
+            (false, false) => {
+                let panel = panel.class(if self.panel.extend {
                     cosmic::style::Container::custom(crate::core::style::panel_style)
                 } else {
                     cosmic::style::Container::Background
                 });
-                let extend_panel = if panel_props.extend {
+                let extend_panel = if self.panel.extend {
                     Length::Fill
                 } else {
                     Length::Shrink
                 };
-                let extend_dock = if dock_props.extend {
+                let extend_dock = if self.dock.extend {
                     Length::Fill
                 } else {
                     Length::Shrink
                 };
 
                 let icons = (0..self.dock_icons)
-                    .map(|_| square(dock_props.size - 5.0))
+                    .map(|_| square::<Message>(self.dock.size - 5.0))
                     .collect();
 
                 let icons: Element<_> =
-                    if matches!(dock_props.position, Position::Top | Position::Bottom) {
+                    if matches!(self.dock.position, Position::Top | Position::Bottom) {
                         widget::row::with_children(icons)
                             .spacing(spacing.space_xxs)
                             .align_y(Vertical::Center)
@@ -199,26 +204,26 @@ impl LayoutPreview {
                     .align_x(Horizontal::Center)
                     .align_y(Vertical::Center)
                     .padding(5)
-                    .class(if dock_props.extend {
+                    .class(if self.dock.extend {
                         cosmic::style::Container::custom(crate::core::style::panel_style)
                     } else {
                         cosmic::style::Container::Background
                     });
 
-                match (panel_props.position, dock_props.position) {
+                match (self.panel.position, self.dock.position) {
                     (Position::Top, Position::Top) => column
-                        .push(panel.width(extend_panel).height(panel_props.size))
+                        .push(panel.width(extend_panel).height(self.panel.size))
                         .push(dock.width(extend_dock))
                         .align_x(Horizontal::Center)
                         .into(),
                     (Position::Top, Position::Bottom) => column
-                        .push(panel.width(extend_panel).height(panel_props.size))
+                        .push(panel.width(extend_panel).height(self.panel.size))
                         .push(vertical_space())
                         .push(dock.width(extend_dock))
                         .align_x(Horizontal::Center)
                         .into(),
                     (Position::Top, Position::Left) => column
-                        .push(panel.width(extend_panel).height(panel_props.size))
+                        .push(panel.width(extend_panel).height(self.panel.size))
                         .push(
                             widget::row()
                                 .push(dock.height(extend_dock))
@@ -227,7 +232,7 @@ impl LayoutPreview {
                         .align_x(Horizontal::Center)
                         .into(),
                     (Position::Top, Position::Right) => column
-                        .push(panel.width(extend_panel).height(panel_props.size))
+                        .push(panel.width(extend_panel).height(self.panel.size))
                         .push(
                             widget::row()
                                 .push(horizontal_space())
@@ -239,12 +244,12 @@ impl LayoutPreview {
                     (Position::Bottom, Position::Top) => column
                         .push(dock.width(extend_dock))
                         .push(vertical_space())
-                        .push(panel.width(extend_panel).height(panel_props.size))
+                        .push(panel.width(extend_panel).height(self.panel.size))
                         .align_x(Horizontal::Center)
                         .into(),
                     (Position::Bottom, Position::Bottom) => column
                         .push(vertical_space())
-                        .push(panel.width(extend_panel).height(panel_props.size))
+                        .push(panel.width(extend_panel).height(self.panel.size))
                         .push(dock.width(extend_dock))
                         .align_x(Horizontal::Center)
                         .into(),
@@ -254,7 +259,7 @@ impl LayoutPreview {
                                 .push(dock.height(extend_dock))
                                 .width(Length::Fill),
                         )
-                        .push(panel.width(extend_panel).height(panel_props.size))
+                        .push(panel.width(extend_panel).height(self.panel.size))
                         .align_x(Horizontal::Center)
                         .into(),
                     (Position::Bottom, Position::Right) => column
@@ -263,11 +268,11 @@ impl LayoutPreview {
                                 .push(horizontal_space())
                                 .push(dock.height(extend_dock)),
                         )
-                        .push(panel.width(extend_panel).height(panel_props.size))
+                        .push(panel.width(extend_panel).height(self.panel.size))
                         .align_x(Horizontal::Center)
                         .into(),
                     (Position::Left, Position::Top) => row
-                        .push(panel.width(panel_props.size).height(extend_panel))
+                        .push(panel.width(self.panel.size).height(extend_panel))
                         .push(
                             widget::column()
                                 .push(dock.width(extend_dock))
@@ -276,9 +281,10 @@ impl LayoutPreview {
                         .align_y(Vertical::Center)
                         .into(),
                     (Position::Left, Position::Bottom) => row
-                        .push(panel.width(panel_props.size).height(extend_panel))
+                        .push(panel.width(self.panel.size).height(extend_panel))
                         .push(
                             widget::column()
+                                .push(vertical_space())
                                 .push(horizontal_space())
                                 .push(dock.width(extend_dock))
                                 .align_x(Horizontal::Center),
@@ -286,12 +292,12 @@ impl LayoutPreview {
                         .align_y(Vertical::Center)
                         .into(),
                     (Position::Left, Position::Left) => row
-                        .push(panel.width(panel_props.size).height(extend_panel))
+                        .push(panel.width(self.panel.size).height(extend_panel))
                         .push(dock.height(extend_dock))
                         .align_y(Vertical::Center)
                         .into(),
                     (Position::Left, Position::Right) => row
-                        .push(panel.width(panel_props.size).height(extend_panel))
+                        .push(panel.width(self.panel.size).height(extend_panel))
                         .push(horizontal_space())
                         .push(dock.height(extend_dock))
                         .align_y(Vertical::Center)
@@ -303,30 +309,39 @@ impl LayoutPreview {
                                 .align_x(Horizontal::Center),
                         )
                         .push(horizontal_space())
-                        .push(panel.width(panel_props.size).height(extend_panel))
+                        .push(panel.width(self.panel.size).height(extend_panel))
                         .align_y(Vertical::Center)
                         .into(),
                     (Position::Right, Position::Bottom) => row
+                        .push_maybe(if self.dock.extend {
+                            None
+                        } else {
+                            Some(horizontal_space())
+                        })
                         .push(
                             widget::column()
                                 .push(vertical_space())
                                 .push(dock.width(extend_dock))
                                 .align_x(Horizontal::Center),
                         )
-                        .push(horizontal_space())
-                        .push(panel.width(panel_props.size).height(extend_panel))
+                        .push_maybe(if self.dock.extend {
+                            None
+                        } else {
+                            Some(horizontal_space())
+                        })
+                        .push(panel.width(self.panel.size).height(extend_panel))
                         .align_y(Vertical::Center)
                         .into(),
                     (Position::Right, Position::Left) => row
                         .push(dock.height(extend_dock))
                         .push(horizontal_space())
-                        .push(panel.width(panel_props.size).height(extend_panel))
+                        .push(panel.width(self.panel.size).height(extend_panel))
                         .align_y(Vertical::Center)
                         .into(),
                     (Position::Right, Position::Right) => row
                         .push(horizontal_space())
                         .push(dock.height(extend_dock))
-                        .push(panel.width(panel_props.size).height(extend_panel))
+                        .push(panel.width(self.panel.size).height(extend_panel))
                         .align_y(Vertical::Center)
                         .into(),
                 }
@@ -341,7 +356,7 @@ impl LayoutPreview {
     }
 }
 
-pub fn square<'a>(size: f32) -> Element<'a, Message> {
+pub fn square<'a, Message: Clone + 'a>(size: f32) -> Element<'a, Message> {
     widget::container(widget::text(""))
         .width(Length::Fixed(size))
         .height(Length::Fixed(size))

@@ -1,7 +1,10 @@
-use crate::pages;
+use crate::pages::{self, layouts::preview::LayoutPreview};
 
 use super::{context::ContextPage, dialog::DialogPage};
-use cosmic::iced::keyboard::{Key, Modifiers};
+use cosmic::{
+    iced::keyboard::{Key, Modifiers},
+    widget,
+};
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -11,6 +14,8 @@ pub enum Message {
     Shortcuts(pages::shortcuts::Message),
     Snapshots(pages::snapshots::Message),
     ColorSchemes(Box<pages::color_schemes::Message>),
+    UpdatePanelLayoutPosition(widget::segmented_button::Entity, String, LayoutPreview),
+    UpdateDockLayoutPosition(widget::segmented_button::Entity, String, LayoutPreview),
     DialogUpdate(DialogPage),
     DialogComplete,
     DialogCancel,

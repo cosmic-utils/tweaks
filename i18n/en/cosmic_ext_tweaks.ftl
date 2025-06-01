@@ -10,6 +10,27 @@ layouts = Layouts
 shortcuts = Shortcuts
 snapshots = Snapshots
 
+create-layout = Create layout
+layout-name = Layout name
+dock-icons = Dock icons
+show-window = Show window
+preview = Preview
+layout-exists-error = A layout with this name already exists.
+layout-name-required = Name is required.
+panel-properties = Panel properties
+panel-position = Panel position
+panel-size = Panel size
+dock-properties = Dock properties
+position = Position
+extend = Extend
+size = Size
+top = Top
+bottom = Bottom
+left = Left
+right = Right
+enable = Enable
+show = Show
+
 color-schemes-error = Error loading color schemes
 import-color-scheme = Import color scheme
 delete-color-scheme = Delete color scheme
@@ -25,6 +46,7 @@ loading = Loading...
 show-more = Show more
 
 show-panel = Show panel
+show-dock = Show dock
 force-icon-buttons-in-panel = Force icon buttons in panel
 
 padding = Padding
@@ -40,6 +62,9 @@ create = Create
 
 navigation = Navigation
 
+
+save-current-layout = Save current layout
+save-current-layout-description = Save the current desktop layout for future use.
 save-current-color-scheme = Save current color scheme
 color-scheme-name = Color scheme name
 create-snapshot = Create snapshot
