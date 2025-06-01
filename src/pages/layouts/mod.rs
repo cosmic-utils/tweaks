@@ -102,7 +102,7 @@ impl Layouts {
                 }
             }
             Message::CreateLayout(name, preview) => {
-                let layouts_dir = dirs::data_local_dir().unwrap().join("tweaks/layouts");
+                let layouts_dir = dirs::data_local_dir().unwrap().join("cosmic/layouts");
                 let file_path = layouts_dir.join(&name).with_extension("ron");
                 if file_path.exists() {
                     return Task::none();

@@ -80,7 +80,7 @@ impl Cosmic {
                 if let Some(position) = app.layouts.panel_model.data::<Position>(entity) {
                     preview.panel.position = position.clone();
                     tasks.push(app.update(Message::DialogUpdate(DialogPage::CreateLayout(
-                        name, preview,
+                        name, preview, None,
                     ))))
                 }
             }
@@ -89,7 +89,7 @@ impl Cosmic {
                 if let Some(position) = app.layouts.dock_model.data::<Position>(entity) {
                     preview.dock.position = position.clone();
                     tasks.push(app.update(Message::DialogUpdate(DialogPage::CreateLayout(
-                        name, preview,
+                        name, preview, None,
                     ))))
                 }
             }
@@ -118,9 +118,17 @@ impl Cosmic {
                                 pages::snapshots::Message::CreateSnapshot(name, SnapshotKind::User),
                             )))
                         }
-                        DialogPage::CreateLayout(name, layout) => tasks.push(app.update(
-                            Message::Layouts(pages::layouts::Message::CreateLayout(name, layout)),
-                        )),
+                        DialogPage::CreateLayout(name, layout, error) => {
+                            if let Some(error) = error {
+                                tasks.push(app.update(Message::ToggleDialogPage(
+                                    DialogPage::CreateLayout(name, layout, Some(error)),
+                                )));
+                            } else {
+                                tasks.push(app.update(Message::Layouts(
+                                    pages::layouts::Message::CreateLayout(name, layout),
+                                )));
+                            }
+                        }
                     }
                 }
             }
