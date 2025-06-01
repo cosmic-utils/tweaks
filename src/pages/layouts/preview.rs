@@ -57,10 +57,9 @@ impl LayoutPreview {
         }
     }
 
-    pub fn view<'a>(&self) -> Element<'a, Message> {
-        let column = widget::column().width(188).height(98);
-        let row = widget::row().width(188).height(98);
-        let spacing = cosmic::theme::spacing();
+    pub fn view<'a>(&self, spacing: &cosmic::cosmic_theme::Spacing) -> Element<'a, Message> {
+        let column = widget::column().height(98);
+        let row = widget::row().height(98);
 
         let panel = widget::container(widget::text(""));
 

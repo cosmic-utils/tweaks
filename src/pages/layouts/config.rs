@@ -25,7 +25,11 @@ impl Layout {
         }
     }
 
-    pub fn preview(&self) -> Element<Message> {
+    pub fn preview(
+        &self,
+        spacing: &cosmic::cosmic_theme::Spacing,
+        item_width: usize,
+    ) -> Element<Message> {
         let layout = match self {
             Layout::Cosmic => LayoutPreview::new(
                 Some(PanelProperties::new(Position::Top, true, 10.0)),
@@ -53,9 +57,10 @@ impl Layout {
             ),
         };
 
-        widget::button::custom(layout.view())
+        widget::button::custom(layout.view(&spacing))
             .on_press(Message::ApplyLayout(self.clone()))
             .class(cosmic::style::Button::Image)
+            .width(item_width as f32)
             .into()
     }
 

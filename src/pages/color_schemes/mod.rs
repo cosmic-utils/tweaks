@@ -6,6 +6,7 @@ use ashpd::desktop::file_chooser::{FileFilter, SelectedFiles};
 use cosmic::{
     cosmic_config::CosmicConfigEntry,
     cosmic_theme::{Theme, ThemeBuilder, ThemeMode},
+    iced::Length,
     widget::{
         self,
         segmented_button::{self, SingleSelect},
@@ -401,7 +402,8 @@ impl ColorSchemes {
                     grid.column_spacing(column_spacing)
                         .row_spacing(column_spacing),
                 )
-                .spacing(spacing.space_xxs)
+                .height(Length::Fill)
+                .width(Length::Fill)
                 .into()
             })
             .into()
@@ -440,7 +442,8 @@ impl ColorSchemes {
                             grid.column_spacing(column_spacing)
                                 .row_spacing(column_spacing),
                         )
-                        .spacing(spacing.space_xxs)
+                        .height(Length::Fill)
+                        .width(Length::Fill)
                         .into()
                     })
                     .into()

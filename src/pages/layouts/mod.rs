@@ -1,8 +1,11 @@
 use config::Layout;
-use cosmic::{iced::alignment::Horizontal, widget, Apply, Element, Task};
+use cosmic::{
+    iced::{alignment::Horizontal, Length},
+    widget, Element, Task,
+};
 use cosmic_ext_config_templates::load_template;
 
-use crate::fl;
+use crate::{core::grid::GridMetrics, fl};
 
 pub mod config;
 pub mod preview;
@@ -30,28 +33,41 @@ pub enum Message {
 impl Layouts {
     pub fn view(&self) -> Element<Message> {
         let spacing = cosmic::theme::spacing();
-        let layouts = self
-            .layouts
-            .iter()
-            .map(|layout| {
-                widget::column()
-                    .push(layout.preview())
-                    .push(widget::text(layout.name()))
-                    .spacing(spacing.space_xs)
-                    .align_x(Horizontal::Center)
-                    .into()
-            })
-            .collect::<Vec<Element<Message>>>();
+        let grid = widget::responsive(move |size| {
+            let GridMetrics {
+                cols,
+                item_width,
+                column_spacing,
+            } = GridMetrics::custom(&spacing, size.width as usize);
+
+            let mut grid = widget::grid();
+            let mut col = 0;
+            for layout in self.layouts.iter() {
+                if col >= cols {
+                    grid = grid.insert_row();
+                    col = 0;
+                }
+                grid = grid.push(
+                    widget::column()
+                        .push(layout.preview(&spacing, item_width))
+                        .push(widget::text(layout.name()))
+                        .spacing(spacing.space_xs)
+                        .align_x(Horizontal::Center),
+                );
+                col += 1;
+            }
+            widget::scrollable(
+                grid.column_spacing(column_spacing)
+                    .row_spacing(column_spacing),
+            )
+            .height(Length::Fill)
+            .width(Length::Fill)
+            .into()
+        });
 
         widget::settings::section()
             .title(fl!("layouts"))
-            .add(widget::scrollable(
-                widget::flex_row(layouts)
-                    .row_spacing(spacing.space_s)
-                    .column_spacing(spacing.space_s)
-                    .apply(widget::container)
-                    .padding([0, spacing.space_xxs]),
-            ))
+            .add(grid)
             .into()
     }
 
