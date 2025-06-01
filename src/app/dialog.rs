@@ -80,19 +80,6 @@ impl Cosmic {
                     })
                     .on_submit(|_| Message::DialogComplete);
 
-                let show_window_checkbox =
-                    widget::checkbox(fl!("show-window"), preview.show_window).on_toggle(
-                        move |show_window| {
-                            Message::DialogUpdate(DialogPage::CreateLayout(
-                                name.clone(),
-                                LayoutPreview {
-                                    show_window,
-                                    ..preview.clone()
-                                },
-                            ))
-                        },
-                    );
-
                 let panel_section = widget::settings::section()
                     .title(fl!("panel"))
                     .add(
@@ -262,7 +249,7 @@ impl Cosmic {
                                     preview.dock_icons.to_string(),
                                     preview.dock_icons,
                                     1,
-                                    0,
+                                    1,
                                     20,
                                     move |size| {
                                         Message::DialogUpdate(DialogPage::CreateLayout(
@@ -290,13 +277,16 @@ impl Cosmic {
                     .control(
                         widget::column()
                             .push(preview_view)
-                            .push(name_input)
-                            .push(panel_section)
-                            .push(dock_section)
-                            .push(show_window_checkbox)
-                            .spacing(spacing.space_m)
-                            .padding(spacing.space_m)
-                            .apply(widget::scrollable),
+                            .push(
+                                widget::column()
+                                    .push(name_input)
+                                    .push(panel_section)
+                                    .push(dock_section)
+                                    .spacing(spacing.space_m)
+                                    .apply(widget::scrollable)
+                                    .height(300),
+                            )
+                            .spacing(spacing.space_m),
                     )
             }
         };
