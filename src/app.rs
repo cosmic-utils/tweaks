@@ -1,33 +1,117 @@
 use crate::pages::{self, color_schemes::config::ColorScheme};
-use ::cosmic::{app::Task, widget, Element};
+use action::TweaksAction;
+use context::ContextPage;
+use cosmic::{
+    app::{self, context_drawer::ContextDrawer, Task},
+    iced, widget, Application, Core, Element,
+};
+use std::collections::{HashMap, VecDeque};
 
-use cosmic::Cosmic;
+use dialog::DialogPage;
+use flags::Flags;
 use message::Message;
 
 pub mod action;
 pub mod context;
-mod cosmic;
+pub mod context_drawer;
 pub mod dialog;
 pub mod flags;
+pub mod footer;
+pub mod header;
+pub mod init;
 pub mod message;
+pub mod nav;
 pub mod page;
+pub mod subscription;
+pub mod update;
+pub mod view;
 
 pub struct App {
-    pub cosmic: Cosmic,
-    handler: ::cosmic::cosmic_config::Config,
+    cosmic: Cosmic,
+    handler: cosmic::cosmic_config::Config,
     config: crate::core::config::TweaksConfig,
     color_schemes: pages::ColorSchemes,
     dock: pages::Dock,
     panel: pages::Panel,
     layouts: pages::Layouts,
     snapshots: pages::Snapshots,
-    shorcuts: pages::Shortcuts,
+    shortcuts: pages::Shortcuts,
+}
+
+pub struct Cosmic {
+    core: Core,
+    nav_model: widget::segmented_button::SingleSelectModel,
+    about: widget::about::About,
+    dialog_pages: VecDeque<DialogPage>,
+    dialog_text_input: widget::Id,
+    key_binds: HashMap<widget::menu::KeyBind, TweaksAction>,
+    modifiers: iced::keyboard::Modifiers,
+    context_page: ContextPage,
+    app_themes: Vec<String>,
+}
+
+impl Application for App {
+    type Executor = cosmic::executor::Default;
+
+    type Flags = Flags;
+
+    type Message = Message;
+
+    const APP_ID: &'static str = "dev.edfloreshz.CosmicTweaks";
+
+    fn core(&self) -> &Core {
+        &self.cosmic.core
+    }
+
+    fn core_mut(&mut self) -> &mut Core {
+        &mut self.cosmic.core
+    }
+
+    fn init(core: Core, flags: Self::Flags) -> (Self, app::Task<Self::Message>) {
+        Cosmic::init(core, flags)
+    }
+
+    fn header_start(&self) -> Vec<Element<Self::Message>> {
+        Cosmic::header_start(self)
+    }
+
+    fn nav_model(&self) -> Option<&widget::nav_bar::Model> {
+        Some(&self.cosmic.nav_model)
+    }
+
+    fn on_nav_select(&mut self, id: widget::nav_bar::Id) -> app::Task<Self::Message> {
+        Cosmic::on_nav_select(self, id)
+    }
+
+    fn context_drawer(&self) -> Option<ContextDrawer<Self::Message>> {
+        Cosmic::context_drawer(self)
+    }
+
+    fn dialog(&self) -> Option<Element<Self::Message>> {
+        Cosmic::dialog(self)
+    }
+
+    fn view(&self) -> Element<Self::Message> {
+        Cosmic::view(self)
+    }
+
+    fn footer(&self) -> Option<Element<Self::Message>> {
+        Cosmic::footer(self)
+    }
+
+    fn update(&mut self, message: Self::Message) -> app::Task<Self::Message> {
+        Cosmic::update(self, message)
+    }
+
+    fn subscription(&self) -> cosmic::iced::Subscription<Self::Message> {
+        Cosmic::subscription()
+    }
 }
 
 impl App {
     fn update_config(&mut self) -> Task<Message> {
         self.color_schemes.theme_builder = ColorScheme::current_theme();
-        Task::batch(vec![::cosmic::command::set_theme(
+        Task::batch(vec![cosmic::command::set_theme(
             self.config.app_theme.theme(),
         )])
     }
