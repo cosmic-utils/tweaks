@@ -1,5 +1,5 @@
-app-title = Ajustes do COSMIC
-app-description = Uma ferramenta para personalizar a sua experiência com o ambiente COSMIC.
+app-title = Ajustes do COSMIC™
+app-description = Uma ferramenta para personalizar a sua experiência com o ambiente COSMIC™.
 
 # Pages
 home = Início
@@ -43,7 +43,7 @@ navigation = Navegação
 save-current-color-scheme = Salvar esquema de cores atual
 color-scheme-name = Nome do esquema de cores
 create-snapshot = Criar snapshot
-create-snapshot-description = Você está prestes a criar um snapshot. Isso salvará o estado atual da sua área de trabalho e tornará possível restaurá-lo mais tarde.
+create-snapshot-description = Você está prestes a criar um snapshot, isso irá salvar o estado atual da sua área de trabalho e tornará possível restaurá-lo mais tarde.
 restore-snapshot = Restaurar snapshot
 delete-snapshot = Excluir snapshot
 no-snapshots = Nenhum snapshot disponível
@@ -70,9 +70,9 @@ settings = Configurações
 ### Appearance
 appearance = Aparência
 theme = Tema
-match-desktop = Corresponder à área de trabalho
-dark = Escuro
-light = Claro
+match-desktop = Estilo do sistema
+dark = Estilo escuro
+light = Estilo claro
 
 # Menu
 view = Exibir
