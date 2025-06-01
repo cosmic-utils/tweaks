@@ -31,10 +31,6 @@ impl Layout {
             .map(|path| path.join("cosmic/layouts"))
             .ok_or(Error::LayoutPathNotFound)?;
 
-        if !layouts_dir.exists() {
-            std::fs::create_dir_all(&layouts_dir)?;
-        }
-
         if let Ok(entries) = std::fs::read_dir(layouts_dir) {
             for entry in entries.flatten() {
                 let path = entry.path();

@@ -28,7 +28,6 @@ impl ColorScheme {
         Self::VERSION
     }
 
-    /// Get the config for the theme
     pub fn config() -> Config {
         match Config::new(CONFIG_ID, Self::VERSION) {
             Ok(config) => config,

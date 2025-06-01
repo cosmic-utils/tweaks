@@ -312,7 +312,6 @@ pub fn appearance(
 
             let (background, text, icon) = color(&cosmic.icon_button);
             appearance.background = Some(Background::Color(background));
-            // Only override icon button colors when it is disabled
             appearance.icon_color = if disabled { icon } else { None };
             appearance.text_color = if disabled { text } else { None };
         }
@@ -357,7 +356,6 @@ pub fn appearance(
             appearance.text_color = Some(cosmic.background.on.into());
         }
         Button::MenuFolder => {
-            // Menu folders cannot be disabled, ignore customized icon and text color
             let component = &cosmic.background.component;
             let (background, _, _) = color(component);
             appearance.background = Some(Background::Color(background));

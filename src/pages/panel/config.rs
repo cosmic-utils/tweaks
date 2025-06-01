@@ -8,7 +8,6 @@ use serde::{Deserialize, Serialize};
 #[version = 1]
 #[serde(deny_unknown_fields)]
 pub struct CosmicPanelButtonConfig {
-    /// configs indexed by panel name
     pub configs: HashMap<String, IndividualConfig>,
 }
 
