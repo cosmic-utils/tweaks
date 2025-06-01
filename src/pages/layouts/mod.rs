@@ -19,7 +19,7 @@ pub struct Layouts {
 impl Default for Layouts {
     fn default() -> Self {
         Self {
-            layouts: Layout::list(),
+            layouts: Vec::new(),
             selected_layout: None,
         }
     }
@@ -28,6 +28,7 @@ impl Default for Layouts {
 #[derive(Debug, Clone)]
 pub enum Message {
     ApplyLayout(Layout),
+    LoadLayouts(Vec<Layout>),
 }
 
 impl Layouts {
@@ -50,7 +51,7 @@ impl Layouts {
                 grid = grid.push(
                     widget::column()
                         .push(layout.preview(&spacing, item_width))
-                        .push(widget::text(layout.name()))
+                        .push(widget::text(&layout.name))
                         .spacing(spacing.space_xs)
                         .align_x(Horizontal::Center),
                 );
@@ -73,9 +74,12 @@ impl Layouts {
 
     pub fn update(&mut self, message: Message) -> Task<crate::app::message::Message> {
         match message {
+            Message::LoadLayouts(layouts) => {
+                self.layouts = layouts;
+            }
             Message::ApplyLayout(layout) => {
                 self.selected_layout = Some(layout.clone());
-                if let Err(e) = load_template(layout.schema().clone()) {
+                if let Err(e) = load_template(layout.schema.clone()) {
                     eprintln!("Failed to load template: {}", e);
                 }
             }

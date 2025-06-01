@@ -8,4 +8,6 @@ pub enum Error {
     Ron(#[from] ron::error::SpannedError),
     #[error("Theme path not found")]
     ThemePathNotFound,
+    #[error("Layout path not found")]
+    LayoutPathNotFound,
 }

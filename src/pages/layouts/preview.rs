@@ -6,9 +6,10 @@ use cosmic::{
     widget::{self, horizontal_space, vertical_space},
     Apply, Element,
 };
+use serde::{Deserialize, Serialize};
 
 use super::Message;
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub struct LayoutPreview {
     panel: Option<PanelProperties>,
     dock: Option<PanelProperties>,
@@ -16,7 +17,18 @@ pub struct LayoutPreview {
     show_window: bool,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+impl Default for LayoutPreview {
+    fn default() -> Self {
+        Self {
+            panel: None,
+            dock: None,
+            dock_icons: 0,
+            show_window: false,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
 pub struct PanelProperties {
     pub position: Position,
     pub extend: bool,
@@ -33,7 +45,7 @@ impl PanelProperties {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
 #[allow(unused)]
 pub enum Position {
     Top,

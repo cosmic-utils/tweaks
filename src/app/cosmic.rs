@@ -143,6 +143,13 @@ impl Application for App {
             )),
         ];
 
+        match pages::layouts::config::Layout::list() {
+            Ok(list) => {
+                tasks.push(app.update(Message::Layouts(pages::layouts::Message::LoadLayouts(list))))
+            }
+            Err(error) => log::error!("Failed to load layouts: {}", error),
+        }
+
         tasks.push(app.set_window_title(fl!("app-title")));
 
         (app, Task::batch(tasks))
