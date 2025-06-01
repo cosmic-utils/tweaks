@@ -38,7 +38,10 @@ use crate::{
         self,
         color_schemes::{self, ColorSchemes, Status, Tab},
         dock::Dock,
-        layouts::Layouts,
+        layouts::{
+            preview::{LayoutPreview, PanelProperties, Position},
+            Layouts,
+        },
         panel::Panel,
         shortcuts::Shortcuts,
         snapshots::{config::SnapshotKind, Snapshots},
@@ -264,6 +267,238 @@ impl Application for App {
                         })
                         .on_submit(|_| Message::DialogComplete),
                 ),
+            DialogPage::CreateLayout(name, preview) => {
+                let preview_view = preview.view::<Message>(&spacing, 130);
+
+                let name_input = widget::text_input(fl!("layout-name"), name)
+                    .id(self.cosmic.dialog_text_input.clone())
+                    .on_input(move |name| {
+                        Message::DialogUpdate(DialogPage::CreateLayout(
+                            name.clone(),
+                            preview.clone(),
+                        ))
+                    })
+                    .on_submit(|_| Message::DialogComplete);
+
+                let show_window_checkbox =
+                    widget::checkbox(fl!("show-window"), preview.show_window).on_toggle(
+                        move |show_window| {
+                            Message::DialogUpdate(DialogPage::CreateLayout(
+                                name.clone(),
+                                LayoutPreview {
+                                    show_window,
+                                    ..preview.clone()
+                                },
+                            ))
+                        },
+                    );
+
+                let panel_section = widget::settings::section()
+                    .title(fl!("panel"))
+                    .add(
+                        widget::settings::item::builder(fl!("show"))
+                            .icon(icons::get_icon("resize-mode-symbolic", 18))
+                            .control(widget::toggler(!preview.panel.hidden).on_toggle(|hidden| {
+                                Message::DialogUpdate(DialogPage::CreateLayout(
+                                    name.clone(),
+                                    LayoutPreview {
+                                        panel: PanelProperties {
+                                            hidden: !hidden,
+                                            ..preview.panel.clone()
+                                        },
+                                        ..preview.clone()
+                                    },
+                                ))
+                            })),
+                    )
+                    .add(
+                        widget::settings::item::builder(fl!("extend"))
+                            .icon(icons::get_icon("resize-mode-symbolic", 18))
+                            .control(widget::toggler(preview.panel.extend).on_toggle(|extend| {
+                                Message::DialogUpdate(DialogPage::CreateLayout(
+                                    name.clone(),
+                                    LayoutPreview {
+                                        panel: PanelProperties {
+                                            extend,
+                                            ..preview.panel.clone()
+                                        },
+                                        ..preview.clone()
+                                    },
+                                ))
+                            })),
+                    )
+                    .add(
+                        widget::settings::item::builder(fl!("position"))
+                            .icon(icons::get_icon("resize-mode-symbolic", 18))
+                            .control({
+                                let name = name.clone();
+                                let preview = preview.clone();
+                                widget::segmented_button::horizontal(&self.layouts.panel_model)
+                                    .on_activate(move |entity| {
+                                        Message::UpdatePanelLayoutPosition(
+                                            entity,
+                                            name.clone(),
+                                            preview.clone(),
+                                        )
+                                    })
+                                    .button_alignment(Alignment::Center)
+                                    .button_spacing(spacing.space_xxs)
+                            }),
+                    )
+                    .add(
+                        widget::settings::item::builder(fl!("size"))
+                            .icon(icons::get_icon("resize-mode-symbolic", 18))
+                            .control({
+                                let name = name.clone();
+                                let preview = preview.clone();
+                                widget::spin_button(
+                                    preview.panel.size.to_string(),
+                                    preview.panel.size,
+                                    1.0,
+                                    0.0,
+                                    50.0,
+                                    move |size| {
+                                        Message::DialogUpdate(DialogPage::CreateLayout(
+                                            name.clone(),
+                                            LayoutPreview {
+                                                panel: PanelProperties {
+                                                    size,
+                                                    ..preview.panel.clone()
+                                                },
+                                                ..preview.clone()
+                                            },
+                                        ))
+                                    },
+                                )
+                            }),
+                    );
+
+                let dock_section = widget::settings::section()
+                    .title(fl!("dock"))
+                    .add(
+                        widget::settings::item::builder(fl!("show"))
+                            .icon(icons::get_icon("resize-mode-symbolic", 18))
+                            .control(widget::toggler(!preview.dock.hidden).on_toggle(|hidden| {
+                                Message::DialogUpdate(DialogPage::CreateLayout(
+                                    name.clone(),
+                                    LayoutPreview {
+                                        dock: PanelProperties {
+                                            hidden: !hidden,
+                                            ..preview.dock.clone()
+                                        },
+                                        ..preview.clone()
+                                    },
+                                ))
+                            })),
+                    )
+                    .add(
+                        widget::settings::item::builder(fl!("extend"))
+                            .icon(icons::get_icon("resize-mode-symbolic", 18))
+                            .control(widget::toggler(preview.dock.extend).on_toggle(|extend| {
+                                Message::DialogUpdate(DialogPage::CreateLayout(
+                                    name.clone(),
+                                    LayoutPreview {
+                                        dock: PanelProperties {
+                                            extend,
+                                            ..preview.dock.clone()
+                                        },
+                                        ..preview.clone()
+                                    },
+                                ))
+                            })),
+                    )
+                    .add(
+                        widget::settings::item::builder(fl!("position"))
+                            .icon(icons::get_icon("resize-mode-symbolic", 18))
+                            .control({
+                                let name = name.clone();
+                                let preview = preview.clone();
+                                widget::segmented_button::horizontal(&self.layouts.dock_model)
+                                    .on_activate(move |entity| {
+                                        Message::UpdateDockLayoutPosition(
+                                            entity,
+                                            name.clone(),
+                                            preview.clone(),
+                                        )
+                                    })
+                                    .button_alignment(Alignment::Center)
+                                    .button_spacing(spacing.space_xxs)
+                            }),
+                    )
+                    .add(
+                        widget::settings::item::builder(fl!("size"))
+                            .icon(icons::get_icon("resize-mode-symbolic", 18))
+                            .control({
+                                let name = name.clone();
+                                let preview = preview.clone();
+                                widget::spin_button(
+                                    preview.dock.size.to_string(),
+                                    preview.dock.size,
+                                    1.0,
+                                    0.0,
+                                    50.0,
+                                    move |size| {
+                                        Message::DialogUpdate(DialogPage::CreateLayout(
+                                            name.clone(),
+                                            LayoutPreview {
+                                                dock: PanelProperties {
+                                                    size,
+                                                    ..preview.dock.clone()
+                                                },
+                                                ..preview.clone()
+                                            },
+                                        ))
+                                    },
+                                )
+                            }),
+                    )
+                    .add(
+                        widget::settings::item::builder(fl!("dock-icons"))
+                            .icon(icons::get_icon("resize-mode-symbolic", 18))
+                            .control({
+                                let name = name.clone();
+                                let preview = preview.clone();
+                                widget::spin_button(
+                                    preview.dock_icons.to_string(),
+                                    preview.dock_icons,
+                                    1,
+                                    0,
+                                    20,
+                                    move |size| {
+                                        Message::DialogUpdate(DialogPage::CreateLayout(
+                                            name.clone(),
+                                            LayoutPreview {
+                                                dock_icons: size,
+                                                ..preview.clone()
+                                            },
+                                        ))
+                                    },
+                                )
+                            }),
+                    );
+
+                widget::dialog()
+                    .title(fl!("save-current-layout"))
+                    .body(fl!("save-current-layout-description"))
+                    .primary_action(
+                        widget::button::suggested(fl!("create"))
+                            .on_press_maybe(Some(Message::DialogComplete)),
+                    )
+                    .secondary_action(
+                        widget::button::standard(fl!("cancel")).on_press(Message::DialogCancel),
+                    )
+                    .control(
+                        widget::column()
+                            .push(preview_view)
+                            .push(name_input)
+                            .push(panel_section)
+                            .push(dock_section)
+                            .push(show_window_checkbox)
+                            .spacing(spacing.space_m)
+                            .padding(spacing.space_m)
+                            .apply(widget::scrollable),
+                    )
+            }
         };
 
         Some(dialog.into())
@@ -355,6 +590,23 @@ impl Application for App {
                 ),
                 None => None,
             },
+            Some(Page::Layouts) => Some(
+                widget::row()
+                    .push(widget::horizontal_space())
+                    .push(
+                        widget::button::standard(fl!("save-current-layout"))
+                            .trailing_icon(icons::get_handle("arrow-into-box-symbolic", 16))
+                            .on_press(Message::ToggleDialogPage(DialogPage::CreateLayout(
+                                String::new(),
+                                LayoutPreview::default(),
+                            ))),
+                    )
+                    .spacing(spacing.space_xxs)
+                    .apply(widget::container)
+                    .class(cosmic::style::Container::Card)
+                    .padding(spacing.space_xxs)
+                    .into(),
+            ),
             _ => None,
         }
     }
@@ -421,6 +673,24 @@ impl Application for App {
                         .map(cosmic::action::app),
                 ),
             },
+            Message::UpdatePanelLayoutPosition(entity, name, mut preview) => {
+                self.layouts.panel_model.activate(entity);
+                if let Some(position) = self.layouts.panel_model.data::<Position>(entity) {
+                    preview.panel.position = position.clone();
+                    tasks.push(self.update(Message::DialogUpdate(DialogPage::CreateLayout(
+                        name, preview,
+                    ))))
+                }
+            }
+            Message::UpdateDockLayoutPosition(entity, name, mut preview) => {
+                self.layouts.dock_model.activate(entity);
+                if let Some(position) = self.layouts.dock_model.data::<Position>(entity) {
+                    preview.dock.position = position.clone();
+                    tasks.push(self.update(Message::DialogUpdate(DialogPage::CreateLayout(
+                        name, preview,
+                    ))))
+                }
+            }
             Message::SaveNewColorScheme(name) => {
                 tasks.push(self.update(Message::ColorSchemes(Box::new(
                     pages::color_schemes::Message::SaveCurrentColorScheme(Some(name)),
@@ -446,6 +716,9 @@ impl Application for App {
                                 pages::snapshots::Message::CreateSnapshot(name, SnapshotKind::User),
                             )))
                         }
+                        DialogPage::CreateLayout(name, layout) => tasks.push(self.update(
+                            Message::Layouts(pages::layouts::Message::CreateLayout(name, layout)),
+                        )),
                     }
                 }
             }

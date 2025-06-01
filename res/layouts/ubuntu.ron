@@ -83,17 +83,19 @@
         ),
         panel_button_config_version: 1,
     )),
-    layout: (
-        panel: Some((
+    preview: (
+        panel: (
             position: Top,
             extend: true,
+            hidden: false,
             size: 10.0,
-        )),
-        dock: Some((
+        ),
+        dock: (
             position: Left,
             extend: true,
+            hidden: false,
             size: 20.0,
-        )),
+        ),
         dock_icons: 3,
         show_window: true,
     )
