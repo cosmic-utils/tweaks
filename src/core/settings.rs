@@ -18,14 +18,10 @@ pub fn flags() -> Flags {
     }
 }
 
-pub fn init() {
-    // Icon cache
+pub fn init() -> Result<(), crate::Error> {
     ICON_CACHE.get_or_init(|| Mutex::new(IconCache::new()));
-
-    // Localize
     localize::localize();
-
-    // Logger
     std::env::set_var("RUST_LOG", "cosmic_ext_tweaks=info");
     pretty_env_logger::init();
+    crate::pages::layouts::Layouts::init()
 }

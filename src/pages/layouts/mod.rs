@@ -5,7 +5,7 @@ use cosmic::{
 };
 use cosmic_ext_config_templates::load_template;
 
-use crate::{core::grid::GridMetrics, fl};
+use crate::{core::grid::GridMetrics, fl, Error};
 
 pub mod config;
 pub mod preview;
@@ -85,5 +85,29 @@ impl Layouts {
             }
         }
         Task::none()
+    }
+
+    pub fn init() -> Result<(), Error> {
+        let layouts_dir = dirs::data_local_dir()
+            .map(|path| path.join("cosmic/layouts"))
+            .ok_or(Error::LayoutPathNotFound)?;
+
+        if !layouts_dir.exists() {
+            std::fs::create_dir_all(&layouts_dir)?;
+        }
+
+        let layouts = vec![
+            ("cosmic", include_str!("../../../res/layouts/cosmic.ron")),
+            ("mac", include_str!("../../../res/layouts/mac.ron")),
+            ("windows", include_str!("../../../res/layouts/windows.ron")),
+            ("ubuntu", include_str!("../../../res/layouts/ubuntu.ron")),
+        ];
+
+        for (name, content) in layouts {
+            let file_path = layouts_dir.join(name.to_lowercase()).with_extension("ron");
+            std::fs::write(file_path, content)?;
+        }
+
+        Ok(())
     }
 }
