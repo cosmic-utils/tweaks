@@ -15,7 +15,7 @@ use super::Cosmic;
 pub enum DialogPage {
     SaveCurrentColorScheme(String),
     CreateSnapshot(String),
-    CreateLayout(String, LayoutPreview),
+    CreateLayout(String, LayoutPreview, Option<String>),
 }
 
 impl Cosmic {
@@ -67,7 +67,7 @@ impl Cosmic {
                         })
                         .on_submit(|_| Message::DialogComplete),
                 ),
-            DialogPage::CreateLayout(name, preview) => {
+            DialogPage::CreateLayout(name, preview, error) => {
                 let preview_view = preview.view::<Message>(&spacing, 130);
 
                 let name_input = widget::text_input(fl!("layout-name"), name)
@@ -76,6 +76,7 @@ impl Cosmic {
                         Message::DialogUpdate(DialogPage::CreateLayout(
                             name.clone(),
                             preview.clone(),
+                            error.clone(),
                         ))
                     })
                     .on_submit(|_| Message::DialogComplete);
@@ -95,6 +96,7 @@ impl Cosmic {
                                         },
                                         ..preview.clone()
                                     },
+                                    error.clone(),
                                 ))
                             })),
                     )
@@ -111,6 +113,7 @@ impl Cosmic {
                                         },
                                         ..preview.clone()
                                     },
+                                    error.clone(),
                                 ))
                             })),
                     )
@@ -138,6 +141,7 @@ impl Cosmic {
                             .control({
                                 let name = name.clone();
                                 let preview = preview.clone();
+                                let error = error.clone();
                                 widget::spin_button(
                                     preview.panel.size.to_string(),
                                     preview.panel.size,
@@ -154,6 +158,7 @@ impl Cosmic {
                                                 },
                                                 ..preview.clone()
                                             },
+                                            error.clone(),
                                         ))
                                     },
                                 )
@@ -175,6 +180,7 @@ impl Cosmic {
                                         },
                                         ..preview.clone()
                                     },
+                                    error.clone(),
                                 ))
                             })),
                     )
@@ -191,6 +197,7 @@ impl Cosmic {
                                         },
                                         ..preview.clone()
                                     },
+                                    error.clone(),
                                 ))
                             })),
                     )
@@ -218,6 +225,7 @@ impl Cosmic {
                             .control({
                                 let name = name.clone();
                                 let preview = preview.clone();
+                                let error = error.clone();
                                 widget::spin_button(
                                     preview.dock.size.to_string(),
                                     preview.dock.size,
@@ -234,6 +242,7 @@ impl Cosmic {
                                                 },
                                                 ..preview.clone()
                                             },
+                                            error.clone(),
                                         ))
                                     },
                                 )
@@ -245,6 +254,7 @@ impl Cosmic {
                             .control({
                                 let name = name.clone();
                                 let preview = preview.clone();
+                                let error = error.clone();
                                 widget::spin_button(
                                     preview.dock_icons.to_string(),
                                     preview.dock_icons,
@@ -258,6 +268,7 @@ impl Cosmic {
                                                 dock_icons: size,
                                                 ..preview.clone()
                                             },
+                                            error.clone(),
                                         ))
                                     },
                                 )
@@ -267,10 +278,17 @@ impl Cosmic {
                 widget::dialog()
                     .title(fl!("save-current-layout"))
                     .body(fl!("save-current-layout-description"))
-                    .primary_action(
-                        widget::button::suggested(fl!("create"))
-                            .on_press_maybe(Some(Message::DialogComplete)),
-                    )
+                    .primary_action(widget::button::suggested(fl!("create")).on_press(
+                        if name.is_empty() {
+                            Message::DialogUpdate(DialogPage::CreateLayout(
+                                name.clone(),
+                                preview.clone(),
+                                Some(fl!("layout-name-empty")),
+                            ))
+                        } else {
+                            Message::DialogComplete
+                        },
+                    ))
                     .secondary_action(
                         widget::button::standard(fl!("cancel")).on_press(Message::DialogCancel),
                     )
@@ -280,6 +298,14 @@ impl Cosmic {
                             .push(
                                 widget::column()
                                     .push(name_input)
+                                    .push_maybe(if let Some(error) = error {
+                                        Some(
+                                            widget::text::caption(error.to_string())
+                                                .class(cosmic::style::Text::Accent),
+                                        )
+                                    } else {
+                                        None
+                                    })
                                     .push(panel_section)
                                     .push(dock_section)
                                     .spacing(spacing.space_m)

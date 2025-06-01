@@ -83,6 +83,7 @@ impl Cosmic {
                             .on_press(Message::ToggleDialogPage(DialogPage::CreateLayout(
                                 String::new(),
                                 LayoutPreview::default(),
+                                None,
                             ))),
                     )
                     .spacing(spacing.space_xxs)

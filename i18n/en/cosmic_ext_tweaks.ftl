@@ -12,6 +12,7 @@ snapshots = Snapshots
 
 create-layout = Create layout
 layout-name = Layout name
+layout-name-empty = Layout name cannot be empty.
 dock-icons = Dock icons
 show-window = Show window
 preview = Preview
