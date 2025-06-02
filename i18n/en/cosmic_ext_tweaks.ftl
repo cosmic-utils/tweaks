@@ -9,6 +9,7 @@ color-schemes = Color schemes
 layouts = Layouts
 shortcuts = Shortcuts
 snapshots = Snapshots
+theme-packs = Theme Packs
 
 color-schemes-error = Error loading color schemes
 import-color-scheme = Import color scheme
@@ -37,6 +38,8 @@ save = Save
 cancel = Cancel
 close = Close
 create = Create
+delete = Delete
+apply = Apply
 
 navigation = Navigation
 
@@ -54,6 +57,16 @@ created = Created
 actions = Actions
 system = System
 user = User
+
+# Theme Packs
+available-theme-packs = Available Theme Packs
+no-theme-packs-available = No theme packs available
+create-new-theme-pack = Create New Theme Pack
+import-theme-pack = Import Theme Pack
+export-theme-pack = Export Theme Pack
+author = Author
+description = Description
+save-theme-pack-confirmation = Do you want to save this theme pack?
 
 ## Snapshots
 application-opened = Application opened
@@ -78,7 +91,7 @@ light = Light
 view = View
 
 
-## Shortcuts
+## Shortcuts
 
 warning = Warning: this will remove your existing custom shortcuts
 windows-desc = Super+Arrows to move windows. Ctrl+Alt+Arrows to navigate workspaces.

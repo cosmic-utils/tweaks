@@ -348,7 +348,7 @@ impl ColorSchemes {
         Task::batch(tasks)
     }
 
-    pub fn view<'a>(&'a self) -> Element<'a, Message> {
+    pub fn view(&self) -> Element<'_, Message> {
         let spacing = cosmic::theme::spacing();
         let active_tab = self.model.active_data::<Tab>().unwrap();
         let title = widget::text::title3(fl!("color-schemes"));
@@ -369,7 +369,7 @@ impl ColorSchemes {
             .into()
     }
 
-    fn installed_themes<'a>(&'a self) -> Element<'a, Message> {
+    fn installed_themes(&self) -> Element<'_, Message> {
         if self.installed.is_empty() {
             widget::text("No color schemes installed").into()
         } else {
@@ -410,7 +410,7 @@ impl ColorSchemes {
         }
     }
 
-    fn available_themes<'a>(&'a self) -> Element<'a, Message> {
+    fn available_themes(&self) -> Element<'_, Message> {
         match self.status {
             Status::Idle | Status::LoadingMore => {
                 if self.available.is_empty() {
