@@ -30,7 +30,7 @@ impl Shortcut {
 
     fn schema(&self) -> &'static str {
         match self {
-            Self::Windows => include_str!("../../res/shortcuts/windows.ron"),
+            Self::Windows => include_str!("../../../res/shortcuts/windows.ron"),
         }
     }
 }

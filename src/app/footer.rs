@@ -7,15 +7,12 @@ use crate::app::message::Message;
 use crate::app::page::Page;
 use crate::app::{dialog::DialogPage, App};
 
-use crate::{
-    core::icons,
-    fl,
-    pages::{
-        color_schemes::{self, Status, Tab},
-        layouts::preview::LayoutPreview,
-    },
+use crate::fl;
+use crate::app::core::icons;
+use crate::app::pages::{
+    color_schemes::{self, Status, Tab},
+    layouts::preview::LayoutPreview,
 };
-
 use super::Cosmic;
 
 impl Cosmic {
@@ -52,7 +49,7 @@ impl Cosmic {
                         .push(widget::horizontal_space())
                         .push(match app.color_schemes.status {
                             Status::Idle => widget::button::standard(fl!("show-more"))
-                                .leading_icon(crate::core::icons::get_handle(
+                                .leading_icon(crate::app::core::icons::get_handle(
                                     "content-loading-symbolic",
                                     16,
                                 ))

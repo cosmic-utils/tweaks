@@ -13,20 +13,17 @@ use crate::app::message::Message;
 use crate::app::page::Page;
 use crate::app::App;
 
-use crate::{
-    core::key_bindings::KeyBindings,
-    fl,
-    pages::{
-        self,
-        color_schemes::{self, ColorSchemes},
-        dock::Dock,
-        layouts::Layouts,
-        panel::Panel,
-        shortcuts::Shortcuts,
-        snapshots::{config::SnapshotKind, Snapshots},
-    },
+use crate::fl;
+use crate::app::core::key_bindings::KeyBindings;
+use crate::app::pages::{
+    self,
+    color_schemes::{self, ColorSchemes},
+    dock::Dock,
+    layouts::Layouts,
+    panel::Panel,
+    shortcuts::Shortcuts,
+    snapshots::{config::SnapshotKind, Snapshots},
 };
-
 use super::Cosmic;
 
 impl Cosmic {

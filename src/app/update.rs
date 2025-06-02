@@ -7,11 +7,8 @@ use cosmic::{
 use crate::app::message::Message;
 use crate::app::{dialog::DialogPage, App};
 
-use crate::{
-    core::config::AppTheme,
-    pages::{self, layouts::preview::Position, snapshots::config::SnapshotKind},
-};
-
+use crate::app::core::config::AppTheme;
+use crate::app::pages::{self, layouts::preview::Position, snapshots::config::SnapshotKind};
 use super::Cosmic;
 
 impl Cosmic {

@@ -5,9 +5,10 @@ use cosmic::{
 use cosmic_panel_config::CosmicPanelConfig;
 use serde::{Deserialize, Serialize};
 
-use crate::{core::icons, fl};
+use crate::fl;
 
 use config::{CosmicPanelButtonConfig, IndividualConfig, Override};
+use crate::app::core::icons;
 
 pub mod config;
 

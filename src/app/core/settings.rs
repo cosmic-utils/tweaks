@@ -1,7 +1,8 @@
-use crate::{app::flags::Flags, core::localize};
+use crate::app::flags::Flags;
 
 use super::icons::{IconCache, ICON_CACHE};
 use std::sync::Mutex;
+use crate::app::core::localize;
 
 pub fn settings() -> cosmic::app::Settings {
     cosmic::app::Settings::default().size_limits(
@@ -13,8 +14,8 @@ pub fn settings() -> cosmic::app::Settings {
 
 pub fn flags() -> Flags {
     Flags {
-        handler: crate::core::config::TweaksConfig::config(),
-        config: crate::core::config::TweaksConfig::new(),
+        handler: crate::app::core::config::TweaksConfig::config(),
+        config: crate::app::core::config::TweaksConfig::new(),
     }
 }
 
@@ -23,5 +24,5 @@ pub fn init() -> Result<(), crate::Error> {
     localize::localize();
     std::env::set_var("RUST_LOG", "cosmic_ext_tweaks=info");
     pretty_env_logger::init();
-    crate::pages::layouts::Layouts::init()
+    crate::app::pages::layouts::Layouts::init()
 }

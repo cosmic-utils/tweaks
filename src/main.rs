@@ -1,9 +1,7 @@
 mod app;
-mod core;
-mod pages;
 
-pub use core::error::Error;
-use core::settings;
+pub use app::core::error::Error;
+use app::core::settings;
 
 fn main() -> Result<(), Error> {
     settings::init()?;

@@ -3,7 +3,8 @@ use cosmic::{iced::Length, widget, Application, Apply, Element, Task};
 use cosmic_ext_config_templates::{load_template, panel::PanelSchema, Schema};
 use dirs::data_local_dir;
 
-use crate::{app::App, core::icons, fl};
+use crate::{app::App, fl};
+use crate::app::core::icons;
 
 pub mod config;
 

@@ -10,7 +10,8 @@ use cosmic::{
 use cosmic_ext_config_templates::load_template;
 use preview::{LayoutPreview, Position};
 
-use crate::{core::grid::GridMetrics, fl, Error};
+use crate::{fl, Error};
+use crate::app::core::grid::GridMetrics;
 
 pub mod config;
 pub mod preview;
@@ -111,7 +112,7 @@ impl Layouts {
                 let layout = Layout::new(name, preview);
 
                 match std::fs::write(&file_path, ron::to_string(&layout).unwrap()) {
-                    Ok(_) => match crate::pages::layouts::config::Layout::list() {
+                    Ok(_) => match crate::app::pages::layouts::config::Layout::list() {
                         Ok(layouts) => self.layouts = layouts,
                         Err(e) => eprintln!("Failed to reload layouts: {e}"),
                     },
@@ -134,10 +135,10 @@ impl Layouts {
         }
 
         let layouts = vec![
-            ("cosmic", include_str!("../../../res/layouts/cosmic.ron")),
-            ("mac", include_str!("../../../res/layouts/mac.ron")),
-            ("windows", include_str!("../../../res/layouts/windows.ron")),
-            ("ubuntu", include_str!("../../../res/layouts/ubuntu.ron")),
+            ("cosmic", include_str!("../../../../res/layouts/cosmic.ron")),
+            ("mac", include_str!("../../../../res/layouts/mac.ron")),
+            ("windows", include_str!("../../../../res/layouts/windows.ron")),
+            ("ubuntu", include_str!("../../../../res/layouts/ubuntu.ron")),
         ];
 
         for (name, content) in layouts {

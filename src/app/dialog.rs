@@ -3,12 +3,9 @@ use cosmic::{iced::Alignment, widget, Apply, Element};
 use crate::app::message::Message;
 use crate::app::App;
 
-use crate::{
-    core::icons,
-    fl,
-    pages::layouts::preview::{LayoutPreview, PanelProperties},
-};
-
+use crate::fl;
+use crate::app::core::icons;
+use crate::app::pages::layouts::preview::{LayoutPreview, PanelProperties};
 use super::Cosmic;
 
 #[derive(Clone, Debug)]
@@ -308,6 +305,7 @@ impl Cosmic {
                                     })
                                     .push(panel_section)
                                     .push(dock_section)
+                                    .padding(spacing.space_s)
                                     .spacing(spacing.space_m)
                                     .apply(widget::scrollable)
                                     .height(300),
