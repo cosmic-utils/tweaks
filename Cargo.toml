@@ -47,8 +47,8 @@ features = ["macros", "fs", "rt"]
 [patch."https://github.com/smithay/client-toolkit.git"]
 sctk = { package = "smithay-client-toolkit", version = "=0.19.2" }
 
-[patch."https://github.com/pop-os/libcosmic.git"]
-libcosmic = { path = "../../edfloreshz-ext/libcosmic" }
-cosmic-config = { path = "../../edfloreshz-ext/libcosmic/cosmic-config" }
-cosmic-config-derive = { path = "../../edfloreshz-ext/libcosmic/cosmic-config-derive" }
-cosmic-theme = { path = "../../edfloreshz-ext/libcosmic/cosmic-theme" }
+#[patch."https://github.com/pop-os/libcosmic.git"]
+#libcosmic = { path = "../../edfloreshz-ext/libcosmic" }
+#cosmic-config = { path = "../../edfloreshz-ext/libcosmic/cosmic-config" }
+#cosmic-config-derive = { path = "../../edfloreshz-ext/libcosmic/cosmic-config-derive" }
+#cosmic-theme = { path = "../../edfloreshz-ext/libcosmic/cosmic-theme" }

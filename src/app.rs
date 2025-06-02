@@ -1,4 +1,3 @@
-use crate::pages::{self, color_schemes::config::ColorScheme};
 use action::TweaksAction;
 use context::ContextPage;
 use cosmic::{
@@ -10,6 +9,7 @@ use std::collections::{HashMap, VecDeque};
 use dialog::DialogPage;
 use flags::Flags;
 use message::Message;
+use crate::app::pages::color_schemes::config::ColorScheme;
 
 pub mod action;
 pub mod context;
@@ -25,11 +25,13 @@ pub mod page;
 pub mod subscription;
 pub mod update;
 pub mod view;
+pub mod pages;
+pub mod core;
 
 pub struct App {
     cosmic: Cosmic,
     handler: cosmic::cosmic_config::Config,
-    config: crate::core::config::TweaksConfig,
+    config: core::config::TweaksConfig,
     color_schemes: pages::ColorSchemes,
     dock: pages::Dock,
     panel: pages::Panel,
@@ -118,9 +120,9 @@ impl App {
 
     fn settings(&self) -> Element<Message> {
         let app_theme_selected = match self.config.app_theme {
-            crate::core::config::AppTheme::Dark => 1,
-            crate::core::config::AppTheme::Light => 2,
-            crate::core::config::AppTheme::System => 0,
+            core::config::AppTheme::Dark => 1,
+            core::config::AppTheme::Light => 2,
+            core::config::AppTheme::System => 0,
         };
         widget::settings::view_column(vec![widget::settings::section()
             .title(crate::fl!("appearance"))

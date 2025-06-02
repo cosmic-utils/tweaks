@@ -19,3 +19,5 @@ vendor/
 .cargo/
 .direnv/
 result*
+
+.idea

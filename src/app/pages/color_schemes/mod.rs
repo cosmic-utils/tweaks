@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use self::config::ColorScheme;
-use crate::{core::grid::GridMetrics, fl};
+use crate::fl;
 use ashpd::desktop::file_chooser::{FileFilter, SelectedFiles};
 use cosmic::{
     cosmic_config::CosmicConfigEntry,
@@ -14,6 +14,7 @@ use cosmic::{
     Element, Task,
 };
 use cosmic_theme::CosmicTheme;
+use crate::app::core::grid::GridMetrics;
 
 pub mod config;
 pub mod cosmic_theme;

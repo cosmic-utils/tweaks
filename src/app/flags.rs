@@ -1,6 +1,6 @@
 use cosmic::cosmic_config::Config;
 
-use crate::core::config::TweaksConfig;
+use crate::app::core::config::TweaksConfig;
 
 #[derive(Clone, Debug)]
 pub struct Flags {

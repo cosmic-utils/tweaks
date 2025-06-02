@@ -4,7 +4,8 @@ use cosmic::{
 };
 use cosmic_panel_config::CosmicPanelConfig;
 
-use crate::{core::icons, fl};
+use crate::fl;
+use crate::app::core::icons;
 
 #[derive(Debug)]
 pub struct Dock {

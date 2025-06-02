@@ -7,8 +7,8 @@ use crate::app::action::TweaksAction;
 use crate::app::message::Message;
 use crate::app::App;
 
-use crate::{core::icons, fl};
-
+use crate::fl;
+use crate::app::core::icons;
 use super::Cosmic;
 
 impl Cosmic {

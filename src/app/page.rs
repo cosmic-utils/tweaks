@@ -2,7 +2,7 @@ use cosmic::widget::Icon;
 
 use crate::fl;
 
-use crate::core::icons;
+use crate::app::core::icons;
 
 #[derive(Clone, Copy, Default, Debug, Eq, PartialEq)]
 pub enum Page {

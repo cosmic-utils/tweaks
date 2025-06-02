@@ -1,4 +1,4 @@
-use crate::pages::{self, layouts::preview::LayoutPreview};
+use crate::app::pages::{self, layouts::preview::LayoutPreview};
 
 use super::{context::ContextPage, dialog::DialogPage};
 use cosmic::{

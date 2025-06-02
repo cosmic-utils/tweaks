@@ -10,7 +10,7 @@ use cosmic::{
 use crate::app::message::Message;
 use crate::app::App;
 
-use crate::core::config::CONFIG_VERSION;
+use crate::app::core::config::CONFIG_VERSION;
 
 use super::Cosmic;
 

@@ -1,16 +1,13 @@
-use crate::{
-    core::{
-        icons,
-        style::{destructive_button, link_button, standard_button},
-    },
-    fl,
-};
+use crate::fl;
 use cosmic::{
     iced::{Alignment, Length},
     widget::{self, tooltip},
     Apply, Element,
 };
-
+use crate::app::core::{
+    icons,
+    style::{destructive_button, link_button, standard_button},
+};
 use super::config::ColorScheme;
 
 pub fn installed<'a>(
@@ -36,7 +33,7 @@ pub fn installed<'a>(
                         .padding(spacing.space_xxs)
                         .width(90.0)
                         .height(Length::Fill)
-                        .class(crate::core::style::card(theme.clone())),
+                        .class(crate::app::core::style::card(theme.clone())),
                 )
                 .push(widget::horizontal_space())
                 .push(widget::tooltip::tooltip(
@@ -78,7 +75,7 @@ pub fn installed<'a>(
         .width(item_width as f32)
         .height(160.)
         .apply(widget::container)
-        .class(crate::core::style::background(&theme))
+        .class(crate::app::core::style::background(&theme))
         .into()
 }
 
@@ -109,7 +106,7 @@ pub fn available<'a>(
                         .padding(spacing.space_xxs)
                         .width(90.0)
                         .height(Length::Fill)
-                        .class(crate::core::style::card(theme.clone())),
+                        .class(crate::app::core::style::card(theme.clone())),
                 )
                 .push(widget::horizontal_space())
                 .push(widget::tooltip::tooltip(
@@ -137,6 +134,6 @@ pub fn available<'a>(
         .width(item_width as f32)
         .height(160.)
         .apply(widget::container)
-        .class(crate::core::style::background(&theme))
+        .class(crate::app::core::style::background(&theme))
         .into()
 }
