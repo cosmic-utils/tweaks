@@ -1,4 +1,4 @@
-use cosmic::{widget, Apply, Element};
+use cosmic::{widget, Element};
 
 use crate::app::message::Message;
 use crate::app::pages::layouts::helpers::{CreateLayoutDialog, PanelType};
@@ -83,6 +83,7 @@ impl Cosmic {
                     .on_submit(|_| Message::DialogComplete);
 
                 widget::dialog()
+                    .width(700)
                     .title(fl!("save-current-layout"))
                     .body(fl!("save-current-layout-description"))
                     .primary_action(widget::button::suggested(fl!("create")).on_press(
