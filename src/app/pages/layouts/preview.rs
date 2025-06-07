@@ -8,7 +8,9 @@ use cosmic::{
 };
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
+use crate::fl;
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 pub struct LayoutPreview {
     pub panel: PanelProperties,
     pub dock: PanelProperties,
@@ -16,53 +18,20 @@ pub struct LayoutPreview {
     pub show_window: bool,
 }
 
-impl Default for LayoutPreview {
-    fn default() -> Self {
-        Self {
-            panel: PanelProperties::new(Position::Top, true, false, 20.0),
-            dock: PanelProperties::new(Position::Bottom, true, false, 20.0),
-            dock_icons: 6,
-            show_window: true,
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 pub struct PanelProperties {
     pub position: Position,
     pub extend: bool,
     pub hidden: bool,
-    pub size: f32,
+    pub size: usize,
 }
 
-impl PanelProperties {
-    pub fn new(position: Position, extend: bool, hidden: bool, size: f32) -> Self {
-        Self {
-            position,
-            extend,
-            hidden,
-            size,
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 pub enum Position {
     Top,
     Bottom,
     Left,
     Right,
-}
-
-impl ToString for Position {
-    fn to_string(&self) -> String {
-        match self {
-            Position::Top => "Top".to_string(),
-            Position::Bottom => "Bottom".to_string(),
-            Position::Left => "Left".to_string(),
-            Position::Right => "Right".to_string(),
-        }
-    }
 }
 
 impl LayoutPreview {
@@ -77,24 +46,24 @@ impl LayoutPreview {
         let panel = widget::container(match self.panel.position {
             Position::Top | Position::Bottom => Element::from(
                 widget::row()
-                    .push(square(self.panel.size - 5.0))
+                    .push(Self::square(self.panel.size as f32 - 5.0))
                     .push_maybe(if self.panel.extend {
                         Some(horizontal_space())
                     } else {
                         None
                     })
-                    .push(square(self.panel.size - 5.0))
+                    .push(Self::square(self.panel.size as f32 - 5.0))
                     .spacing(spacing.space_xxs)
                     .align_y(Vertical::Center),
             ),
             Position::Left | Position::Right => widget::column()
-                .push(square(self.panel.size - 5.0))
+                .push(Self::square(self.panel.size as f32 - 5.0))
                 .push_maybe(if self.panel.extend {
                     Some(vertical_space())
                 } else {
                     None
                 })
-                .push(square(self.panel.size - 5.0))
+                .push(Self::square(self.panel.size as f32 - 5.0))
                 .spacing(spacing.space_xxs)
                 .align_x(Horizontal::Center)
                 .into(),
@@ -113,7 +82,7 @@ impl LayoutPreview {
                 };
 
                 let icons = (0..self.dock_icons)
-                    .map(|_| square::<Message>(self.dock.size - 5.0).into())
+                    .map(|_| Self::square::<Message>(self.dock.size as f32 - 5.0).into())
                     .collect();
 
                 let icons: Element<_> =
@@ -170,22 +139,22 @@ impl LayoutPreview {
                 };
                 match self.panel.position {
                     Position::Top => column
-                        .push(panel.width(extend_panel).height(self.panel.size))
+                        .push(panel.width(extend_panel).height(self.panel.size as f32))
                         .align_x(Horizontal::Center)
                         .into(),
                     Position::Bottom => column
                         .push(vertical_space())
-                        .push(panel.width(extend_panel).height(self.panel.size))
+                        .push(panel.width(extend_panel).height(self.panel.size as f32))
                         .align_x(Horizontal::Center)
                         .into(),
                     Position::Left => row
-                        .push(panel.width(self.panel.size).height(extend_panel))
+                        .push(panel.width(self.panel.size as f32).height(extend_panel))
                         .push(horizontal_space())
                         .align_y(Vertical::Center)
                         .into(),
                     Position::Right => row
                         .push(horizontal_space())
-                        .push(panel.width(self.panel.size).height(extend_panel))
+                        .push(panel.width(self.panel.size as f32).height(extend_panel))
                         .align_y(Vertical::Center)
                         .into(),
                 }
@@ -208,7 +177,7 @@ impl LayoutPreview {
                 };
 
                 let icons = (0..self.dock_icons)
-                    .map(|_| square::<Message>(self.dock.size - 5.0).into())
+                    .map(|_| Self::square::<Message>(self.dock.size as f32 - 5.0).into())
                     .collect();
 
                 let icons: Element<_> =
@@ -236,20 +205,20 @@ impl LayoutPreview {
 
                 match (self.panel.position, self.dock.position) {
                     (Position::Top, Position::Top) => column
-                        .push(panel.width(extend_panel).height(self.panel.size))
+                        .push(panel.width(extend_panel).height(self.panel.size as f32))
                         .push(horizontal_space())
                         .push(dock.width(extend_dock))
                         .align_x(Horizontal::Center)
                         .into(),
                     (Position::Top, Position::Bottom) => column
-                        .push(panel.width(extend_panel).height(self.panel.size))
+                        .push(panel.width(extend_panel).height(self.panel.size as f32))
                         .push(vertical_space())
                         .push(horizontal_space())
                         .push(dock.width(extend_dock))
                         .align_x(Horizontal::Center)
                         .into(),
                     (Position::Top, Position::Left) => column
-                        .push(panel.width(extend_panel).height(self.panel.size))
+                        .push(panel.width(extend_panel).height(self.panel.size as f32))
                         .push(
                             widget::row()
                                 .push(dock.height(extend_dock))
@@ -258,7 +227,7 @@ impl LayoutPreview {
                         .align_x(Horizontal::Center)
                         .into(),
                     (Position::Top, Position::Right) => column
-                        .push(panel.width(extend_panel).height(self.panel.size))
+                        .push(panel.width(extend_panel).height(self.panel.size as f32))
                         .push(
                             widget::row()
                                 .push(horizontal_space())
@@ -271,13 +240,13 @@ impl LayoutPreview {
                         .push(dock.width(extend_dock))
                         .push(vertical_space())
                         .push(horizontal_space())
-                        .push(panel.width(extend_panel).height(self.panel.size))
+                        .push(panel.width(extend_panel).height(self.panel.size as f32))
                         .align_x(Horizontal::Center)
                         .into(),
                     (Position::Bottom, Position::Bottom) => column
                         .push(vertical_space())
                         .push(horizontal_space())
-                        .push(panel.width(extend_panel).height(self.panel.size))
+                        .push(panel.width(extend_panel).height(self.panel.size as f32))
                         .push(dock.width(extend_dock))
                         .align_x(Horizontal::Center)
                         .into(),
@@ -287,7 +256,7 @@ impl LayoutPreview {
                             widget::column()
                                 .push(vertical_space())
                                 .push(horizontal_space())
-                                .push(panel.width(extend_panel).height(self.panel.size))
+                                .push(panel.width(extend_panel).height(self.panel.size as f32))
                                 .align_x(Horizontal::Center),
                         )
                         .align_y(Vertical::Center)
@@ -301,7 +270,7 @@ impl LayoutPreview {
                         .push(
                             widget::column()
                                 .push(vertical_space())
-                                .push(panel.width(extend_panel).height(self.panel.size)),
+                                .push(panel.width(extend_panel).height(self.panel.size as f32)),
                         )
                         .push_maybe(if self.panel.extend {
                             None
@@ -312,7 +281,7 @@ impl LayoutPreview {
                         .align_y(Vertical::Center)
                         .into(),
                     (Position::Left, Position::Top) => row
-                        .push(panel.width(self.panel.size).height(extend_panel))
+                        .push(panel.width(self.panel.size as f32).height(extend_panel))
                         .push_maybe(if self.dock.extend {
                             None
                         } else {
@@ -332,7 +301,7 @@ impl LayoutPreview {
                         .align_y(Vertical::Center)
                         .into(),
                     (Position::Left, Position::Bottom) => row
-                        .push(panel.width(self.panel.size).height(extend_panel))
+                        .push(panel.width(self.panel.size as f32).height(extend_panel))
                         .push_maybe(if self.dock.extend {
                             None
                         } else {
@@ -353,13 +322,13 @@ impl LayoutPreview {
                         .align_y(Vertical::Center)
                         .into(),
                     (Position::Left, Position::Left) => row
-                        .push(panel.width(self.panel.size).height(extend_panel))
+                        .push(panel.width(self.panel.size as f32).height(extend_panel))
                         .push(dock.height(extend_dock))
                         .push(horizontal_space())
                         .align_y(Vertical::Center)
                         .into(),
                     (Position::Left, Position::Right) => row
-                        .push(panel.width(self.panel.size).height(extend_panel))
+                        .push(panel.width(self.panel.size as f32).height(extend_panel))
                         .push(horizontal_space())
                         .push(dock.height(extend_dock))
                         .align_y(Vertical::Center)
@@ -381,7 +350,7 @@ impl LayoutPreview {
                         } else {
                             Some(horizontal_space())
                         })
-                        .push(panel.width(self.panel.size).height(extend_panel))
+                        .push(panel.width(self.panel.size as f32).height(extend_panel))
                         .align_y(Vertical::Center)
                         .into(),
                     (Position::Right, Position::Bottom) => row
@@ -401,19 +370,19 @@ impl LayoutPreview {
                         } else {
                             Some(horizontal_space())
                         })
-                        .push(panel.width(self.panel.size).height(extend_panel))
+                        .push(panel.width(self.panel.size as f32).height(extend_panel))
                         .align_y(Vertical::Center)
                         .into(),
                     (Position::Right, Position::Left) => row
                         .push(dock.height(extend_dock))
                         .push(horizontal_space())
-                        .push(panel.width(self.panel.size).height(extend_panel))
+                        .push(panel.width(self.panel.size as f32).height(extend_panel))
                         .align_y(Vertical::Center)
                         .into(),
                     (Position::Right, Position::Right) => row
                         .push(horizontal_space())
                         .push(dock.height(extend_dock))
-                        .push(panel.width(self.panel.size).height(extend_panel))
+                        .push(panel.width(self.panel.size as f32).height(extend_panel))
                         .align_y(Vertical::Center)
                         .into(),
                 }
@@ -426,11 +395,44 @@ impl LayoutPreview {
             .padding(spacing.space_xxxs)
             .into()
     }
+
+    pub fn square<'a, Message: Clone + 'a>(size: f32) -> widget::Container<'a, Message, Theme> {
+        widget::container(widget::text(""))
+            .width(Length::Fixed(size))
+            .height(Length::Fixed(size))
+            .class(cosmic::style::Container::Secondary)
+    }
 }
 
-pub fn square<'a, Message: Clone + 'a>(size: f32) -> widget::Container<'a, Message, Theme> {
-    widget::container(widget::text(""))
-        .width(Length::Fixed(size))
-        .height(Length::Fixed(size))
-        .class(cosmic::style::Container::Secondary)
+impl PanelProperties {
+    pub fn new(position: Position, extend: bool, hidden: bool, size: usize) -> Self {
+        Self {
+            position,
+            extend,
+            hidden,
+            size,
+        }
+    }
+}
+
+impl Default for LayoutPreview {
+    fn default() -> Self {
+        Self {
+            panel: PanelProperties::new(Position::Top, true, false, 20),
+            dock: PanelProperties::new(Position::Bottom, true, false, 20),
+            dock_icons: 6,
+            show_window: true,
+        }
+    }
+}
+
+impl ToString for Position {
+    fn to_string(&self) -> String {
+        match self {
+            Position::Top => fl!("top"),
+            Position::Bottom => fl!("bottom"),
+            Position::Left => fl!("left"),
+            Position::Right => fl!("right"),
+        }
+    }
 }
