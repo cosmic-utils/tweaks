@@ -27,6 +27,7 @@ impl Cosmic {
                         .push(
                             widget::button::standard(fl!("save-current-color-scheme"))
                                 .trailing_icon(icons::get_handle("arrow-into-box-symbolic", 16))
+                                .spacing(spacing.space_xs)
                                 .on_press(Message::ColorSchemes(Box::new(
                                     color_schemes::Message::SaveCurrentColorScheme(None),
                                 ))),
@@ -34,6 +35,7 @@ impl Cosmic {
                         .push(
                             widget::button::standard(fl!("import-color-scheme"))
                                 .trailing_icon(icons::get_handle("document-save-symbolic", 16))
+                                .spacing(spacing.space_xs)
                                 .on_press(Message::ColorSchemes(Box::new(
                                     color_schemes::Message::StartImport,
                                 ))),
@@ -77,6 +79,7 @@ impl Cosmic {
                     .push(
                         widget::button::standard(fl!("save-current-layout"))
                             .trailing_icon(icons::get_handle("arrow-into-box-symbolic", 16))
+                            .spacing(spacing.space_xs)
                             .on_press(Message::ToggleDialogPage(DialogPage::CreateLayout(
                                 CreateLayoutDialog::new(
                                     String::new(),
