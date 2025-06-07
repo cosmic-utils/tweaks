@@ -14,7 +14,7 @@ use crate::app::core::grid::GridMetrics;
 use crate::{fl, Error};
 
 pub mod config;
-pub mod helpers;
+pub mod dialog;
 pub mod preview;
 
 pub struct Layouts {

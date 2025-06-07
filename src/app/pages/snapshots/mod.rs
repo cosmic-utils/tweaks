@@ -1,40 +1,46 @@
-use config::{Snapshot, SnapshotKind, SnapshotsConfig};
-use cosmic::{iced::Length, widget, Application, Apply, Element, Task};
-use cosmic_ext_config_templates::{load_template, panel::PanelSchema, Schema};
+use config::Snapshot;
+use cosmic::{iced::Length, widget, Application, Element, Task};
+use cosmic_ext_config_templates::load_template;
 use dirs::data_local_dir;
 
-use crate::{app::App, fl};
 use crate::app::core::icons;
+use crate::app::pages::snapshots::config::SnapshotKind;
+use crate::{app::App, fl};
 
 pub mod config;
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Snapshots {
-    pub config: SnapshotsConfig,
+    snapshots: Vec<Snapshot>,
 }
 
-impl Default for Snapshots {
-    fn default() -> Self {
-        Self {
-            config: SnapshotsConfig::config(),
-        }
+impl Snapshots {
+    pub fn list() -> Vec<Snapshot> {
+        dirs::data_local_dir()
+            .unwrap()
+            .join(App::APP_ID)
+            .join("snapshots")
+            .read_dir()
+            .unwrap()
+            .filter_map(|entry| entry.ok())
+            .filter_map(|entry| std::fs::read_to_string(entry.path()).ok())
+            .filter_map(|entry| ron::from_str(&entry).ok())
+            .collect()
     }
 }
 
 #[derive(Debug, Clone)]
 pub enum Message {
     CreateSnapshot(String, SnapshotKind),
+    ReloadSnapshots,
     RestoreSnapshot(Snapshot),
     DeleteSnapshot(Snapshot),
-    OpenSaveDialog,
 }
 
 impl Snapshots {
     pub fn view(&self) -> Element<Message> {
         let spacing = cosmic::theme::spacing();
-
         let snapshots = self
-            .config
             .snapshots
             .iter()
             .map(|snapshot| {
@@ -42,7 +48,7 @@ impl Snapshots {
                     widget::text(&snapshot.name)
                         .width(Length::FillPortion(2))
                         .into(),
-                    widget::text(snapshot.kind())
+                    widget::text(snapshot.kind.to_string())
                         .width(Length::FillPortion(1))
                         .into(),
                     widget::text(snapshot.created())
@@ -111,17 +117,9 @@ impl Snapshots {
                     widget::row()
                         .push(widget::text::title3(fl!("snapshots")))
                         .push(widget::horizontal_space())
-                        .push(widget::tooltip::tooltip(
-                            icons::get_handle("list-add-symbolic", 16)
-                                .apply(widget::button::icon)
-                                .padding(spacing.space_xxs)
-                                .on_press(Message::OpenSaveDialog)
-                                .class(cosmic::style::Button::Standard),
-                            widget::text(fl!("create-snapshot")),
-                            widget::tooltip::Position::Bottom,
-                        ))
                         .spacing(spacing.space_xxs),
                 )
+                .push(widget::text::body("Each time you open Tweaks, we save the current state of your desktop, if you ever break it, simply restore it."))
                 .push_maybe(header)
                 .push(snapshots)
                 .spacing(spacing.space_xs),
@@ -130,14 +128,22 @@ impl Snapshots {
     }
 
     pub fn update(&mut self, message: Message) -> Task<crate::app::message::Message> {
-        let mut commands = vec![];
+        let mut tasks = vec![];
         match message {
+            Message::ReloadSnapshots => {
+                self.snapshots = Snapshots::list();
+                self.snapshots.sort_by(|a, b| {
+                    b.created
+                        .and_utc()
+                        .timestamp()
+                        .cmp(&a.created.and_utc().timestamp())
+                });
+            }
             Message::RestoreSnapshot(snapshot) => {
-                if let Err(e) = load_template(snapshot.schema().clone()) {
+                if let Err(e) = load_template(snapshot.schema()) {
                     eprintln!("Failed to load template: {}", e);
                 }
             }
-            Message::OpenSaveDialog => commands.push(self.update(Message::OpenSaveDialog)),
             Message::CreateSnapshot(name, kind) => {
                 let path = data_local_dir()
                     .unwrap()
@@ -148,62 +154,30 @@ impl Snapshots {
                         log::error!("{e}");
                     }
                 }
-                let snapshot = Snapshot::new(&name, &path, kind);
-                match PanelSchema::generate()
-                    .and_then(|panel_schema| Schema::Panel(panel_schema).save(&snapshot.path))
-                {
-                    Ok(_) => {
-                        let mut snapshots = self.config.snapshots.clone();
-                        snapshots.push(snapshot.clone());
-                        snapshots.sort_by(|a, b| {
-                            b.created
-                                .and_utc()
-                                .timestamp()
-                                .cmp(&a.created.and_utc().timestamp())
-                        });
-                        match self
-                            .config
-                            .set_snapshots(&SnapshotsConfig::helper(), snapshots)
-                        {
-                            Ok(written) => {
-                                if !written {
-                                    log::error!("Failed to write snapshots to config");
-                                }
-                            }
-                            Err(e) => log::error!("Failed to set snapshots: {}", e),
+                let snapshot = Snapshot::new(name, kind);
+                match ron::to_string(&snapshot) {
+                    Ok(data) => {
+                        if let Err(e) = std::fs::write(snapshot.path(), data) {
+                            log::error!("Failed to write snapshot: {}", e);
                         }
+                        log::info!("Snapshot created: {}", snapshot.name);
+                        tasks.push(self.update(Message::ReloadSnapshots));
                     }
-                    Err(e) => log::error!("Failed to generate template: {}", e),
+                    Err(e) => {
+                        log::error!("Failed to serialize snapshot: {}", e);
+                    }
                 }
             }
             Message::DeleteSnapshot(snapshot) => {
-                if snapshot.path.exists() {
-                    if let Err(e) = std::fs::remove_file(&snapshot.path) {
+                if snapshot.path().exists() {
+                    if let Err(e) = std::fs::remove_file(&snapshot.path()) {
                         log::error!("Failed to delete layout: {}", e);
-                        return Task::batch(commands);
+                        return Task::batch(tasks);
                     }
-                }
-                let mut snapshots = self.config.snapshots.clone();
-                snapshots.retain(|l| *l != snapshot);
-                snapshots.sort_by(|a, b| {
-                    b.created
-                        .and_utc()
-                        .timestamp()
-                        .cmp(&a.created.and_utc().timestamp())
-                });
-                match self
-                    .config
-                    .set_snapshots(&SnapshotsConfig::helper(), snapshots)
-                {
-                    Ok(written) => {
-                        if !written {
-                            log::error!("Failed to write snapshots to config");
-                        }
-                    }
-                    Err(e) => log::error!("Failed to set snapshots: {}", e),
+                    tasks.push(self.update(Message::ReloadSnapshots));
                 }
             }
         }
-        Task::batch(commands)
+        Task::batch(tasks)
     }
 }

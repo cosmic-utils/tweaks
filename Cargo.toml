@@ -15,6 +15,7 @@ ron = "0.8.1"
 rust-embed = "8.3.0"
 chrono = { version = "0.4.38", features = ["serde"] }
 thiserror = "2.0.12"
+uuid = { version = "1.17.0", features = ["serde", "v4"] }
 
 [dependencies.ashpd]
 version = "0.8.1"

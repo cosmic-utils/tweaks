@@ -7,13 +7,13 @@ use cosmic::{
     Application, ApplicationExt, Task,
 };
 
-use crate::app::context::ContextPage;
 use crate::app::flags::Flags;
 use crate::app::message::Message;
 use crate::app::page::Page;
 use crate::app::App;
+use crate::app::{context::ContextPage, pages::snapshots::config::SnapshotKind};
 
-use crate::fl;
+use super::Cosmic;
 use crate::app::core::key_bindings::KeyBindings;
 use crate::app::pages::{
     self,
@@ -22,9 +22,9 @@ use crate::app::pages::{
     layouts::Layouts,
     panel::Panel,
     shortcuts::Shortcuts,
-    snapshots::{config::SnapshotKind, Snapshots},
+    snapshots::Snapshots,
 };
-use super::Cosmic;
+use crate::fl;
 
 impl Cosmic {
     pub fn init(core: Core, flags: Flags) -> (App, app::Task<Message>) {
