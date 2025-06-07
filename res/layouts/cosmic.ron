@@ -1,5 +1,7 @@
 (
+    id: "8d286ae7-5e7c-443d-b5ca-ddb791922e67",
     name: "Cosmic",
+    custom: false,
     schema: Panel((
         panel_config: (
             config_list: [

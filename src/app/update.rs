@@ -128,7 +128,7 @@ impl Cosmic {
                                 )));
                             } else {
                                 tasks.push(app.update(Message::Layouts(
-                                    pages::layouts::Message::CreateLayout(name, preview),
+                                    pages::layouts::Message::Create(name, preview),
                                 )));
                             }
                         }

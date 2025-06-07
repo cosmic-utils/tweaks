@@ -1,5 +1,7 @@
 (
+    id: "e4af4098-aad2-4b07-afd0-9ac540874558",
     name: "Ubuntu",
+    custom: false,
     schema: Panel((
         panel_config: (
             config_list: [

@@ -11,6 +11,8 @@ shortcuts = Shortcuts
 snapshots = Snapshots
 
 create-layout = Create layout
+apply-layout = Apply layout
+delete-layout = Delete layout
 layout-name = Layout name
 layout-name-empty = Layout name cannot be empty.
 dock-icons = Dock icons
