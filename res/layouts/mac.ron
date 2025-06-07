@@ -1,5 +1,7 @@
 (
+    id: "9727f9f3-240a-4a9d-8459-3b007056cfeb",
     name: "Mac",
+    custom: false,
     schema: Panel((
         panel_config: (
             config_list: [

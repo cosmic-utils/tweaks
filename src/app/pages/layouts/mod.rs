@@ -5,12 +5,12 @@ use cosmic::{
         self,
         segmented_button::{self, SingleSelect},
     },
-    Element, Task,
+    Application, Element, Task,
 };
 use cosmic_ext_config_templates::load_template;
 use preview::{LayoutPreview, Position};
 
-use crate::app::core::grid::GridMetrics;
+use crate::app::{core::grid::GridMetrics, App};
 use crate::{fl, Error};
 
 pub mod config;
@@ -19,7 +19,7 @@ pub mod preview;
 
 pub struct Layouts {
     layouts: Vec<Layout>,
-    selected_layout: Option<Layout>,
+    pub selected_layout: Option<Layout>,
     pub panel_model: segmented_button::Model<SingleSelect>,
     pub dock_model: segmented_button::Model<SingleSelect>,
 }
@@ -47,15 +47,17 @@ impl Default for Layouts {
 
 #[derive(Debug, Clone)]
 pub enum Message {
-    ApplyLayout(Layout),
+    Select(Layout),
+    Apply,
+    Delete,
     LoadLayouts(Vec<Layout>),
-    CreateLayout(String, LayoutPreview),
+    Create(String, LayoutPreview),
 }
 
 impl Layouts {
     pub fn init() -> Result<(), Error> {
         let layouts_dir = dirs::data_local_dir()
-            .map(|path| path.join("cosmic/layouts"))
+            .map(|path| path.join(App::APP_ID).join("layouts"))
             .ok_or(Error::LayoutPathNotFound)?;
 
         if !layouts_dir.exists() {
@@ -98,7 +100,7 @@ impl Layouts {
                 }
                 grid = grid.push(
                     widget::column()
-                        .push(layout.preview(&spacing, item_width, 130))
+                        .push(layout.preview(&spacing, item_width, 130, &self.selected_layout))
                         .push(widget::text(&layout.name))
                         .spacing(spacing.space_xs)
                         .align_x(Horizontal::Center),
@@ -124,20 +126,58 @@ impl Layouts {
             Message::LoadLayouts(layouts) => {
                 self.layouts = layouts;
             }
-            Message::ApplyLayout(layout) => {
+            Message::Select(layout) => {
                 self.selected_layout = Some(layout.clone());
-                if let Err(e) = load_template(layout.schema.clone()) {
-                    eprintln!("Failed to load template: {}", e);
+            }
+            Message::Apply => {
+                if let Some(layout) = &self.selected_layout {
+                    if let Err(e) = load_template(layout.schema.clone()) {
+                        eprintln!("Failed to load template: {}", e);
+                    }
+                    self.selected_layout = None;
                 }
             }
-            Message::CreateLayout(name, preview) => {
-                let layouts_dir = dirs::data_local_dir().unwrap().join("cosmic/layouts");
-                let file_path = layouts_dir.join(&name).with_extension("ron");
+            Message::Delete => {
+                if let Some(layout) = self.selected_layout.clone() {
+                    let layouts_dir = dirs::data_local_dir()
+                        .unwrap()
+                        .join(App::APP_ID)
+                        .join("layouts");
+                    let file_path = layouts_dir
+                        .join(&layout.id.to_string())
+                        .with_extension("ron");
+                    if file_path.exists() {
+                        match std::fs::remove_file(file_path) {
+                            Ok(_) => {
+                                self.selected_layout = None;
+                                self.layouts = self
+                                    .layouts
+                                    .clone()
+                                    .into_iter()
+                                    .filter(|l| l.id != layout.id)
+                                    .collect();
+                            }
+                            Err(e) => {
+                                eprintln!("Failed to delete layout: {}", e);
+                            }
+                        }
+                    }
+                }
+            }
+            Message::Create(name, preview) => {
+                let layout = Layout::new(name, preview);
+
+                let layouts_dir = dirs::data_local_dir()
+                    .unwrap()
+                    .join(App::APP_ID)
+                    .join("layouts");
+
+                let file_path = layouts_dir
+                    .join(&layout.id.to_string())
+                    .with_extension("ron");
                 if file_path.exists() {
                     return Task::none();
                 }
-
-                let layout = Layout::new(name, preview);
 
                 match std::fs::write(&file_path, ron::to_string(&layout).unwrap()) {
                     Ok(_) => match crate::app::pages::layouts::config::Layout::list() {

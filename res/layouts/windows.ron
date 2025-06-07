@@ -1,5 +1,7 @@
 (
+    id: "24162674-cbeb-442b-9e7a-4f31b9a89d7a",
     name: "Windows",
+    custom: false,
     schema: Panel((
         panel_config: (
             config_list: [

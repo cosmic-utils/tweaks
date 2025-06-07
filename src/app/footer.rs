@@ -3,9 +3,9 @@ use cosmic::{
     Apply, Element,
 };
 
-use crate::app::page::Page;
 use crate::app::{dialog::DialogPage, App};
 use crate::app::{message::Message, pages::layouts::dialog::CreateLayoutDialog};
+use crate::app::{page::Page, pages};
 
 use super::Cosmic;
 use crate::app::core::icons;
@@ -88,6 +88,24 @@ impl Cosmic {
                                 ),
                             ))),
                     )
+                    .push_maybe(app.layouts.selected_layout.as_ref().map(|_| {
+                        widget::button::standard(fl!("apply-layout"))
+                            .trailing_icon(icons::get_handle("checkmark-symbolic", 16))
+                            .spacing(spacing.space_xs)
+                            .on_press(Message::Layouts(pages::layouts::Message::Apply))
+                    }))
+                    .push_maybe(app.layouts.selected_layout.as_ref().and_then(|selected| {
+                        if selected.custom {
+                            Some(
+                                widget::button::standard(fl!("delete-layout"))
+                                    .trailing_icon(icons::get_handle("recycling-bin-symbolic", 16))
+                                    .spacing(spacing.space_xs)
+                                    .on_press(Message::Layouts(pages::layouts::Message::Delete)),
+                            )
+                        } else {
+                            None
+                        }
+                    }))
                     .spacing(spacing.space_xxs)
                     .apply(widget::container)
                     .class(cosmic::style::Container::Card)
