@@ -3,17 +3,17 @@ use cosmic::{
     Apply, Element,
 };
 
-use crate::app::message::Message;
 use crate::app::page::Page;
 use crate::app::{dialog::DialogPage, App};
+use crate::app::{message::Message, pages::layouts::helpers::CreateLayoutDialog};
 
-use crate::fl;
+use super::Cosmic;
 use crate::app::core::icons;
 use crate::app::pages::{
     color_schemes::{self, Status, Tab},
     layouts::preview::LayoutPreview,
 };
-use super::Cosmic;
+use crate::fl;
 
 impl Cosmic {
     pub fn footer(app: &App) -> Option<Element<Message>> {
@@ -78,9 +78,11 @@ impl Cosmic {
                         widget::button::standard(fl!("save-current-layout"))
                             .trailing_icon(icons::get_handle("arrow-into-box-symbolic", 16))
                             .on_press(Message::ToggleDialogPage(DialogPage::CreateLayout(
-                                String::new(),
-                                LayoutPreview::default(),
-                                None,
+                                CreateLayoutDialog::new(
+                                    String::new(),
+                                    LayoutPreview::default(),
+                                    None,
+                                ),
                             ))),
                     )
                     .spacing(spacing.space_xxs)

@@ -12,16 +12,6 @@ pub struct Layout {
     pub preview: LayoutPreview,
 }
 
-impl Default for Layout {
-    fn default() -> Self {
-        Self {
-            name: String::new(),
-            schema: Schema::Panel(PanelSchema::generate().unwrap()),
-            preview: LayoutPreview::default(),
-        }
-    }
-}
-
 impl Layout {
     pub fn new(name: String, preview: LayoutPreview) -> Self {
         Self {
@@ -44,7 +34,7 @@ impl Layout {
             .into()
     }
 
-    pub(crate) fn list() -> Result<Vec<Layout>, Error> {
+    pub fn list() -> Result<Vec<Layout>, Error> {
         let mut layouts = Vec::new();
         let layouts_dir = dirs::data_local_dir()
             .map(|path| path.join("cosmic/layouts"))
@@ -61,5 +51,15 @@ impl Layout {
             }
         }
         Ok(layouts)
+    }
+}
+
+impl Default for Layout {
+    fn default() -> Self {
+        Self {
+            name: String::new(),
+            schema: Schema::Panel(PanelSchema::generate().unwrap()),
+            preview: LayoutPreview::default(),
+        }
     }
 }

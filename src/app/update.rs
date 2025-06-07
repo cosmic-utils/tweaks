@@ -4,12 +4,12 @@ use cosmic::{
     Application, Task,
 };
 
-use crate::app::message::Message;
 use crate::app::{dialog::DialogPage, App};
+use crate::app::{message::Message, pages::layouts::helpers::CreateLayoutDialog};
 
+use super::Cosmic;
 use crate::app::core::config::AppTheme;
 use crate::app::pages::{self, layouts::preview::Position, snapshots::config::SnapshotKind};
-use super::Cosmic;
 
 impl Cosmic {
     pub fn update(app: &mut App, message: Message) -> app::Task<Message> {
@@ -77,7 +77,7 @@ impl Cosmic {
                 if let Some(position) = app.layouts.panel_model.data::<Position>(entity) {
                     preview.panel.position = position.clone();
                     tasks.push(app.update(Message::DialogUpdate(DialogPage::CreateLayout(
-                        name, preview, None,
+                        CreateLayoutDialog::new(name, preview, None),
                     ))))
                 }
             }
@@ -86,7 +86,7 @@ impl Cosmic {
                 if let Some(position) = app.layouts.dock_model.data::<Position>(entity) {
                     preview.dock.position = position.clone();
                     tasks.push(app.update(Message::DialogUpdate(DialogPage::CreateLayout(
-                        name, preview, None,
+                        CreateLayoutDialog::new(name, preview, None),
                     ))))
                 }
             }
@@ -115,14 +115,23 @@ impl Cosmic {
                                 pages::snapshots::Message::CreateSnapshot(name, SnapshotKind::User),
                             )))
                         }
-                        DialogPage::CreateLayout(name, layout, error) => {
+                        DialogPage::CreateLayout(dialog) => {
+                            let CreateLayoutDialog {
+                                name,
+                                preview,
+                                error,
+                            } = dialog;
                             if let Some(error) = error {
                                 tasks.push(app.update(Message::ToggleDialogPage(
-                                    DialogPage::CreateLayout(name, layout, Some(error)),
+                                    DialogPage::CreateLayout(CreateLayoutDialog::new(
+                                        name,
+                                        preview,
+                                        Some(error),
+                                    )),
                                 )));
                             } else {
                                 tasks.push(app.update(Message::Layouts(
-                                    pages::layouts::Message::CreateLayout(name, layout),
+                                    pages::layouts::Message::CreateLayout(name, preview),
                                 )));
                             }
                         }

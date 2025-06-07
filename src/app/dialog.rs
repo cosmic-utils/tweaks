@@ -1,18 +1,17 @@
-use cosmic::{iced::Alignment, widget, Apply, Element};
+use cosmic::{widget, Apply, Element};
 
 use crate::app::message::Message;
+use crate::app::pages::layouts::helpers::{CreateLayoutDialog, PanelType};
 use crate::app::App;
 
-use crate::fl;
-use crate::app::core::icons;
-use crate::app::pages::layouts::preview::{LayoutPreview, PanelProperties};
 use super::Cosmic;
+use crate::fl;
 
 #[derive(Clone, Debug)]
 pub enum DialogPage {
     SaveCurrentColorScheme(String),
     CreateSnapshot(String),
-    CreateLayout(String, LayoutPreview, Option<String>),
+    CreateLayout(CreateLayoutDialog),
 }
 
 impl Cosmic {
@@ -64,213 +63,24 @@ impl Cosmic {
                         })
                         .on_submit(|_| Message::DialogComplete),
                 ),
-            DialogPage::CreateLayout(name, preview, error) => {
+            DialogPage::CreateLayout(dialog) => {
+                let CreateLayoutDialog {
+                    name,
+                    preview,
+                    error,
+                } = dialog;
                 let preview_view = preview.view::<Message>(&spacing, 130);
 
                 let name_input = widget::text_input(fl!("layout-name"), name)
                     .id(app.cosmic.dialog_text_input.clone())
                     .on_input(move |name| {
-                        Message::DialogUpdate(DialogPage::CreateLayout(
+                        Message::DialogUpdate(DialogPage::CreateLayout(CreateLayoutDialog::new(
                             name.clone(),
                             preview.clone(),
                             error.clone(),
-                        ))
+                        )))
                     })
                     .on_submit(|_| Message::DialogComplete);
-
-                let panel_section = widget::settings::section()
-                    .title(fl!("panel"))
-                    .add(
-                        widget::settings::item::builder(fl!("show"))
-                            .icon(icons::get_icon("resize-mode-symbolic", 18))
-                            .control(widget::toggler(!preview.panel.hidden).on_toggle(|hidden| {
-                                Message::DialogUpdate(DialogPage::CreateLayout(
-                                    name.clone(),
-                                    LayoutPreview {
-                                        panel: PanelProperties {
-                                            hidden: !hidden,
-                                            ..preview.panel.clone()
-                                        },
-                                        ..preview.clone()
-                                    },
-                                    error.clone(),
-                                ))
-                            })),
-                    )
-                    .add(
-                        widget::settings::item::builder(fl!("extend"))
-                            .icon(icons::get_icon("resize-mode-symbolic", 18))
-                            .control(widget::toggler(preview.panel.extend).on_toggle(|extend| {
-                                Message::DialogUpdate(DialogPage::CreateLayout(
-                                    name.clone(),
-                                    LayoutPreview {
-                                        panel: PanelProperties {
-                                            extend,
-                                            ..preview.panel.clone()
-                                        },
-                                        ..preview.clone()
-                                    },
-                                    error.clone(),
-                                ))
-                            })),
-                    )
-                    .add(
-                        widget::settings::item::builder(fl!("position"))
-                            .icon(icons::get_icon("resize-mode-symbolic", 18))
-                            .control({
-                                let name = name.clone();
-                                let preview = preview.clone();
-                                widget::segmented_button::horizontal(&app.layouts.panel_model)
-                                    .on_activate(move |entity| {
-                                        Message::UpdatePanelLayoutPosition(
-                                            entity,
-                                            name.clone(),
-                                            preview.clone(),
-                                        )
-                                    })
-                                    .button_alignment(Alignment::Center)
-                                    .button_spacing(spacing.space_xxs)
-                            }),
-                    )
-                    .add(
-                        widget::settings::item::builder(fl!("size"))
-                            .icon(icons::get_icon("resize-mode-symbolic", 18))
-                            .control({
-                                let name = name.clone();
-                                let preview = preview.clone();
-                                let error = error.clone();
-                                widget::spin_button(
-                                    preview.panel.size.to_string(),
-                                    preview.panel.size,
-                                    1.0,
-                                    0.0,
-                                    50.0,
-                                    move |size| {
-                                        Message::DialogUpdate(DialogPage::CreateLayout(
-                                            name.clone(),
-                                            LayoutPreview {
-                                                panel: PanelProperties {
-                                                    size,
-                                                    ..preview.panel.clone()
-                                                },
-                                                ..preview.clone()
-                                            },
-                                            error.clone(),
-                                        ))
-                                    },
-                                )
-                            }),
-                    );
-
-                let dock_section = widget::settings::section()
-                    .title(fl!("dock"))
-                    .add(
-                        widget::settings::item::builder(fl!("show"))
-                            .icon(icons::get_icon("resize-mode-symbolic", 18))
-                            .control(widget::toggler(!preview.dock.hidden).on_toggle(|hidden| {
-                                Message::DialogUpdate(DialogPage::CreateLayout(
-                                    name.clone(),
-                                    LayoutPreview {
-                                        dock: PanelProperties {
-                                            hidden: !hidden,
-                                            ..preview.dock.clone()
-                                        },
-                                        ..preview.clone()
-                                    },
-                                    error.clone(),
-                                ))
-                            })),
-                    )
-                    .add(
-                        widget::settings::item::builder(fl!("extend"))
-                            .icon(icons::get_icon("resize-mode-symbolic", 18))
-                            .control(widget::toggler(preview.dock.extend).on_toggle(|extend| {
-                                Message::DialogUpdate(DialogPage::CreateLayout(
-                                    name.clone(),
-                                    LayoutPreview {
-                                        dock: PanelProperties {
-                                            extend,
-                                            ..preview.dock.clone()
-                                        },
-                                        ..preview.clone()
-                                    },
-                                    error.clone(),
-                                ))
-                            })),
-                    )
-                    .add(
-                        widget::settings::item::builder(fl!("position"))
-                            .icon(icons::get_icon("resize-mode-symbolic", 18))
-                            .control({
-                                let name = name.clone();
-                                let preview = preview.clone();
-                                widget::segmented_button::horizontal(&app.layouts.dock_model)
-                                    .on_activate(move |entity| {
-                                        Message::UpdateDockLayoutPosition(
-                                            entity,
-                                            name.clone(),
-                                            preview.clone(),
-                                        )
-                                    })
-                                    .button_alignment(Alignment::Center)
-                                    .button_spacing(spacing.space_xxs)
-                            }),
-                    )
-                    .add(
-                        widget::settings::item::builder(fl!("size"))
-                            .icon(icons::get_icon("resize-mode-symbolic", 18))
-                            .control({
-                                let name = name.clone();
-                                let preview = preview.clone();
-                                let error = error.clone();
-                                widget::spin_button(
-                                    preview.dock.size.to_string(),
-                                    preview.dock.size,
-                                    1.0,
-                                    0.0,
-                                    50.0,
-                                    move |size| {
-                                        Message::DialogUpdate(DialogPage::CreateLayout(
-                                            name.clone(),
-                                            LayoutPreview {
-                                                dock: PanelProperties {
-                                                    size,
-                                                    ..preview.dock.clone()
-                                                },
-                                                ..preview.clone()
-                                            },
-                                            error.clone(),
-                                        ))
-                                    },
-                                )
-                            }),
-                    )
-                    .add(
-                        widget::settings::item::builder(fl!("dock-icons"))
-                            .icon(icons::get_icon("resize-mode-symbolic", 18))
-                            .control({
-                                let name = name.clone();
-                                let preview = preview.clone();
-                                let error = error.clone();
-                                widget::spin_button(
-                                    preview.dock_icons.to_string(),
-                                    preview.dock_icons,
-                                    1,
-                                    1,
-                                    20,
-                                    move |size| {
-                                        Message::DialogUpdate(DialogPage::CreateLayout(
-                                            name.clone(),
-                                            LayoutPreview {
-                                                dock_icons: size,
-                                                ..preview.clone()
-                                            },
-                                            error.clone(),
-                                        ))
-                                    },
-                                )
-                            }),
-                    );
 
                 widget::dialog()
                     .title(fl!("save-current-layout"))
@@ -278,9 +88,11 @@ impl Cosmic {
                     .primary_action(widget::button::suggested(fl!("create")).on_press(
                         if name.is_empty() {
                             Message::DialogUpdate(DialogPage::CreateLayout(
-                                name.clone(),
-                                preview.clone(),
-                                Some(fl!("layout-name-empty")),
+                                CreateLayoutDialog::new(
+                                    name.clone(),
+                                    preview.clone(),
+                                    Some(fl!("layout-name-empty")),
+                                ),
                             ))
                         } else {
                             Message::DialogComplete
@@ -303,12 +115,22 @@ impl Cosmic {
                                     } else {
                                         None
                                     })
-                                    .push(panel_section)
-                                    .push(dock_section)
+                                    .push(
+                                        widget::scrollable(
+                                            widget::column()
+                                                .push(dialog.section(
+                                                    PanelType::Panel,
+                                                    &app.layouts.panel_model,
+                                                ))
+                                                .push(dialog.section(
+                                                    PanelType::Dock,
+                                                    &app.layouts.dock_model,
+                                                )),
+                                        )
+                                        .height(300),
+                                    )
                                     .padding(spacing.space_s)
-                                    .spacing(spacing.space_m)
-                                    .apply(widget::scrollable)
-                                    .height(300),
+                                    .spacing(spacing.space_m),
                             )
                             .spacing(spacing.space_m),
                     )
