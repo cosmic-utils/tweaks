@@ -1,7 +1,7 @@
 use cosmic::{widget, Element};
 
 use crate::app::message::Message;
-use crate::app::pages::layouts::helpers::{CreateLayoutDialog, PanelType};
+use crate::app::pages::layouts::dialog::{CreateLayoutDialog, PanelType};
 use crate::app::App;
 
 use super::Cosmic;
@@ -49,8 +49,7 @@ impl Cosmic {
                 .title(fl!("create-snapshot"))
                 .body(fl!("create-snapshot-description"))
                 .primary_action(
-                    widget::button::suggested(fl!("create"))
-                        .on_press_maybe(Some(Message::DialogComplete)),
+                    widget::button::standard(fl!("create")).on_press(Message::DialogComplete),
                 )
                 .secondary_action(
                     widget::button::standard(fl!("cancel")).on_press(Message::DialogCancel),

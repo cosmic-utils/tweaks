@@ -5,7 +5,7 @@ use cosmic::{
 
 use crate::app::page::Page;
 use crate::app::{dialog::DialogPage, App};
-use crate::app::{message::Message, pages::layouts::helpers::CreateLayoutDialog};
+use crate::app::{message::Message, pages::layouts::dialog::CreateLayoutDialog};
 
 use super::Cosmic;
 use crate::app::core::icons;
@@ -86,6 +86,23 @@ impl Cosmic {
                                     LayoutPreview::default(),
                                     None,
                                 ),
+                            ))),
+                    )
+                    .spacing(spacing.space_xxs)
+                    .apply(widget::container)
+                    .class(cosmic::style::Container::Card)
+                    .padding(spacing.space_xxs)
+                    .into(),
+            ),
+            Some(Page::Snapshots) => Some(
+                widget::row()
+                    .push(widget::horizontal_space())
+                    .push(
+                        widget::button::standard(fl!("create-snapshot"))
+                            .trailing_icon(icons::get_handle("list-add-symbolic", 16))
+                            .spacing(spacing.space_xs)
+                            .on_press(Message::ToggleDialogPage(DialogPage::CreateSnapshot(
+                                String::new(),
                             ))),
                     )
                     .spacing(spacing.space_xxs)

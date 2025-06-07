@@ -4,12 +4,12 @@ use cosmic::{
     Application, Task,
 };
 
-use crate::app::{dialog::DialogPage, App};
-use crate::app::{message::Message, pages::layouts::helpers::CreateLayoutDialog};
+use crate::app::{dialog::DialogPage, pages::snapshots::config::SnapshotKind, App};
+use crate::app::{message::Message, pages::layouts::dialog::CreateLayoutDialog};
 
 use super::Cosmic;
 use crate::app::core::config::AppTheme;
-use crate::app::pages::{self, layouts::preview::Position, snapshots::config::SnapshotKind};
+use crate::app::pages::{self, layouts::preview::Position};
 
 impl Cosmic {
     pub fn update(app: &mut App, message: Message) -> app::Task<Message> {
@@ -53,9 +53,6 @@ impl Cosmic {
                 tasks.push(app.shortcuts.update(message).map(cosmic::action::app))
             }
             Message::Snapshots(message) => match message {
-                pages::snapshots::Message::OpenSaveDialog => tasks.push(app.update(
-                    Message::ToggleDialogPage(DialogPage::CreateSnapshot(String::new())),
-                )),
                 _ => tasks.push(app.snapshots.update(message).map(cosmic::action::app)),
             },
             Message::ColorSchemes(message) => match *message {
