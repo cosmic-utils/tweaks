@@ -4,6 +4,7 @@ use cosmic_ext_config_templates::load_template;
 use dirs::data_local_dir;
 
 use crate::app::core::icons;
+use crate::app::pages;
 use crate::app::pages::snapshots::config::SnapshotKind;
 use crate::{app::App, fl};
 
@@ -17,11 +18,11 @@ pub struct Snapshots {
 impl Snapshots {
     pub fn list() -> Vec<Snapshot> {
         dirs::data_local_dir()
-            .unwrap()
+            .expect("Failed to get data directory")
             .join(App::APP_ID)
             .join("snapshots")
             .read_dir()
-            .unwrap()
+            .expect("Failed to read snapshots directory")
             .filter_map(|entry| entry.ok())
             .filter_map(|entry| std::fs::read_to_string(entry.path()).ok())
             .filter_map(|entry| ron::from_str(&entry).ok())
@@ -140,9 +141,19 @@ impl Snapshots {
                 });
             }
             Message::RestoreSnapshot(snapshot) => {
-                if let Err(e) = load_template(snapshot.schema()) {
-                    eprintln!("Failed to load template: {}", e);
+                if let Some(schema) = snapshot.schema {
+                    if let Err(e) = load_template(schema) {
+                        eprintln!("Failed to load template: {}", e);
+                    }
+                } else {
+                    log::warn!("Snapshot does not contain a valid schema.");
                 }
+
+                tasks.push(cosmic::task::message(crate::app::Message::ColorSchemes(
+                    Box::new(pages::color_schemes::Message::SetColorScheme(
+                        snapshot.color_scheme,
+                    )),
+                )));
             }
             Message::CreateSnapshot(name, kind) => {
                 let path = data_local_dir()

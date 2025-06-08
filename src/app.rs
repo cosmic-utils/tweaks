@@ -6,14 +6,15 @@ use cosmic::{
 };
 use std::collections::{HashMap, VecDeque};
 
+use crate::app::pages::color_schemes::config::ColorScheme;
 use dialog::DialogPage;
 use flags::Flags;
 use message::Message;
-use crate::app::pages::color_schemes::config::ColorScheme;
 
 pub mod action;
 pub mod context;
 pub mod context_drawer;
+pub mod core;
 pub mod dialog;
 pub mod flags;
 pub mod footer;
@@ -22,11 +23,10 @@ pub mod init;
 pub mod message;
 pub mod nav;
 pub mod page;
+pub mod pages;
 pub mod subscription;
 pub mod update;
 pub mod view;
-pub mod pages;
-pub mod core;
 
 pub struct App {
     cosmic: Cosmic,

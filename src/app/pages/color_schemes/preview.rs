@@ -1,14 +1,14 @@
+use super::config::ColorScheme;
+use crate::app::core::{
+    icons,
+    style::{destructive_button, link_button, standard_button},
+};
 use crate::fl;
 use cosmic::{
     iced::{Alignment, Length},
     widget::{self, tooltip},
     Apply, Element,
 };
-use crate::app::core::{
-    icons,
-    style::{destructive_button, link_button, standard_button},
-};
-use super::config::ColorScheme;
 
 pub fn installed<'a>(
     color_scheme: &ColorScheme,
@@ -41,6 +41,7 @@ pub fn installed<'a>(
                         .apply(widget::button::icon)
                         .class(link_button(theme.clone()))
                         .padding(spacing.space_xxs)
+                        .selected(color_scheme.name == selected.name)
                         .class(if selected.name == color_scheme.name {
                             cosmic::style::Button::Standard
                         } else {

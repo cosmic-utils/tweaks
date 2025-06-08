@@ -19,9 +19,9 @@ impl Cosmic {
     pub fn footer(app: &App) -> Option<Element<Message>> {
         let spacing = cosmic::theme::spacing();
 
-        match app.cosmic.nav_model.active_data::<Page>() {
-            Some(Page::ColorSchemes) => match app.color_schemes.model.active_data::<Tab>() {
-                Some(Tab::Installed) => Some(
+        match app.cosmic.nav_model.active_data::<Page>()? {
+            Page::ColorSchemes => match app.color_schemes.model.active_data::<Tab>()? {
+                Tab::Installed => Some(
                     widget::row()
                         .push(widget::horizontal_space())
                         .push(
@@ -46,7 +46,7 @@ impl Cosmic {
                         .padding(spacing.space_xxs)
                         .into(),
                 ),
-                Some(Tab::Available) => Some(
+                Tab::Available => Some(
                     widget::row()
                         .push(widget::horizontal_space())
                         .push(match app.color_schemes.status {
@@ -71,9 +71,8 @@ impl Cosmic {
                         .padding(spacing.space_xxs)
                         .into(),
                 ),
-                None => None,
             },
-            Some(Page::Layouts) => Some(
+            Page::Layouts => Some(
                 widget::row()
                     .push(widget::horizontal_space())
                     .push(
@@ -112,7 +111,7 @@ impl Cosmic {
                     .padding(spacing.space_xxs)
                     .into(),
             ),
-            Some(Page::Snapshots) => Some(
+            Page::Snapshots => Some(
                 widget::row()
                     .push(widget::horizontal_space())
                     .push(

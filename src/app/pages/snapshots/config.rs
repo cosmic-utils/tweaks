@@ -1,8 +1,11 @@
 use std::{fmt::Display, path::PathBuf};
 
-use crate::{app::App, fl};
+use crate::{
+    app::{pages::color_schemes::config::ColorScheme, App},
+    fl,
+};
 use chrono::{NaiveDateTime, Utc};
-use cosmic::Application;
+use cosmic::{cosmic_config::CosmicConfigEntry, Application};
 use cosmic_ext_config_templates::{panel::PanelSchema, Schema};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -14,6 +17,7 @@ pub struct Snapshot {
     pub kind: SnapshotKind,
     pub created: NaiveDateTime,
     pub schema: Option<Schema>,
+    pub color_scheme: ColorScheme,
 }
 
 #[derive(Debug, Serialize, Clone, Default, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
@@ -45,6 +49,13 @@ impl Snapshot {
             schema: PanelSchema::generate()
                 .ok()
                 .map(|panel_schema| Schema::Panel(panel_schema)),
+            color_scheme: match ColorScheme::get_entry(&ColorScheme::config()) {
+                Ok(config) => config,
+                Err((errors, default)) => {
+                    log::error!("Failed to load color scheme config: {errors:#?}");
+                    default
+                }
+            },
         }
     }
 
@@ -52,13 +63,9 @@ impl Snapshot {
         self.created.format("%Y-%m-%d %H:%M:%S").to_string()
     }
 
-    pub fn schema(&self) -> Schema {
-        Schema::from_file(&self.path()).unwrap()
-    }
-
     pub fn path(&self) -> PathBuf {
         dirs::data_local_dir()
-            .unwrap()
+            .expect("Failed to get data directory")
             .join(App::APP_ID)
             .join("snapshots")
             .join(&self.id.to_string())
