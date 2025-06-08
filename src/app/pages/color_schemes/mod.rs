@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use self::config::ColorScheme;
+use crate::app::core::grid::GridMetrics;
 use crate::fl;
 use ashpd::desktop::file_chooser::{FileFilter, SelectedFiles};
 use cosmic::{
@@ -14,7 +15,6 @@ use cosmic::{
     Element, Task,
 };
 use cosmic_theme::CosmicTheme;
-use crate::app::core::grid::GridMetrics;
 
 pub mod config;
 pub mod cosmic_theme;
@@ -213,12 +213,9 @@ impl ColorSchemes {
                     log::error!("There was an error selecting the color scheme: {e}");
                 }
 
-                if color_scheme.theme != ThemeBuilder::default() {
-                    log::info!("Theme is not default, setting the theme...");
-                    if let Ok(theme) = &color_scheme.read_theme() {
-                        log::info!("Color scheme has a theme, setting the theme...");
-                        tasks.push(self.update(Message::ImportSuccess(Box::new(theme.clone()))))
-                    }
+                if let Ok(theme) = &color_scheme.read_theme() {
+                    log::info!("Color scheme has a theme, setting the theme...");
+                    tasks.push(self.update(Message::ImportSuccess(Box::new(theme.clone()))))
                 }
             }
             Message::DeleteColorScheme(color_scheme) => {
