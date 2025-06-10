@@ -7,8 +7,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::fl;
 
-use config::{CosmicPanelButtonConfig, IndividualConfig, Override};
 use crate::app::core::icons;
+use config::{CosmicPanelButtonConfig, IndividualConfig, Override};
 
 pub mod config;
 
@@ -24,6 +24,7 @@ pub struct Panel {
     pub cosmic_panel_button_config: CosmicPanelButtonConfig,
     pub cosmic_panel_button_config_helper: Option<Config>,
     pub force_icons: bool,
+    panel_size: cosmic_panel_config::PanelSize,
 }
 
 #[derive(
@@ -97,6 +98,10 @@ impl Default for Panel {
             .clone()
             .map(|config| config.spacing)
             .unwrap_or(0);
+        let panel_size = panel_config
+            .clone()
+            .map(|config| config.size)
+            .unwrap_or(cosmic_panel_config::PanelSize::M);
         let show_panel = cosmic_panel_config.entries.iter().any(|e| e == "Panel");
         let force_icons = cosmic_panel_button_config
             .configs
@@ -119,6 +124,7 @@ impl Default for Panel {
             cosmic_panel_button_config,
             cosmic_panel_button_config_helper,
             force_icons,
+            panel_size,
         }
     }
 }
@@ -129,12 +135,20 @@ pub enum Message {
     SetSpacing(u32),
     ShowPanel(bool),
     ForceIcons(bool),
+    SetPanelSize(i32),
 }
 
 impl Panel {
     pub fn view<'a>(&self) -> Element<'a, Message> {
         let spacing = cosmic::theme::spacing();
 
+        let panel_size_slider = widget::slider(
+            16..=112,
+            panel_size_algorithm::to_custom(self.panel_size.clone()) as i32,
+            Message::SetPanelSize,
+        )
+        .step(4)
+        .breakpoints(&[32, 40, 56, 64, 96]);
         widget::scrollable(
             widget::settings::section()
                 .title("Panel")
@@ -145,6 +159,11 @@ impl Panel {
                 .add(
                     widget::settings::item::builder(fl!("force-icon-buttons-in-panel"))
                         .toggler(self.force_icons, Message::ForceIcons),
+                )
+                .add(
+                    widget::settings::item::builder("Panel size")
+                        .description(panel_size_algorithm::name(self.panel_size.clone()))
+                        .control(panel_size_slider),
                 )
                 .add(
                     widget::settings::item::builder(fl!("padding"))
@@ -255,7 +274,55 @@ impl Panel {
                     }
                 }
             }
+            Message::SetPanelSize(panel_size) => {
+                self.panel_size = cosmic_panel_config::PanelSize::Custom(panel_size as u32);
+                let update = panel_config.set_size(panel_helper, self.panel_size.clone());
+                if let Err(err) = update {
+                    log::error!("Error updating panel spacing: {}", err);
+                }
+            }
         }
         Task::none()
+    }
+}
+
+mod panel_size_algorithm {
+    use cosmic_panel_config::PanelSize;
+
+    #[rustfmt::skip]
+    const PANEL_SIZES: &[&str] = &[
+        // 16, 20, 24, 28, 32
+        "XS-4", "XS-3", "XS-2", "XS-1", "XS", 
+        // 36, 40, 44, 48, 52
+        "S-1", "S", "S+1", "S+2", "S+3",  
+        // 56, 60
+        "M", "M+1",
+        // 64, 68, 72, 76 
+        "L", "L+1", "L+2", "L+3", 
+        // 80, 84, 88, 92, 96, 100, 104, 108, 112
+        "XL-4", "XL-3", "XL-2", "XL-1", "XL", "XL+1", "XL+2", "XL+3", "XL+4",
+        ];
+
+    pub fn name(size: PanelSize) -> &'static str {
+        let custom = match size {
+            PanelSize::XS => return "XS",
+            PanelSize::S => return "S",
+            PanelSize::M => return "M",
+            PanelSize::L => return "L",
+            PanelSize::XL => return "XL",
+            PanelSize::Custom(custom) => custom,
+        } as usize;
+        let idx = (custom.clamp(16, 112) - 16) / 4;
+        PANEL_SIZES[idx]
+    }
+    pub(crate) fn to_custom(size: PanelSize) -> u32 {
+        match size {
+            PanelSize::XS => 32,
+            PanelSize::S => 40,
+            PanelSize::M => 56,
+            PanelSize::L => 64,
+            PanelSize::XL => 96,
+            PanelSize::Custom(custom) => custom.clamp(16, 112) / 4 * 4,
+        }
     }
 }
