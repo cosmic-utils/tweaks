@@ -11,6 +11,7 @@ use crate::app::core::icons;
 use config::{CosmicPanelButtonConfig, IndividualConfig, Override};
 
 pub mod config;
+pub mod size;
 
 #[derive(Debug)]
 pub struct Panel {
@@ -142,28 +143,37 @@ impl Panel {
     pub fn view<'a>(&self) -> Element<'a, Message> {
         let spacing = cosmic::theme::spacing();
 
-        let panel_size_slider = widget::slider(
-            16..=112,
-            panel_size_algorithm::to_custom(self.panel_size.clone()) as i32,
-            Message::SetPanelSize,
-        )
-        .step(4)
-        .breakpoints(&[32, 40, 56, 64, 96]);
         widget::scrollable(
             widget::settings::section()
                 .title("Panel")
                 .add(
                     widget::settings::item::builder(fl!("show-panel"))
+                        .icon(icons::get_icon("eye-outline-symbolic", 18))
                         .toggler(self.show_panel, Message::ShowPanel),
                 )
                 .add(
                     widget::settings::item::builder(fl!("force-icon-buttons-in-panel"))
+                        .icon(icons::get_icon("smile-symbolic", 18))
                         .toggler(self.force_icons, Message::ForceIcons),
                 )
                 .add(
-                    widget::settings::item::builder("Panel size")
-                        .description(panel_size_algorithm::name(self.panel_size.clone()))
-                        .control(panel_size_slider),
+                    widget::settings::item::builder(fl!("size"))
+                        .description(fl!("size-description"))
+                        .icon(icons::get_icon("size-vertically-symbolic", 18))
+                        .control(
+                            widget::row()
+                                .push(
+                                    widget::slider(
+                                        16..=112,
+                                        size::to_u32(self.panel_size.clone()) as i32,
+                                        Message::SetPanelSize,
+                                    )
+                                    .step(4)
+                                    .breakpoints(&[32, 40, 56, 64, 96]),
+                                )
+                                .push(size::name(self.panel_size.clone()))
+                                .spacing(spacing.space_xxs),
+                        ),
                 )
                 .add(
                     widget::settings::item::builder(fl!("padding"))
@@ -283,46 +293,5 @@ impl Panel {
             }
         }
         Task::none()
-    }
-}
-
-mod panel_size_algorithm {
-    use cosmic_panel_config::PanelSize;
-
-    #[rustfmt::skip]
-    const PANEL_SIZES: &[&str] = &[
-        // 16, 20, 24, 28, 32
-        "XS-4", "XS-3", "XS-2", "XS-1", "XS", 
-        // 36, 40, 44, 48, 52
-        "S-1", "S", "S+1", "S+2", "S+3",  
-        // 56, 60
-        "M", "M+1",
-        // 64, 68, 72, 76 
-        "L", "L+1", "L+2", "L+3", 
-        // 80, 84, 88, 92, 96, 100, 104, 108, 112
-        "XL-4", "XL-3", "XL-2", "XL-1", "XL", "XL+1", "XL+2", "XL+3", "XL+4",
-        ];
-
-    pub fn name(size: PanelSize) -> &'static str {
-        let custom = match size {
-            PanelSize::XS => return "XS",
-            PanelSize::S => return "S",
-            PanelSize::M => return "M",
-            PanelSize::L => return "L",
-            PanelSize::XL => return "XL",
-            PanelSize::Custom(custom) => custom,
-        } as usize;
-        let idx = (custom.clamp(16, 112) - 16) / 4;
-        PANEL_SIZES[idx]
-    }
-    pub(crate) fn to_custom(size: PanelSize) -> u32 {
-        match size {
-            PanelSize::XS => 32,
-            PanelSize::S => 40,
-            PanelSize::M => 56,
-            PanelSize::L => 64,
-            PanelSize::XL => 96,
-            PanelSize::Custom(custom) => custom.clamp(16, 112) / 4 * 4,
-        }
     }
 }

@@ -8,7 +8,7 @@ panel = Panou
 color-schemes = Scheme de culori
 layouts = Aranjamente
 shortcuts = Scurtături
-snapshots = Copii de rezervă 
+snapshots = Copii de rezervă
 
 color-schemes-error = Eroare la încărcarea schemelor de culori
 import-color-scheme = Importă schemă de culori
@@ -26,6 +26,8 @@ show-more = Afișează mai mult
 
 show-panel = Afișează panoul
 force-icon-buttons-in-panel = Forțează butoane cu pictogramă în panou
+size = Size
+size-description = The height of the panel and applets
 
 padding = Margine interioară
 padding-description = Marginea interioară este spațiul dintre conținut și marginile dock-ului sau panoului.

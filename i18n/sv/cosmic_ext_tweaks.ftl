@@ -25,6 +25,8 @@ show-more = Visa mer
 
 show-panel = Visa panel
 force-icon-buttons-in-panel = Forcera ikonknappar i panelen
+size = Size
+size-description = The height of the panel and applets
 
 padding = Utfyllnad
 padding-description = Utfyllnad är utrymmet mellan innehållet och kanterna på dockan eller panelen.
