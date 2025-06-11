@@ -1,8 +1,8 @@
 use crate::app::flags::Flags;
 
 use super::icons::{IconCache, ICON_CACHE};
-use std::sync::Mutex;
 use crate::app::core::localize;
+use std::sync::Mutex;
 
 pub fn settings() -> cosmic::app::Settings {
     cosmic::app::Settings::default().size_limits(

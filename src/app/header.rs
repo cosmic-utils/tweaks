@@ -7,9 +7,9 @@ use crate::app::action::TweaksAction;
 use crate::app::message::Message;
 use crate::app::App;
 
-use crate::fl;
-use crate::app::core::icons;
 use super::Cosmic;
+use crate::app::core::icons;
+use crate::fl;
 
 impl Cosmic {
     pub fn header_start(app: &App) -> Vec<Element<Message>> {
