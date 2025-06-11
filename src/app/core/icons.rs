@@ -43,6 +43,9 @@ impl IconCache {
         bundle!("tabs-stack-symbolic", 14);
         bundle!("info-outline-symbolic", 14);
         bundle!("keyboard-symbolic", 18);
+        bundle!("size-vertically-symbolic", 18);
+        bundle!("smile-symbolic", 18);
+        bundle!("eye-outline-symbolic", 18);
 
         bundle!("size-horizontally-symbolic", 18);
         bundle!("dock-bottom-symbolic", 18);

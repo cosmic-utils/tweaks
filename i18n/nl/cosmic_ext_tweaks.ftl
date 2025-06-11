@@ -25,7 +25,9 @@ loading = Laden...
 show-more = Meer tonen
 
 show-panel = Paneel tonen
-force-icon-buttons-in-panel = Pictogramknoppen ipv tekstknoppen in het paneel forceren 
+force-icon-buttons-in-panel = Pictogramknoppen ipv tekstknoppen in het paneel forceren
+size = Size
+size-description = The height of the panel and applets
 
 padding = Opvulling
 padding-description = De ruimte tussen de inhoud en de randen van de dock of het paneel aanpassen.

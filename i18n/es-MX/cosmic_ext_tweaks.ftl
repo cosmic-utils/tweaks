@@ -24,6 +24,8 @@ show-more = Mostrar mas
 
 show-panel = Mostrar panel
 force-icon-buttons-in-panel = Forzar iconos en el panel
+size = Tamaño
+size-description = La altura del panel y los applets
 
 padding = Relleno
 padding-description = El relleno es el espacio entre los iconos y el borde del dock o panel.

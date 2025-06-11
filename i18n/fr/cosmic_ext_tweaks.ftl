@@ -26,6 +26,8 @@ show-more = Voir plus
 
 show-panel = Afficher le panneau
 force-icon-buttons-in-panel = Forcer l'affichage des boutons avec des icones dans le panneau
+size = Size
+size-description = The height of the panel and applets
 
 padding = Écarts
 padding-description = L'écart entre le contenu et les bordures du dock et du panneau.

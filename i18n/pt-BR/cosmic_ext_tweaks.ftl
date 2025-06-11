@@ -26,6 +26,8 @@ show-more = Mostrar mais
 
 show-panel = Mostrar painel
 force-icon-buttons-in-panel = Forçar botões com ícones no painel
+size = Size
+size-description = The height of the panel and applets
 
 padding = Preenchimento
 padding-description = O preenchimento é o espaço entre o conteúdo e as bordas da dock ou do painel.

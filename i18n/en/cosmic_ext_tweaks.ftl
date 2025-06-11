@@ -51,6 +51,8 @@ show-more = Show more
 show-panel = Show panel
 show-dock = Show dock
 force-icon-buttons-in-panel = Force icon buttons in panel
+size = Size
+size-description = The height of the panel and applets
 
 padding = Padding
 padding-description = Padding is the space between the contents and the borders of the dock or panel.

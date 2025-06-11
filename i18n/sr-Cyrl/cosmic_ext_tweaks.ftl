@@ -28,6 +28,8 @@ find-themes = Пронађи теме
 # Panel only
 show-panel = Приказ панела
 force-icon-buttons-in-panel = Натерај приказ дугмади са иконицама на панелу
+size = Size
+size-description = The height of the panel and applets
 
 padding = Пуњење
 padding-description = Пуњење је простор између садржаја и ивица дока или панела.
