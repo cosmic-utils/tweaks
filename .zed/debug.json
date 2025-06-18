@@ -1,0 +1,9 @@
+[
+  {
+    "label": "Debug executable 'cosmic-ext-tweaks'",
+    "adapter": "CodeLLDB",
+    "program": "$ZED_WORKTREE_ROOT/target/debug/cosmic-ext-tweaks",
+    "request": "launch",
+    "cwd": "$ZED_WORKTREE_ROOT"
+  }
+]
