@@ -2,7 +2,7 @@ use cosmic::{
     cosmic_config::{self, Config, CosmicConfigEntry},
     widget, Element, Task,
 };
-use cosmic_panel_config::CosmicPanelConfig;
+use cosmic_panel_config::{AutoHide, CosmicPanelConfig};
 use serde::{Deserialize, Serialize};
 
 use crate::fl;
@@ -26,6 +26,7 @@ pub struct Panel {
     pub cosmic_panel_button_config_helper: Option<Config>,
     pub force_icons: bool,
     panel_size: cosmic_panel_config::PanelSize,
+    autohide: AutoHide,
 }
 
 #[derive(
@@ -114,6 +115,11 @@ impl Default for Panel {
                     .is_some_and(|presentation| *presentation == Override::Icon)
             })
             .unwrap_or(false);
+        let autohide = panel_config
+            .clone()
+            .map(|config| config.autohide.unwrap_or(AutoHide::default()))
+            .unwrap();
+
         Self {
             panel_helper,
             panel_config,
@@ -126,6 +132,7 @@ impl Default for Panel {
             cosmic_panel_button_config_helper,
             force_icons,
             panel_size,
+            autohide,
         }
     }
 }
@@ -137,13 +144,16 @@ pub enum Message {
     ShowPanel(bool),
     ForceIcons(bool),
     SetPanelSize(i32),
+    SetWaitTime(u32),
+    SetTransitionTime(u32),
+    SetHandleSize(u32),
 }
 
 impl Panel {
     pub fn view<'a>(&self) -> Element<'a, Message> {
         let spacing = cosmic::theme::spacing();
 
-        widget::scrollable(
+        widget::scrollable(widget::settings::view_column(vec![
             widget::settings::section()
                 .title("Panel")
                 .add(
@@ -196,8 +206,72 @@ impl Panel {
                                 .push(widget::text::text(format!("{} px", self.spacing)))
                                 .spacing(spacing.space_xxs),
                         ),
-                ),
-        )
+                )
+                .into(),
+            widget::settings::section()
+                .title(fl!("animation-speed"))
+                .add(
+                    widget::settings::item::builder(fl!("wait-time"))
+                        .description(fl!("wait-time-description"))
+                        .icon(icons::get_icon("size-vertically-symbolic", 18))
+                        .control(
+                            widget::row()
+                                .push(
+                                    widget::slider(
+                                        0..=4000,
+                                        self.autohide.wait_time,
+                                        Message::SetWaitTime,
+                                    )
+                                    .breakpoints(&[1000, 2000, 3000])
+                                    .step(100u32),
+                                )
+                                .push(widget::text(format!("{} ms", self.autohide.wait_time)))
+                                .spacing(spacing.space_xxs),
+                        ),
+                )
+                .add(
+                    widget::settings::item::builder(fl!("transition-time"))
+                        .description(fl!("transition-time-description"))
+                        .icon(icons::get_icon("size-vertically-symbolic", 18))
+                        .control(
+                            widget::row()
+                                .push(
+                                    widget::slider(
+                                        0..=4000,
+                                        self.autohide.transition_time,
+                                        Message::SetTransitionTime,
+                                    )
+                                    .breakpoints(&[1000, 2000, 3000])
+                                    .step(100u32),
+                                )
+                                .push(widget::text(format!(
+                                    "{} ms",
+                                    self.autohide.transition_time
+                                )))
+                                .spacing(spacing.space_xxs),
+                        ),
+                )
+                .add(
+                    widget::settings::item::builder(fl!("handle-size"))
+                        .description(fl!("handle-size-description"))
+                        .icon(icons::get_icon("size-vertically-symbolic", 18))
+                        .control(
+                            widget::row()
+                                .push(
+                                    widget::slider(
+                                        4..=32,
+                                        self.autohide.handle_size,
+                                        Message::SetHandleSize,
+                                    )
+                                    .breakpoints(&[8, 12, 16, 20, 24, 28])
+                                    .step(4u32),
+                                )
+                                .push(widget::text(format!("{} px", self.autohide.handle_size)))
+                                .spacing(spacing.space_xxs),
+                        ),
+                )
+                .into(),
+        ]))
         .into()
     }
 
@@ -289,6 +363,30 @@ impl Panel {
                 let update = panel_config.set_size(panel_helper, self.panel_size.clone());
                 if let Err(err) = update {
                     log::error!("Error updating panel spacing: {}", err);
+                }
+            }
+            Message::SetWaitTime(wait_time) => {
+                self.autohide.wait_time = wait_time;
+                if let Err(err) =
+                    panel_config.set_autohide(panel_helper, Some(self.autohide.clone()))
+                {
+                    log::error!("Error updating panel wait time: {}", err);
+                }
+            }
+            Message::SetTransitionTime(transition_time) => {
+                self.autohide.transition_time = transition_time;
+                if let Err(err) =
+                    panel_config.set_autohide(panel_helper, Some(self.autohide.clone()))
+                {
+                    log::error!("Error updating panel transition time: {}", err);
+                }
+            }
+            Message::SetHandleSize(handle_size) => {
+                self.autohide.handle_size = handle_size;
+                if let Err(err) =
+                    panel_config.set_autohide(panel_helper, Some(self.autohide.clone()))
+                {
+                    log::error!("Error updating panel handle size: {}", err);
                 }
             }
         }
