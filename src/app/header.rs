@@ -1,7 +1,6 @@
-use cosmic::{
-    widget::menu::{self, ItemHeight, ItemWidth},
-    Element,
-};
+use cosmic::widget::menu::{self, ItemHeight, ItemWidth};
+use cosmic::widget::RcElementWrapper;
+use cosmic::Element;
 
 use crate::app::action::TweaksAction;
 use crate::app::message::Message;
@@ -14,7 +13,7 @@ use crate::fl;
 impl Cosmic {
     pub fn header_start(app: &App) -> Vec<Element<Message>> {
         let menu_bar = menu::bar(vec![menu::Tree::with_children(
-            menu::root(fl!("view")),
+            RcElementWrapper::new(menu::root(fl!("view")).into()),
             menu::items(
                 &app.cosmic.key_binds,
                 vec![
@@ -36,6 +35,6 @@ impl Cosmic {
         .item_width(ItemWidth::Uniform(240))
         .spacing(4.0);
 
-        vec![menu_bar.into()]
+        vec![Element::from(menu_bar)]
     }
 }

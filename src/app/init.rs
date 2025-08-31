@@ -46,7 +46,7 @@ impl Cosmic {
 
         let about = About::default()
             .name(fl!("app-title"))
-            .icon(App::APP_ID)
+            .icon(widget::icon::from_name(App::APP_ID))
             .version("0.1.3")
             .author("Eduardo Flores")
             .license("GPL-3.0-only")
