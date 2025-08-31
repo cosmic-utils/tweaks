@@ -2,7 +2,7 @@ use cosmic::{
     cosmic_config::{Config, CosmicConfigEntry},
     widget, Element, Task,
 };
-use cosmic_panel_config::CosmicPanelConfig;
+use cosmic_panel_config::{AutoHide, CosmicPanelConfig};
 
 use crate::app::core::icons;
 use crate::fl;
@@ -13,6 +13,7 @@ pub struct Dock {
     pub dock_config: Option<CosmicPanelConfig>,
     pub padding: u32,
     pub spacing: u32,
+    autohide: AutoHide,
 }
 
 impl Default for Dock {
@@ -30,11 +31,16 @@ impl Default for Dock {
             .clone()
             .map(|config| config.spacing)
             .unwrap_or(0);
+        let autohide = dock_config
+            .clone()
+            .map(|config| config.autohide.unwrap_or(AutoHide::default()))
+            .unwrap();
         Self {
             dock_helper,
             dock_config,
             padding,
             spacing,
+            autohide,
         }
     }
 }
@@ -43,12 +49,15 @@ impl Default for Dock {
 pub enum Message {
     SetPadding(u32),
     SetSpacing(u32),
+    SetWaitTime(u32),
+    SetTransitionTime(u32),
+    SetHandleSize(u32),
 }
 
 impl Dock {
     pub fn view<'a>(&self) -> Element<'a, Message> {
         let spacing = cosmic::theme::spacing();
-        widget::scrollable(
+        widget::scrollable(widget::settings::view_column(vec![
             widget::settings::section()
                 .title("Dock")
                 .add(
@@ -72,8 +81,72 @@ impl Dock {
                                 .push(widget::text::text(format!("{} px", self.spacing)))
                                 .spacing(spacing.space_xxs),
                         ),
-                ),
-        )
+                )
+                .into(),
+            widget::settings::section()
+                .title(fl!("animation-speed"))
+                .add(
+                    widget::settings::item::builder(fl!("wait-time"))
+                        .description(fl!("wait-time-description"))
+                        .icon(icons::get_icon("size-vertically-symbolic", 18))
+                        .control(
+                            widget::row()
+                                .push(
+                                    widget::slider(
+                                        0..=4000,
+                                        self.autohide.wait_time,
+                                        Message::SetWaitTime,
+                                    )
+                                    .breakpoints(&[1000, 2000, 3000])
+                                    .step(100u32),
+                                )
+                                .push(widget::text(format!("{} ms", self.autohide.wait_time)))
+                                .spacing(spacing.space_xxs),
+                        ),
+                )
+                .add(
+                    widget::settings::item::builder(fl!("transition-time"))
+                        .description(fl!("transition-time-description"))
+                        .icon(icons::get_icon("size-vertically-symbolic", 18))
+                        .control(
+                            widget::row()
+                                .push(
+                                    widget::slider(
+                                        0..=4000,
+                                        self.autohide.transition_time,
+                                        Message::SetTransitionTime,
+                                    )
+                                    .breakpoints(&[1000, 2000, 3000])
+                                    .step(100u32),
+                                )
+                                .push(widget::text(format!(
+                                    "{} ms",
+                                    self.autohide.transition_time
+                                )))
+                                .spacing(spacing.space_xxs),
+                        ),
+                )
+                .add(
+                    widget::settings::item::builder(fl!("handle-size"))
+                        .description(fl!("handle-size-description"))
+                        .icon(icons::get_icon("size-vertically-symbolic", 18))
+                        .control(
+                            widget::row()
+                                .push(
+                                    widget::slider(
+                                        4..=32,
+                                        self.autohide.handle_size,
+                                        Message::SetHandleSize,
+                                    )
+                                    .breakpoints(&[8, 12, 16, 20, 24, 28])
+                                    .step(4u32),
+                                )
+                                .push(widget::text(format!("{} px", self.autohide.handle_size)))
+                                .spacing(spacing.space_xxs),
+                        ),
+                )
+                .into(),
+        ]))
         .into()
     }
 
@@ -98,6 +171,27 @@ impl Dock {
                 let update = dock_config.set_spacing(dock_helper, self.spacing);
                 if let Err(err) = update {
                     log::error!("Error updating dock spacing: {}", err);
+                }
+            }
+            Message::SetWaitTime(wait_time) => {
+                self.autohide.wait_time = wait_time;
+                if let Err(err) = dock_config.set_autohide(dock_helper, Some(self.autohide.clone()))
+                {
+                    log::error!("Error updating panel wait time: {}", err);
+                }
+            }
+            Message::SetTransitionTime(transition_time) => {
+                self.autohide.transition_time = transition_time;
+                if let Err(err) = dock_config.set_autohide(dock_helper, Some(self.autohide.clone()))
+                {
+                    log::error!("Error updating panel transition time: {}", err);
+                }
+            }
+            Message::SetHandleSize(handle_size) => {
+                self.autohide.handle_size = handle_size;
+                if let Err(err) = dock_config.set_autohide(dock_helper, Some(self.autohide.clone()))
+                {
+                    log::error!("Error updating panel handle size: {}", err);
                 }
             }
         }
