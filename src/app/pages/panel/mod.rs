@@ -206,7 +206,7 @@ impl Panel {
                 .add(
                     widget::settings::item::builder(fl!("margin"))
                         .description(fl!("margin-description"))
-                        .icon(icons::get_icon("resize-mode-symbolic", 18))
+                        .icon(icons::get_icon("object-layout-symbolic", 18))
                         .control(
                             widget::row()
                                 .push(widget::slider(0..=20, self.margin, Message::SetMargin))
