@@ -29,7 +29,8 @@ size-description = La altura del panel y los applets
 
 padding = Relleno
 padding-description = El relleno es el espacio entre los iconos y el borde del dock o panel.
-
+margin = Margen
+margin-description = Margen es el espacio entre el panel y los bordes de la pantalla.
 spacing = Espaciado
 spacing-description = El espacio es la distancia entre los iconos en el dock o panel.
 

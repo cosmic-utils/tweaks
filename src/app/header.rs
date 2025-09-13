@@ -11,7 +11,7 @@ use crate::app::core::icons;
 use crate::fl;
 
 impl Cosmic {
-    pub fn header_start(app: &App) -> Vec<Element<Message>> {
+    pub fn header_start<'a>(app: &'a App) -> Vec<Element<'a, Message>> {
         let menu_bar = menu::bar(vec![menu::Tree::with_children(
             RcElementWrapper::new(menu::root(fl!("view")).into()),
             menu::items(

@@ -33,7 +33,8 @@ size-description = The height of the panel and applets
 
 padding = Punjenje
 padding-description = Punjenje je prostor između sadržaja i ivica doka ili panela.
-
+margin = Margin
+margin-description = Margin is the space between the panel and the edges of the screen.
 spacing = Razmak
 spacing-description = Razmak je prostor između ikonica na doku ili panelu.
 

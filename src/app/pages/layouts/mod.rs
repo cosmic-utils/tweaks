@@ -82,7 +82,7 @@ impl Layouts {
         Ok(())
     }
 
-    pub fn view(&self) -> Element<Message> {
+    pub fn view<'a>(&'a self) -> Element<'a, Message> {
         let spacing = cosmic::theme::spacing();
         let grid = widget::responsive(move |size| {
             let GridMetrics {

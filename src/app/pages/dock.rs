@@ -12,6 +12,7 @@ pub struct Dock {
     pub dock_helper: Option<Config>,
     pub dock_config: Option<CosmicPanelConfig>,
     pub padding: u32,
+    pub margin: u16,
     pub spacing: u32,
     autohide: AutoHide,
 }
@@ -27,6 +28,7 @@ impl Default for Dock {
             .clone()
             .map(|config| config.padding)
             .unwrap_or(0);
+        let margin = dock_config.clone().map(|config| config.margin).unwrap_or(0);
         let spacing = dock_config
             .clone()
             .map(|config| config.spacing)
@@ -39,6 +41,7 @@ impl Default for Dock {
             dock_helper,
             dock_config,
             padding,
+            margin,
             spacing,
             autohide,
         }
@@ -48,6 +51,7 @@ impl Default for Dock {
 #[derive(Debug, Clone)]
 pub enum Message {
     SetPadding(u32),
+    SetMargin(u16),
     SetSpacing(u32),
     SetWaitTime(u32),
     SetTransitionTime(u32),
@@ -68,6 +72,17 @@ impl Dock {
                             widget::row()
                                 .push(widget::slider(0..=28, self.padding, Message::SetPadding))
                                 .push(widget::text::text(format!("{} px", self.padding)))
+                                .spacing(spacing.space_xxs),
+                        ),
+                )
+                .add(
+                    widget::settings::item::builder(fl!("margin"))
+                        .description(fl!("margin-description"))
+                        .icon(icons::get_icon("resize-mode-symbolic", 18))
+                        .control(
+                            widget::row()
+                                .push(widget::slider(0..=20, self.margin, Message::SetMargin))
+                                .push(widget::text::text(format!("{} px", self.margin)))
                                 .spacing(spacing.space_xxs),
                         ),
                 )
@@ -164,6 +179,13 @@ impl Dock {
                 let update = dock_config.set_padding(dock_helper, self.padding);
                 if let Err(err) = update {
                     log::error!("Error updating dock padding: {}", err);
+                }
+            }
+            Message::SetMargin(margin) => {
+                self.margin = margin;
+                let update = dock_config.set_margin(dock_helper, self.margin);
+                if let Err(err) = update {
+                    log::error!("Error updating dock margin: {}", err);
                 }
             }
             Message::SetSpacing(spacing) => {

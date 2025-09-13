@@ -31,7 +31,8 @@ size-description = The height of the panel and applets
 
 padding = Margine interioară
 padding-description = Marginea interioară este spațiul dintre conținut și marginile dock-ului sau panoului.
-
+margin = Margin
+margin-description = Margin is the space between the panel and the edges of the screen.
 spacing = Spațiere
 spacing-description = Spațierea este distanța dintre pictogramele din dock sau panou.
 

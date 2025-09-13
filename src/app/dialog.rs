@@ -15,7 +15,7 @@ pub enum DialogPage {
 }
 
 impl Cosmic {
-    pub fn dialog(app: &App) -> Option<Element<Message>> {
+    pub fn dialog<'a>(app: &'a App) -> Option<Element<'a, Message>> {
         let spacing = cosmic::theme::spacing();
         let dialog_page = match app.cosmic.dialog_pages.front() {
             Some(some) => some,

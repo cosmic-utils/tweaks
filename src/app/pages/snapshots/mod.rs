@@ -39,7 +39,7 @@ pub enum Message {
 }
 
 impl Snapshots {
-    pub fn view(&self) -> Element<Message> {
+    pub fn view<'a>(&'a self) -> Element<'a, Message> {
         let spacing = cosmic::theme::spacing();
         let snapshots = self
             .snapshots
