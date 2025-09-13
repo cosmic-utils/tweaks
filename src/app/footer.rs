@@ -16,7 +16,7 @@ use crate::app::pages::{
 use crate::fl;
 
 impl Cosmic {
-    pub fn footer(app: &App) -> Option<Element<Message>> {
+    pub fn footer<'a>(app: &'a App) -> Option<Element<'a, Message>> {
         let spacing = cosmic::theme::spacing();
 
         match app.cosmic.nav_model.active_data::<Page>()? {

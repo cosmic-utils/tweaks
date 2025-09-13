@@ -8,7 +8,7 @@ use crate::app::{message::Message, page::Page, App};
 use super::Cosmic;
 
 impl Cosmic {
-    pub fn view(app: &App) -> Element<Message> {
+    pub fn view<'a>(app: &'a App) -> Element<'a, Message> {
         let spacing = cosmic::theme::spacing();
         let entity = app.cosmic.nav_model.active();
         let nav_page = app

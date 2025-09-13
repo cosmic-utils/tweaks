@@ -31,7 +31,8 @@ size-description = The height of the panel and applets
 
 padding = Opvulling
 padding-description = De ruimte tussen de inhoud en de randen van de dock of het paneel aanpassen.
-
+margin = Margin
+margin-description = Margin is the space between the panel and the edges of the screen.
 spacing = Spatiëring
 spacing-description = De ruimte tussen de pictogrammen in de dock of het paneel aanpassen.
 

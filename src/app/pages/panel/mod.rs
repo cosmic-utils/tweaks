@@ -18,6 +18,7 @@ pub struct Panel {
     pub panel_helper: Option<Config>,
     pub panel_config: Option<CosmicPanelConfig>,
     pub padding: u32,
+    pub margin: u16,
     pub spacing: u32,
     pub show_panel: bool,
     pub cosmic_panel_config: CosmicPanel,
@@ -96,6 +97,10 @@ impl Default for Panel {
             .clone()
             .map(|config| config.padding)
             .unwrap_or(0);
+        let margin = panel_config
+            .clone()
+            .map(|config| config.margin)
+            .unwrap_or(0);
         let spacing = panel_config
             .clone()
             .map(|config| config.spacing)
@@ -124,6 +129,7 @@ impl Default for Panel {
             panel_helper,
             panel_config,
             padding,
+            margin,
             spacing,
             show_panel,
             cosmic_panel_config,
@@ -140,6 +146,7 @@ impl Default for Panel {
 #[derive(Debug, Clone)]
 pub enum Message {
     SetPadding(u32),
+    SetMargin(u16),
     SetSpacing(u32),
     ShowPanel(bool),
     ForceIcons(bool),
@@ -193,6 +200,17 @@ impl Panel {
                             widget::row()
                                 .push(widget::slider(0..=20, self.padding, Message::SetPadding))
                                 .push(widget::text::text(format!("{} px", self.padding)))
+                                .spacing(spacing.space_xxs),
+                        ),
+                )
+                .add(
+                    widget::settings::item::builder(fl!("margin"))
+                        .description(fl!("margin-description"))
+                        .icon(icons::get_icon("resize-mode-symbolic", 18))
+                        .control(
+                            widget::row()
+                                .push(widget::slider(0..=20, self.margin, Message::SetMargin))
+                                .push(widget::text::text(format!("{} px", self.margin)))
                                 .spacing(spacing.space_xxs),
                         ),
                 )
@@ -289,6 +307,13 @@ impl Panel {
                 let update = panel_config.set_padding(panel_helper, self.padding);
                 if let Err(err) = update {
                     log::error!("Error updating panel padding: {}", err);
+                }
+            }
+            Message::SetMargin(margin) => {
+                self.margin = margin;
+                let update = panel_config.set_margin(panel_helper, self.margin);
+                if let Err(err) = update {
+                    log::error!("Error updating panel margin: {}", err);
                 }
             }
             Message::SetSpacing(spacing) => {

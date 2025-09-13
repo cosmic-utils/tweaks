@@ -10,7 +10,7 @@ use crate::app::App;
 use super::Cosmic;
 
 impl Cosmic {
-    pub fn context_drawer(app: &App) -> Option<ContextDrawer<Message>> {
+    pub fn context_drawer<'a>(app: &'a App) -> Option<ContextDrawer<'a, Message>> {
         if !app.core().window.show_context {
             return None;
         }

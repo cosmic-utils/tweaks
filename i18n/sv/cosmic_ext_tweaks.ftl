@@ -30,7 +30,8 @@ size-description = The height of the panel and applets
 
 padding = Utfyllnad
 padding-description = Utfyllnad är utrymmet mellan innehållet och kanterna på dockan eller panelen.
-
+margin = Margin
+margin-description = Margin is the space between the panel and the edges of the screen.
 spacing = Utfyllnad
 spacing-description = Avståndet är utrymmet mellan ikonerna i dockan eller panelen.
 

@@ -73,7 +73,7 @@ impl Application for App {
         Cosmic::init(core, flags)
     }
 
-    fn header_start(&self) -> Vec<Element<Self::Message>> {
+    fn header_start<'a>(&'a self) -> Vec<Element<'a, Self::Message>> {
         Cosmic::header_start(self)
     }
 
@@ -85,19 +85,19 @@ impl Application for App {
         Cosmic::on_nav_select(self, id)
     }
 
-    fn context_drawer(&self) -> Option<ContextDrawer<Self::Message>> {
+    fn context_drawer<'a>(&'a self) -> Option<ContextDrawer<'a, Self::Message>> {
         Cosmic::context_drawer(self)
     }
 
-    fn dialog(&self) -> Option<Element<Self::Message>> {
+    fn dialog<'a>(&'a self) -> Option<Element<'a, Self::Message>> {
         Cosmic::dialog(self)
     }
 
-    fn view(&self) -> Element<Self::Message> {
+    fn view<'a>(&'a self) -> Element<'a, Self::Message> {
         Cosmic::view(self)
     }
 
-    fn footer(&self) -> Option<Element<Self::Message>> {
+    fn footer<'a>(&'a self) -> Option<Element<'a, Self::Message>> {
         Cosmic::footer(self)
     }
 
@@ -118,7 +118,7 @@ impl App {
         )])
     }
 
-    fn settings(&self) -> Element<Message> {
+    fn settings<'a>(&'a self) -> Element<'a, Message> {
         let app_theme_selected = match self.config.app_theme {
             core::config::AppTheme::Dark => 1,
             core::config::AppTheme::Light => 2,

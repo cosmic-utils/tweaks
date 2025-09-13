@@ -31,7 +31,8 @@ size-description = La taille du panneau et des applets
 
 padding = Écarts
 padding-description = L'écart entre le contenu et les bordures du dock et du panneau.
-
+margin = Margin
+margin-description = Margin is the space between the panel and the edges of the screen.
 spacing = Espacement
 spacing-description = L'espacement est l'espace entre les icônes dans le dock ou le panneau.
 

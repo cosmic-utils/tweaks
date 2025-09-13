@@ -26,13 +26,13 @@ impl Layout {
         }
     }
 
-    pub fn preview(
-        &self,
+    pub fn preview<'a>(
+        &'a self,
         spacing: &cosmic::cosmic_theme::Spacing,
         item_width: usize,
         preview_height: u16,
         selected_layout: &Option<Layout>,
-    ) -> Element<Message> {
+    ) -> Element<'a, Message> {
         let mut button = widget::button::custom(self.preview.view(&spacing, preview_height))
             .on_press(Message::Select(self.clone()))
             .class(cosmic::style::Button::Image)

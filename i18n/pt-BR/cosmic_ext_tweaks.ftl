@@ -31,7 +31,8 @@ size-description = The height of the panel and applets
 
 padding = Preenchimento
 padding-description = O preenchimento é o espaço entre o conteúdo e as bordas da dock ou do painel.
-
+margin = Margin
+margin-description = Margin is the space between the panel and the edges of the screen.
 spacing = Espaçamento
 spacing-description = O espaçamento é o espaço entre os ícones na dock ou no painel.
 
