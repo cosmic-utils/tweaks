@@ -52,7 +52,9 @@ impl Cosmic {
             Message::Shortcuts(message) => {
                 tasks.push(app.shortcuts.update(message).map(cosmic::action::app))
             }
-            Message::Snapshots(message) => tasks.push(app.snapshots.update(message).map(cosmic::action::app)),
+            Message::Snapshots(message) => {
+                tasks.push(app.snapshots.update(message).map(cosmic::action::app))
+            }
             Message::ColorSchemes(message) => match *message {
                 pages::color_schemes::Message::SaveCurrentColorScheme(None) => {
                     tasks.push(app.update(Message::ToggleDialogPage(

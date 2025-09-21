@@ -46,9 +46,7 @@ impl Snapshot {
             name: name.to_string(),
             kind,
             created,
-            schema: PanelSchema::generate()
-                .ok()
-                .map(Schema::Panel),
+            schema: PanelSchema::generate().ok().map(Schema::Panel),
             color_scheme: match ColorScheme::get_entry(&ColorScheme::config()) {
                 Ok(config) => config,
                 Err((errors, default)) => {
