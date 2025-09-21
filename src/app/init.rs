@@ -21,7 +21,7 @@ use crate::app::pages::{
     dock::Dock,
     layouts::Layouts,
     panel::Panel,
-    shortcuts::Shortcuts,
+    shortcuts::ShortcutsPage,
     snapshots::Snapshots,
 };
 use crate::fl;
@@ -78,7 +78,7 @@ impl Cosmic {
             dock: Dock::default(),
             panel: Panel::default(),
             snapshots: Snapshots::default(),
-            shortcuts: Shortcuts::new(),
+            shortcuts: ShortcutsPage::new(),
         };
 
         let mut tasks = vec![

@@ -37,6 +37,9 @@ features = ["fluent-system", "desktop-requester"]
 [dependencies.cosmic-panel-config]
 git = "https://github.com/pop-os/cosmic-panel"
 
+[dependencies.cosmic-settings-config]
+git = "https://github.com/pop-os/cosmic-settings-daemon"
+
 [dependencies.serde]
 version = "1.0.196"
 features = ["derive"]

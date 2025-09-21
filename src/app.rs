@@ -37,7 +37,7 @@ pub struct App {
     panel: pages::Panel,
     layouts: pages::Layouts,
     snapshots: pages::Snapshots,
-    shortcuts: pages::Shortcuts,
+    shortcuts: pages::ShortcutsPage,
 }
 
 pub struct Cosmic {
