@@ -36,7 +36,7 @@ impl Default for Dock {
         let autohide = dock_config
             .clone()
             .map(|config| config.autohide.unwrap_or(AutoHide::default()))
-            .unwrap();
+            .unwrap_or(AutoHide::default());
         Self {
             dock_helper,
             dock_config,
