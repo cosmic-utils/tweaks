@@ -1,59 +1,82 @@
-use std::{env, fs, path::Path};
+use std::{collections::HashMap, io};
 
 use cosmic::{
-    iced::padding,
+    cosmic_config::{self, ConfigGet, ConfigSet},
+    iced::{alignment::Vertical, padding},
     widget::{button, column, horizontal_space, row, text, vertical_space},
     Element, Task,
 };
+use cosmic_settings_config::{shortcuts, Shortcuts};
+use log::error;
 
 use crate::fl;
 
-pub struct Shortcuts {}
+pub struct ShortcutsPage {
+    pub config: cosmic_config::Config,
+}
 
 #[derive(Debug, Clone)]
-enum Shortcut {
+enum ShortcutsGroup {
     Windows,
 }
 
-impl Shortcut {
+impl ShortcutsGroup {
     fn name(&self) -> &'static str {
         match self {
-            Shortcut::Windows => "Windows",
+            ShortcutsGroup::Windows => "Windows",
         }
     }
 
     fn desc(&self) -> String {
         match self {
-            Shortcut::Windows => fl!("windows-desc"),
+            ShortcutsGroup::Windows => fl!("windows-desc"),
         }
     }
 
-    fn schema(&self) -> &'static str {
-        match self {
-            Self::Windows => include_str!("../../../res/shortcuts/windows.ron"),
-        }
+    fn shortcuts(&self) -> HashMap<shortcuts::Binding, shortcuts::Action> {
+        let str = match self {
+            Self::Windows => {
+                include_str!("../../../res/shortcuts/windows.ron")
+            }
+        };
+
+        ron::de::from_str(str).unwrap()
     }
 }
 
 #[derive(Debug, Clone)]
 #[allow(private_interfaces)]
 pub enum Message {
-    ApplyShortcuts(Shortcut),
+    ApplyShortcuts(ShortcutsGroup),
 }
 
-impl Shortcuts {
+impl ShortcutsPage {
     pub fn new() -> Self {
-        Self {}
+        Self {
+            config: shortcuts::context().unwrap(),
+        }
     }
 
     pub fn update(&mut self, message: Message) -> Task<crate::app::message::Message> {
         match message {
-            Message::ApplyShortcuts(shortcut) => {
-                let path = Path::new(&env::var("HOME").unwrap())
-                    .join(".config/cosmic/com.system76.CosmicSettings.Shortcuts/v1/custom");
+            Message::ApplyShortcuts(shortcuts_group) => {
+                let mut shortcuts = match self.config.get::<Shortcuts>("custom") {
+                    Ok(shortcuts) => shortcuts,
+                    Err(cosmic_config::Error::GetKey(_, e))
+                        if e.kind() == io::ErrorKind::NotFound =>
+                    {
+                        Shortcuts::default()
+                    }
+                    Err(e) => {
+                        error!("unable to get the current shortcuts config: {e}");
+                        Shortcuts::default()
+                    }
+                };
 
-                if let Err(e) = fs::write(&path, shortcut.schema()) {
-                    eprintln!("Failed to write shortcuts: {}", e);
+                shortcuts.0.extend(shortcuts_group.shortcuts());
+
+                if let Err(e) = self.config.set("custom", shortcuts) {
+                    error!("failed to write shortcuts config: {e}");
                 }
             }
         }
@@ -67,17 +90,19 @@ impl Shortcuts {
             .push(
                 column().spacing(5).push(
                     row()
-                        .push(view_button(Shortcut::Windows))
-                        .push(view_button(Shortcut::Windows)),
+                        .push(view_button(ShortcutsGroup::Windows))
+                        .push(view_button(ShortcutsGroup::Windows)),
                 ),
             )
             .into()
     }
 }
 
-fn view_button<'a>(shortcuts: Shortcut) -> Element<'a, Message> {
+fn view_button<'a>(shortcuts: ShortcutsGroup) -> Element<'a, Message> {
     button::custom(
         row()
+            .align_y(Vertical::Center)
+            .padding(5)
             .push(text(shortcuts.name()))
             .push(horizontal_space())
             .push(text(shortcuts.desc())),

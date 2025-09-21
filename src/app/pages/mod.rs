@@ -9,5 +9,5 @@ pub use color_schemes::ColorSchemes;
 pub use dock::Dock;
 pub use layouts::Layouts;
 pub use panel::Panel;
-pub use shortcuts::Shortcuts;
+pub use shortcuts::ShortcutsPage;
 pub use snapshots::Snapshots;
