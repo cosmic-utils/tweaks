@@ -1,6 +1,6 @@
 use crate::{app::flags::Flags, localize};
 
-use super::icons::{IconCache, ICON_CACHE};
+use super::icons::{ICON_CACHE, IconCache};
 use std::sync::Mutex;
 
 pub fn settings() -> cosmic::app::Settings {
@@ -21,7 +21,13 @@ pub fn flags() -> Flags {
 pub fn init() -> Result<(), crate::Error> {
     ICON_CACHE.get_or_init(|| Mutex::new(IconCache::new()));
     localize::localize();
-    std::env::set_var("RUST_LOG", "cosmic_ext_tweaks=info");
+
+    if std::env::var("RUST_LOG").is_err() {
+        unsafe {
+            std::env::set_var("RUST_LOG", "warn");
+        }
+    }
+
     pretty_env_logger::init();
     crate::app::pages::layouts::Layouts::init()
 }
