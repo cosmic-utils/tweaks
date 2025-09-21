@@ -139,11 +139,9 @@ impl CreateLayoutDialog {
             .control(
                 widget::segmented_button::horizontal(model)
                     .on_activate(move |entity| match panel_type {
-                        PanelType::Panel => Message::UpdatePanelLayoutPosition(
-                            entity,
-                            name.clone(),
-                            preview,
-                        ),
+                        PanelType::Panel => {
+                            Message::UpdatePanelLayoutPosition(entity, name.clone(), preview)
+                        }
                         PanelType::Dock => {
                             Message::UpdateDockLayoutPosition(entity, name.clone(), preview)
                         }

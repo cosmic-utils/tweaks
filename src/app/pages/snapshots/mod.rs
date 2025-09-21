@@ -161,9 +161,10 @@ impl Snapshots {
                     .join(App::APP_ID)
                     .join("snapshots");
                 if !path.exists()
-                    && let Err(e) = std::fs::create_dir_all(&path) {
-                        log::error!("{e}");
-                    }
+                    && let Err(e) = std::fs::create_dir_all(&path)
+                {
+                    log::error!("{e}");
+                }
                 let snapshot = Snapshot::new(name, kind);
                 match ron::to_string(&snapshot) {
                     Ok(data) => {

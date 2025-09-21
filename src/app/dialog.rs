@@ -67,16 +67,15 @@ impl Cosmic {
                 } = dialog;
                 let preview_view = preview.view::<Message>(&spacing, 130);
 
-                let name_input = widget::text_input(fl!("layout-name"), name)
-                    .id(app.cosmic.dialog_text_input.clone())
-                    .on_input(move |name| {
-                        Message::DialogUpdate(DialogPage::CreateLayout(CreateLayoutDialog::new(
-                            name.clone(),
-                            *preview,
-                            error.clone(),
-                        )))
-                    })
-                    .on_submit(|_| Message::DialogComplete);
+                let name_input =
+                    widget::text_input(fl!("layout-name"), name)
+                        .id(app.cosmic.dialog_text_input.clone())
+                        .on_input(move |name| {
+                            Message::DialogUpdate(DialogPage::CreateLayout(
+                                CreateLayoutDialog::new(name.clone(), *preview, error.clone()),
+                            ))
+                        })
+                        .on_submit(|_| Message::DialogComplete);
 
                 widget::dialog()
                     .width(700)
@@ -104,8 +103,10 @@ impl Cosmic {
                             .push(
                                 widget::column()
                                     .push(name_input)
-                                    .push_maybe(error.as_ref().map(|error| widget::text::caption(error.to_string())
-                                                .class(cosmic::style::Text::Accent)))
+                                    .push_maybe(error.as_ref().map(|error| {
+                                        widget::text::caption(error.to_string())
+                                            .class(cosmic::style::Text::Accent)
+                                    }))
                                     .push(
                                         widget::scrollable(
                                             widget::column()
