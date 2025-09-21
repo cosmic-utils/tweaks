@@ -7,9 +7,7 @@ use cosmic::{
     Element, Task,
 };
 use cosmic_settings_config::{shortcuts, Shortcuts};
-use log::error;
 
-use crate::fl;
 
 pub struct ShortcutsPage {
     pub config: cosmic_config::Config,

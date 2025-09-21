@@ -1,7 +1,6 @@
-use crate::app::flags::Flags;
+use crate::{app::flags::Flags, localize};
 
 use super::icons::{IconCache, ICON_CACHE};
-use crate::app::core::localize;
 use std::sync::Mutex;
 
 pub fn settings() -> cosmic::app::Settings {
