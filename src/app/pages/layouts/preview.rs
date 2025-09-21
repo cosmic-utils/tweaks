@@ -1,10 +1,10 @@
 use cosmic::{
+    Apply, Element, Theme,
     iced::{
-        alignment::{Horizontal, Vertical},
         Length,
+        alignment::{Horizontal, Vertical},
     },
     widget::{self, horizontal_space, vertical_space},
-    Apply, Element, Theme,
 };
 use serde::{Deserialize, Serialize};
 

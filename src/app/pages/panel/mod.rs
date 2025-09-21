@@ -1,6 +1,7 @@
 use cosmic::{
+    Element, Task,
     cosmic_config::{self, Config, CosmicConfigEntry},
-    widget, Element, Task,
+    widget,
 };
 use cosmic_panel_config::{AutoHide, CosmicPanelConfig};
 use serde::{Deserialize, Serialize};

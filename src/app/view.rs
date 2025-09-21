@@ -1,9 +1,10 @@
 use cosmic::{
+    Element,
     iced::{Alignment, Length},
-    widget, Element,
+    widget,
 };
 
-use crate::app::{message::Message, page::Page, App};
+use crate::app::{App, message::Message, page::Page};
 
 use super::Cosmic;
 

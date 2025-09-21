@@ -1,11 +1,11 @@
 use cosmic::{
-    app::{self, context_drawer::ContextDrawer},
     Application,
+    app::{self, context_drawer::ContextDrawer},
 };
 
+use crate::app::App;
 use crate::app::context::ContextPage;
 use crate::app::message::Message;
-use crate::app::App;
 
 use super::Cosmic;
 

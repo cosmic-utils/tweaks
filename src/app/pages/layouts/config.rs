@@ -1,8 +1,8 @@
-use crate::{app::App, Error};
+use crate::{Error, app::App};
 
-use super::{preview::LayoutPreview, Message};
-use cosmic::{widget, Application, Element};
-use cosmic_ext_config_templates::{panel::PanelSchema, Schema};
+use super::{Message, preview::LayoutPreview};
+use cosmic::{Application, Element, widget};
+use cosmic_ext_config_templates::{Schema, panel::PanelSchema};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -33,7 +33,7 @@ impl Layout {
         preview_height: u16,
         selected_layout: &Option<Layout>,
     ) -> Element<'a, Message> {
-        let mut button = widget::button::custom(self.preview.view(&spacing, preview_height))
+        let mut button = widget::button::custom(self.preview.view(spacing, preview_height))
             .on_press(Message::Select(self.clone()))
             .class(cosmic::style::Button::Image)
             .width(item_width as f32);

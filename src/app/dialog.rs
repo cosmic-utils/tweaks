@@ -1,8 +1,8 @@
-use cosmic::{widget, Element};
+use cosmic::{Element, widget};
 
+use crate::app::App;
 use crate::app::message::Message;
 use crate::app::pages::layouts::dialog::{CreateLayoutDialog, PanelType};
-use crate::app::App;
 
 use super::Cosmic;
 use crate::fl;
@@ -17,10 +17,7 @@ pub enum DialogPage {
 impl Cosmic {
     pub fn dialog<'a>(app: &'a App) -> Option<Element<'a, Message>> {
         let spacing = cosmic::theme::spacing();
-        let dialog_page = match app.cosmic.dialog_pages.front() {
-            Some(some) => some,
-            None => return None,
-        };
+        let dialog_page = app.cosmic.dialog_pages.front()?;
 
         let dialog = match dialog_page {
             DialogPage::SaveCurrentColorScheme(name) => widget::dialog()
@@ -75,7 +72,7 @@ impl Cosmic {
                     .on_input(move |name| {
                         Message::DialogUpdate(DialogPage::CreateLayout(CreateLayoutDialog::new(
                             name.clone(),
-                            preview.clone(),
+                            *preview,
                             error.clone(),
                         )))
                     })
@@ -90,7 +87,7 @@ impl Cosmic {
                             Message::DialogUpdate(DialogPage::CreateLayout(
                                 CreateLayoutDialog::new(
                                     name.clone(),
-                                    preview.clone(),
+                                    *preview,
                                     Some(fl!("layout-name-empty")),
                                 ),
                             ))
@@ -107,14 +104,8 @@ impl Cosmic {
                             .push(
                                 widget::column()
                                     .push(name_input)
-                                    .push_maybe(if let Some(error) = error {
-                                        Some(
-                                            widget::text::caption(error.to_string())
-                                                .class(cosmic::style::Text::Accent),
-                                        )
-                                    } else {
-                                        None
-                                    })
+                                    .push_maybe(error.as_ref().map(|error| widget::text::caption(error.to_string())
+                                                .class(cosmic::style::Text::Accent)))
                                     .push(
                                         widget::scrollable(
                                             widget::column()

@@ -1,12 +1,12 @@
 use cosmic::{
+    ApplicationExt, Task,
     app::{self},
     widget::{self},
-    ApplicationExt, Task,
 };
 
+use crate::app::App;
 use crate::app::message::Message;
 use crate::app::page::Page;
-use crate::app::App;
 use crate::fl;
 
 use super::Cosmic;

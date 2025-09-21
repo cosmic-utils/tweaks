@@ -1,4 +1,4 @@
-use super::{context::ContextPage, Message};
+use super::{Message, context::ContextPage};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum TweaksAction {

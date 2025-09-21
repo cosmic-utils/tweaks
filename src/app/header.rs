@@ -1,10 +1,10 @@
-use cosmic::widget::menu::{self, ItemHeight, ItemWidth};
-use cosmic::widget::RcElementWrapper;
 use cosmic::Element;
+use cosmic::widget::RcElementWrapper;
+use cosmic::widget::menu::{self, ItemHeight, ItemWidth};
 
+use crate::app::App;
 use crate::app::action::TweaksAction;
 use crate::app::message::Message;
-use crate::app::App;
 
 use super::Cosmic;
 use crate::app::core::icons;

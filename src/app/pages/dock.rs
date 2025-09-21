@@ -1,6 +1,7 @@
 use cosmic::{
+    Element, Task,
     cosmic_config::{Config, CosmicConfigEntry},
-    widget, Element, Task,
+    widget,
 };
 use cosmic_panel_config::{AutoHide, CosmicPanelConfig};
 
@@ -36,7 +37,7 @@ impl Default for Dock {
         let autohide = dock_config
             .clone()
             .map(|config| config.autohide.unwrap_or(AutoHide::default()))
-            .unwrap_or(AutoHide::default());
+            .unwrap_or_default();
         Self {
             dock_helper,
             dock_config,

@@ -1,14 +1,14 @@
 use std::any::TypeId;
 
 use cosmic::{
+    Application,
     cosmic_config::{self, Update},
     cosmic_theme::{self, ThemeMode},
-    iced::{event, keyboard::Event as KeyEvent, Event, Subscription},
-    Application,
+    iced::{Event, Subscription, event, keyboard::Event as KeyEvent},
 };
 
-use crate::app::message::Message;
 use crate::app::App;
+use crate::app::message::Message;
 
 use crate::app::core::config::CONFIG_VERSION;
 

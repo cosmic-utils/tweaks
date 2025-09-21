@@ -80,12 +80,12 @@ impl IconCache {
     }
 
     pub fn get_handle(&mut self, name: &'static str, size: u16) -> icon::Handle {
-        let handle = self
+        
+        self
             .cache
             .entry(IconCacheKey { name, size })
             .or_insert_with(|| icon::from_name(name).size(size).handle())
-            .clone();
-        handle
+            .clone()
     }
 }
 
