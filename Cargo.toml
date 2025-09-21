@@ -1,24 +1,24 @@
 [package]
 name = "cosmic-ext-tweaks"
 version = "0.1.3"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
-dirs = "5.0.1"
-env_logger = "0.11.5"
-i18n-embed-fl = "0.8"
-log = "0.4.22"
-open = "5.1.2"
-pretty_env_logger = "0.5.0"
+dirs = "6"
+env_logger = "0.11"
+i18n-embed-fl = "0.10"
+log = "0.4"
+open = "5"
+pretty_env_logger = "0.5"
 reqwest = { version = "0.12", features = ["json"] }
-ron = "0.8.1"
-rust-embed = "8.3.0"
-chrono = { version = "0.4.38", features = ["serde"] }
-thiserror = "2.0.12"
-uuid = { version = "1.17.0", features = ["serde", "v4"] }
+ron = "0.11"
+rust-embed = "8"
+chrono = { version = "0.4", features = ["serde"] }
+thiserror = "2"
+uuid = { version = "1", features = ["serde", "v4"] }
 
 [dependencies.ashpd]
-version = "0.8.1"
+version = "0.12"
 default-features = false
 features = ["async-std"]
 
@@ -31,7 +31,7 @@ features = ["tokio", "winit", "wgpu", "about"]
 git = "https://github.com/ryanabx/cosmic-ext-config-templates"
 
 [dependencies.i18n-embed]
-version = "0.14"
+version = "0.16"
 features = ["fluent-system", "desktop-requester"]
 
 [dependencies.cosmic-panel-config]
@@ -41,11 +41,11 @@ git = "https://github.com/pop-os/cosmic-panel"
 git = "https://github.com/pop-os/cosmic-settings-daemon"
 
 [dependencies.serde]
-version = "1.0.196"
+version = "1"
 features = ["derive"]
 
 [dependencies.tokio]
-version = "1.35.1"
+version = "1"
 features = ["macros", "fs", "rt"]
 
 [patch."https://github.com/smithay/client-toolkit.git"]
