@@ -1,9 +1,9 @@
 use cosmic::{
-    widget::{self},
     Apply, Element,
+    widget::{self},
 };
 
-use crate::app::{dialog::DialogPage, App};
+use crate::app::{App, dialog::DialogPage};
 use crate::app::{message::Message, pages::layouts::dialog::CreateLayoutDialog};
 use crate::app::{page::Page, pages};
 

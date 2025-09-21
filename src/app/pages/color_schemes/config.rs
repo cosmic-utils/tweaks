@@ -4,8 +4,8 @@ use cosmic::{
     cosmic_config::{self, Config},
     cosmic_theme::{ThemeBuilder, ThemeMode},
 };
-use cosmic_config::cosmic_config_derive::CosmicConfigEntry;
 use cosmic_config::CosmicConfigEntry;
+use cosmic_config::cosmic_config_derive::CosmicConfigEntry;
 use serde::{Deserialize, Serialize};
 
 use crate::Error;
@@ -101,13 +101,11 @@ impl ColorScheme {
             .or_else(dirs::data_local_dir)
             .map(|dir| dir.join("themes/cosmic"));
 
-        if let Some(ref xdg_data_home) = xdg_data_home {
-            if !xdg_data_home.exists() {
-                if let Err(e) = std::fs::create_dir_all(xdg_data_home) {
+        if let Some(ref xdg_data_home) = xdg_data_home
+            && !xdg_data_home.exists()
+                && let Err(e) = std::fs::create_dir_all(xdg_data_home) {
                     log::error!("failed to create the themes directory: {e}")
                 };
-            }
-        }
 
         let xdg_data_dirs = std::env::var("XDG_DATA_DIRS").ok();
 

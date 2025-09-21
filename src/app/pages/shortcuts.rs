@@ -1,13 +1,12 @@
 use std::{collections::HashMap, io};
 
 use cosmic::{
+    Element, Task,
     cosmic_config::{self, ConfigGet, ConfigSet},
     iced::{alignment::Vertical, padding},
     widget::{button, column, horizontal_space, row, text, vertical_space},
-    Element, Task,
 };
-use cosmic_settings_config::{shortcuts, Shortcuts};
-
+use cosmic_settings_config::{Shortcuts, shortcuts};
 
 pub struct ShortcutsPage {
     pub config: cosmic_config::Config,

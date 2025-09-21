@@ -1,5 +1,5 @@
 use config::Snapshot;
-use cosmic::{iced::Length, widget, Application, Element, Task};
+use cosmic::{Application, Element, Task, iced::Length, widget};
 use cosmic_ext_config_templates::load_template;
 use dirs::data_local_dir;
 
@@ -160,11 +160,10 @@ impl Snapshots {
                     .unwrap()
                     .join(App::APP_ID)
                     .join("snapshots");
-                if !path.exists() {
-                    if let Err(e) = std::fs::create_dir_all(&path) {
+                if !path.exists()
+                    && let Err(e) = std::fs::create_dir_all(&path) {
                         log::error!("{e}");
                     }
-                }
                 let snapshot = Snapshot::new(name, kind);
                 match ron::to_string(&snapshot) {
                     Ok(data) => {
@@ -181,7 +180,7 @@ impl Snapshots {
             }
             Message::DeleteSnapshot(snapshot) => {
                 if snapshot.path().exists() {
-                    if let Err(e) = std::fs::remove_file(&snapshot.path()) {
+                    if let Err(e) = std::fs::remove_file(snapshot.path()) {
                         log::error!("Failed to delete layout: {}", e);
                         return Task::batch(tasks);
                     }

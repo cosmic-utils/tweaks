@@ -1,12 +1,12 @@
 use std::{fmt::Display, path::PathBuf};
 
 use crate::{
-    app::{pages::color_schemes::config::ColorScheme, App},
+    app::{App, pages::color_schemes::config::ColorScheme},
     fl,
 };
 use chrono::{NaiveDateTime, Utc};
-use cosmic::{cosmic_config::CosmicConfigEntry, Application};
-use cosmic_ext_config_templates::{panel::PanelSchema, Schema};
+use cosmic::{Application, cosmic_config::CosmicConfigEntry};
+use cosmic_ext_config_templates::{Schema, panel::PanelSchema};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -48,7 +48,7 @@ impl Snapshot {
             created,
             schema: PanelSchema::generate()
                 .ok()
-                .map(|panel_schema| Schema::Panel(panel_schema)),
+                .map(Schema::Panel),
             color_scheme: match ColorScheme::get_entry(&ColorScheme::config()) {
                 Ok(config) => config,
                 Err((errors, default)) => {
@@ -68,7 +68,7 @@ impl Snapshot {
             .expect("Failed to get data directory")
             .join(App::APP_ID)
             .join("snapshots")
-            .join(&self.id.to_string())
+            .join(self.id.to_string())
             .with_extension("ron")
     }
 }

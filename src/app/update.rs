@@ -1,10 +1,10 @@
 use cosmic::{
+    Application, Task,
     app::{self},
     widget::{self, menu::Action},
-    Application, Task,
 };
 
-use crate::app::{dialog::DialogPage, pages::snapshots::config::SnapshotKind, App};
+use crate::app::{App, dialog::DialogPage, pages::snapshots::config::SnapshotKind};
 use crate::app::{message::Message, pages::layouts::dialog::CreateLayoutDialog};
 
 use super::Cosmic;
@@ -52,9 +52,7 @@ impl Cosmic {
             Message::Shortcuts(message) => {
                 tasks.push(app.shortcuts.update(message).map(cosmic::action::app))
             }
-            Message::Snapshots(message) => match message {
-                _ => tasks.push(app.snapshots.update(message).map(cosmic::action::app)),
-            },
+            Message::Snapshots(message) => tasks.push(app.snapshots.update(message).map(cosmic::action::app)),
             Message::ColorSchemes(message) => match *message {
                 pages::color_schemes::Message::SaveCurrentColorScheme(None) => {
                     tasks.push(app.update(Message::ToggleDialogPage(
@@ -72,7 +70,7 @@ impl Cosmic {
             Message::UpdatePanelLayoutPosition(entity, name, mut preview) => {
                 app.layouts.panel_model.activate(entity);
                 if let Some(position) = app.layouts.panel_model.data::<Position>(entity) {
-                    preview.panel.position = position.clone();
+                    preview.panel.position = *position;
                     tasks.push(app.update(Message::DialogUpdate(DialogPage::CreateLayout(
                         CreateLayoutDialog::new(name, preview, None),
                     ))))
@@ -81,7 +79,7 @@ impl Cosmic {
             Message::UpdateDockLayoutPosition(entity, name, mut preview) => {
                 app.layouts.dock_model.activate(entity);
                 if let Some(position) = app.layouts.dock_model.data::<Position>(entity) {
-                    preview.dock.position = position.clone();
+                    preview.dock.position = *position;
                     tasks.push(app.update(Message::DialogUpdate(DialogPage::CreateLayout(
                         CreateLayoutDialog::new(name, preview, None),
                     ))))

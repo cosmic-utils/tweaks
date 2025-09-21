@@ -1,8 +1,9 @@
 use action::TweaksAction;
 use context::ContextPage;
 use cosmic::{
-    app::{self, context_drawer::ContextDrawer, Task},
-    iced, widget, Application, Core, Element,
+    Application, Core, Element,
+    app::{self, Task, context_drawer::ContextDrawer},
+    iced, widget,
 };
 use std::collections::{HashMap, VecDeque};
 
@@ -124,16 +125,18 @@ impl App {
             core::config::AppTheme::Light => 2,
             core::config::AppTheme::System => 0,
         };
-        widget::settings::view_column(vec![widget::settings::section()
-            .title(crate::fl!("appearance"))
-            .add(
-                widget::settings::item::builder(crate::fl!("theme")).control(widget::dropdown(
-                    &self.cosmic.app_themes,
-                    Some(app_theme_selected),
-                    Message::AppTheme,
-                )),
-            )
-            .into()])
+        widget::settings::view_column(vec![
+            widget::settings::section()
+                .title(crate::fl!("appearance"))
+                .add(
+                    widget::settings::item::builder(crate::fl!("theme")).control(widget::dropdown(
+                        &self.cosmic.app_themes,
+                        Some(app_theme_selected),
+                        Message::AppTheme,
+                    )),
+                )
+                .into(),
+        ])
         .into()
     }
 }

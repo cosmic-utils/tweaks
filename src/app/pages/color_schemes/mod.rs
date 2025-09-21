@@ -5,6 +5,7 @@ use crate::app::core::grid::GridMetrics;
 use crate::fl;
 use ashpd::desktop::file_chooser::{FileFilter, SelectedFiles};
 use cosmic::{
+    Element, Task,
     cosmic_config::CosmicConfigEntry,
     cosmic_theme::{Theme, ThemeBuilder, ThemeMode},
     iced::Length,
@@ -12,7 +13,6 @@ use cosmic::{
         self,
         segmented_button::{self, SingleSelect},
     },
-    Element, Task,
 };
 use cosmic_theme::CosmicTheme;
 
@@ -150,13 +150,12 @@ impl ColorSchemes {
                     async move { (tokio::fs::read_to_string(path).await, file_path) },
                     move |(res, path)| {
                         if let Some(b) = res.ok().and_then(|theme| {
-                            if path.is_file() && !path.exists() {
-                                if let Err(e) = std::fs::write(path, &theme) {
+                            if path.is_file() && !path.exists()
+                                && let Err(e) = std::fs::write(path, &theme) {
                                     log::error!(
                                         "failed to write the file to the themes directory: {e}"
                                     );
                                 }
-                            }
                             ron::de::from_str(&theme).ok()
                         }) {
                             Message::ImportSuccess(Box::new(b))
@@ -219,12 +218,11 @@ impl ColorSchemes {
                 }
             }
             Message::DeleteColorScheme(color_scheme) => {
-                if self.color_scheme.name == color_scheme.name {
-                    if let Some(color_scheme) = self.installed.first() {
+                if self.color_scheme.name == color_scheme.name
+                    && let Some(color_scheme) = self.installed.first() {
                         tasks.push(self.update(Message::SetColorScheme(color_scheme.clone())));
                         tasks.push(self.update(Message::ReloadColorSchemes));
                     }
-                }
                 let Some(path) = color_scheme.path else {
                     return Task::none();
                 };
@@ -299,11 +297,10 @@ impl ColorSchemes {
                 let Some(path) = color_scheme.path else {
                     return Task::none();
                 };
-                if let Some(path) = path.parent() {
-                    if let Err(e) = open::that_detached(path) {
+                if let Some(path) = path.parent()
+                    && let Err(e) = open::that_detached(path) {
                         log::error!("There was an error opening that color scheme: {e}")
                     }
-                }
             }
             Message::ReloadColorSchemes => {
                 self.installed = ColorScheme::installed().unwrap_or_default();

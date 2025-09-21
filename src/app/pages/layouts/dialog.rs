@@ -1,4 +1,4 @@
-use cosmic::{iced::Alignment, widget, Element};
+use cosmic::{Element, iced::Alignment, widget};
 
 use crate::app::dialog::DialogPage;
 use crate::app::message::Message;
@@ -46,10 +46,10 @@ impl CreateLayoutDialog {
 
         let mut section = widget::settings::section()
             .title(title)
-            .add(self.create_show_toggle(panel_type, &current_props))
-            .add(self.create_extend_toggle(panel_type, &current_props))
+            .add(self.create_show_toggle(panel_type, current_props))
+            .add(self.create_extend_toggle(panel_type, current_props))
             .add(self.create_position_control(panel_type, model))
-            .add(self.create_size_control(panel_type, &current_props));
+            .add(self.create_size_control(panel_type, current_props));
 
         if panel_type == PanelType::Dock {
             section = section.add(self.create_dock_icons_control());
@@ -67,10 +67,10 @@ impl CreateLayoutDialog {
             .icon(icons::get_icon("resize-mode-symbolic", 18))
             .control(
                 widget::toggler(!current_props.hidden).on_toggle(move |hidden| {
-                    let mut new_preview = self.preview.clone();
+                    let mut new_preview = self.preview;
                     let new_props = PanelProperties {
                         hidden: !hidden,
-                        ..current_props.clone()
+                        ..*current_props
                     };
 
                     match panel_type {
@@ -100,10 +100,10 @@ impl CreateLayoutDialog {
             .icon(icons::get_icon("resize-mode-symbolic", 18))
             .control(
                 widget::toggler(current_props.extend).on_toggle(move |extend| {
-                    let mut new_preview = self.preview.clone();
+                    let mut new_preview = self.preview;
                     let new_props = PanelProperties {
                         extend,
-                        ..current_props.clone()
+                        ..*current_props
                     };
 
                     match panel_type {
@@ -131,8 +131,8 @@ impl CreateLayoutDialog {
     ) -> impl Into<Element<'a, Message>> {
         let spacing = cosmic::theme::spacing();
         let name = self.name.to_string().clone();
-        let preview = self.preview.clone();
-        let panel_type = panel_type.clone();
+        let preview = self.preview;
+        let panel_type = panel_type;
 
         widget::settings::item::builder(fl!("position"))
             .icon(icons::get_icon("resize-mode-symbolic", 18))
@@ -142,10 +142,10 @@ impl CreateLayoutDialog {
                         PanelType::Panel => Message::UpdatePanelLayoutPosition(
                             entity,
                             name.clone(),
-                            preview.clone(),
+                            preview,
                         ),
                         PanelType::Dock => {
-                            Message::UpdateDockLayoutPosition(entity, name.clone(), preview.clone())
+                            Message::UpdateDockLayoutPosition(entity, name.clone(), preview)
                         }
                     })
                     .button_alignment(Alignment::Center)
@@ -159,9 +159,9 @@ impl CreateLayoutDialog {
         panel_props: &PanelProperties,
     ) -> impl Into<Element<'a, Message>> {
         let name = self.name.to_string();
-        let preview = self.preview.clone();
+        let preview = self.preview;
         let error = self.error.clone();
-        let panel_props = panel_props.clone();
+        let panel_props = *panel_props;
         let panel_type = panel_type;
 
         widget::settings::item::builder(fl!("size"))
@@ -173,10 +173,10 @@ impl CreateLayoutDialog {
                 0.0,
                 50.0,
                 move |size| {
-                    let mut new_preview = preview.clone();
+                    let mut new_preview = preview;
                     let new_props = PanelProperties {
                         size: size as usize,
-                        ..panel_props.clone()
+                        ..panel_props
                     };
 
                     match panel_type {
@@ -199,7 +199,7 @@ impl CreateLayoutDialog {
 
     pub fn create_dock_icons_control<'a>(&'a self) -> impl Into<Element<'a, Message>> {
         let name = self.name.to_string();
-        let preview = self.preview.clone();
+        let preview = self.preview;
         let error = self.error.clone();
 
         widget::settings::item::builder(fl!("dock-icons"))
@@ -215,7 +215,7 @@ impl CreateLayoutDialog {
                         name.clone(),
                         LayoutPreview {
                             dock_icons: size,
-                            ..preview.clone()
+                            ..preview
                         },
                         error.clone(),
                     )))

@@ -1,17 +1,17 @@
 use config::Layout;
 use cosmic::{
-    iced::{alignment::Horizontal, Length},
+    Application, Element, Task,
+    iced::{Length, alignment::Horizontal},
     widget::{
         self,
         segmented_button::{self, SingleSelect},
     },
-    Application, Element, Task,
 };
 use cosmic_ext_config_templates::load_template;
 use preview::{LayoutPreview, Position};
 
-use crate::app::{core::grid::GridMetrics, App};
-use crate::{fl, Error};
+use crate::app::{App, core::grid::GridMetrics};
+use crate::{Error, fl};
 
 pub mod config;
 pub mod dialog;
@@ -144,7 +144,7 @@ impl Layouts {
                         .join(App::APP_ID)
                         .join("layouts");
                     let file_path = layouts_dir
-                        .join(&layout.id.to_string())
+                        .join(layout.id.to_string())
                         .with_extension("ron");
                     if file_path.exists() {
                         match std::fs::remove_file(file_path) {
@@ -173,7 +173,7 @@ impl Layouts {
                     .join("layouts");
 
                 let file_path = layouts_dir
-                    .join(&layout.id.to_string())
+                    .join(layout.id.to_string())
                     .with_extension("ron");
                 if file_path.exists() {
                     return Task::none();
