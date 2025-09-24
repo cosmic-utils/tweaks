@@ -9,7 +9,7 @@
   <developer id="dev.edfloreshz">
     <name>edfloreshz</name>
   </developer>
-  <update_contact>edfloreshz@proton.me</update_contact>
+  <update_contact>edfloreshz@gmail.com</update_contact>
   <url type="homepage">https://github.com/cosmic-utils/tweaks</url>
   <url type="bugtracker">https://github.com/cosmic-utils/tweaks/issues</url>
   <url type="vcs-browser">https://github.com/cosmic-utils/tweaks</url>
@@ -92,6 +92,18 @@
     <id>com.system76.CosmicApplication</id>
   </provides>
   <releases>
+    <release version="0.2.0" date="2025-09-24">
+      <description>
+        <p>New tweaks available! 🛠️</p>
+        <ul>
+          <li>Installed and available color schemes are now placed in separate tabs, making discovery easier</li>
+          <li>Adjust the margin of the panel and dock</li>
+          <li>Adjust the panel and dock animation speeds</li>
+          <li>Set custom panel sizes</li>
+          <li>Added translations for Dutch, Brazilian Portuguese, and Romanian</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.1.3" date="2024-11-06">
       <description>
         <p>Snapshots and toolkit improvements 🚀</p>

@@ -1,16 +1,16 @@
 use std::collections::VecDeque;
 
 use cosmic::{
-    Application, ApplicationExt, Task,
     app::{self, Core},
     iced::keyboard::Modifiers,
     widget::{self, about::About},
+    Application, ApplicationExt, Task,
 };
 
-use crate::app::App;
 use crate::app::flags::Flags;
 use crate::app::message::Message;
 use crate::app::page::Page;
+use crate::app::App;
 use crate::app::{context::ContextPage, pages::snapshots::config::SnapshotKind};
 
 use super::Cosmic;
@@ -47,7 +47,7 @@ impl Cosmic {
         let about = About::default()
             .name(fl!("app-title"))
             .icon(widget::icon::from_name(App::APP_ID))
-            .version("0.1.3")
+            .version("0.2.0")
             .author("Eduardo Flores")
             .license("GPL-3.0-only")
             .links([
