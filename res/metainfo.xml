@@ -2,7 +2,9 @@
 <component type="desktop-application">
   <id>dev.edfloreshz.CosmicTweaks</id>
   <name>Tweaks</name>
+  <name xml:lang="cs">Vyladění</name>
   <summary>Beyond the limits of your desktop</summary>
+  <summary xml:lang="cs">Za hranicemi limitu vaší plochy</summary>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-only</project_license>
   <project_group>COSMIC</project_group>
@@ -20,11 +22,16 @@
   <content_rating type="oars-1.1" />
   <description>
     <p>Personalize your COSMIC desktop beyond infinity</p>
+    <p>Přizpůsobte své prostředí COSMIC až za hranice nekonečna</p>
     <ul>
       <li>Save, import and download color schemes</li>
+      <li xml:lang="cs">Ukládejte, importujte a stahujte barevná schémata</li>
       <li>Customize the panel and dock</li>
+      <li xml:lang="cs">Přizpůsobte panel a dok</li>
       <li>Replicate other desktop's layouts</li>
+      <li xml:lang="cs">Kopírujte rozložení jiných desktopů</li>
       <li>Fearless tweaking with snapshots</li>
+      <li xml:lang="cs">Bezpečné úpravy díky snapshotům</li>
     </ul>
   </description>
   <branding>
@@ -37,42 +44,52 @@
     <screenshot type="default">
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/color-schemes-light.png</image>
       <caption>Color schemes page with light mode</caption>
+      <caption xml:lang="cs">Stránka barevných schémat ve světlém režimu</caption>
     </screenshot>
     <screenshot>
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/color-schemes-dark.png</image>
       <caption>Color schemes page with dark mode</caption>
+      <caption xml:lang="cs">Stránka barevných schémat v tmavém režimu</caption>
     </screenshot>
     <screenshot>
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/dock-light.png</image>
       <caption>Dock page with light mode</caption>
+      <caption xml:lang="cs">Stránka doku ve světlém režimu</caption>
     </screenshot>
     <screenshot>
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/dock-dark.png</image>
       <caption>Dock page with dark mode</caption>
+      <caption xml:lang="cs">Stránka doku v tmavém režimu</caption>
     </screenshot>
     <screenshot>
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/panel-light.png</image>
       <caption>Panel page with light mode</caption>
+      <caption xml:lang="cs">Stránka panelu ve světlém režimu</caption>
     </screenshot>
     <screenshot>
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/panel-dark.png</image>
       <caption>Panel page with dark mode</caption>
+      <caption xml:lang="cs">Stránka panelu v tmavém režimu</caption>
     </screenshot>
     <screenshot>
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/layouts-light.png</image>
       <caption>Layouts page with light mode</caption>
+      <caption xml:lang="cs">Stránka rozložení ve světlém režimu</caption>
     </screenshot>
     <screenshot>
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/layouts-dark.png</image>
       <caption>Layouts page with dark mode</caption>
+      <caption xml:lang="cs">Stránka rozložení v tmavém režimu</caption>
     </screenshot>
     <screenshot>
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/snapshots-light.png</image>
       <caption>Snapshots page with light mode</caption>
+      <caption xml:lang="cs">Stránka snapshotů ve světlém režimu</caption>
     </screenshot>
     <screenshot>
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/snapshots-dark.png</image>
       <caption>Snapshots page with dark mode</caption>
+      <caption xml:lang="cs">Stránka snapshotů v tmavém režimu</caption>
     </screenshot>
   </screenshots>
   <requires>
