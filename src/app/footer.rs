@@ -20,58 +20,10 @@ impl Cosmic {
         let spacing = cosmic::theme::spacing();
 
         match app.cosmic.nav_model.active_data::<Page>()? {
-            Page::ColorSchemes => match app.color_schemes.model.active_data::<Tab>()? {
-                Tab::Installed => Some(
-                    widget::row()
-                        .push(widget::horizontal_space())
-                        .push(
-                            widget::button::standard(fl!("save-current-color-scheme"))
-                                .trailing_icon(icons::get_handle("arrow-into-box-symbolic", 16))
-                                .spacing(spacing.space_xs)
-                                .on_press(Message::ColorSchemes(Box::new(
-                                    color_schemes::Message::SaveCurrentColorScheme(None),
-                                ))),
-                        )
-                        .push(
-                            widget::button::standard(fl!("import-color-scheme"))
-                                .trailing_icon(icons::get_handle("document-save-symbolic", 16))
-                                .spacing(spacing.space_xs)
-                                .on_press(Message::ColorSchemes(Box::new(
-                                    color_schemes::Message::StartImport,
-                                ))),
-                        )
-                        .spacing(spacing.space_xxs)
-                        .apply(widget::container)
-                        .class(cosmic::style::Container::Card)
-                        .padding(spacing.space_xxs)
-                        .into(),
-                ),
-                Tab::Available => Some(
-                    widget::row()
-                        .push(widget::horizontal_space())
-                        .push(match app.color_schemes.status {
-                            Status::Idle => widget::button::standard(fl!("show-more"))
-                                .leading_icon(crate::app::core::icons::get_handle(
-                                    "content-loading-symbolic",
-                                    16,
-                                ))
-                                .on_press(Message::ColorSchemes(Box::new(
-                                    color_schemes::Message::FetchAvailableColorSchemes(
-                                        color_schemes::ColorSchemeProvider::CosmicThemes,
-                                        app.color_schemes.limit,
-                                    ),
-                                ))),
-                            Status::LoadingMore | Status::Loading => {
-                                widget::button::standard(fl!("loading"))
-                            }
-                        })
-                        .spacing(spacing.space_xxs)
-                        .apply(widget::container)
-                        .class(cosmic::style::Container::Card)
-                        .padding(spacing.space_xxs)
-                        .into(),
-                ),
-            },
+            Page::ColorSchemes => app
+                .color_schemes
+                .footer()
+                .map(|elem| elem.map(|message| Message::ColorSchemes(Box::new(message)))),
             Page::Layouts => Some(
                 widget::row()
                     .push(widget::horizontal_space())

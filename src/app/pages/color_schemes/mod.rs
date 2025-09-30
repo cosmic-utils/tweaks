@@ -1,9 +1,11 @@
 use std::sync::Arc;
 
 use self::config::ColorScheme;
-use crate::app::core::grid::GridMetrics;
+use crate::app::core::{grid::GridMetrics, icons};
 use crate::fl;
 use ashpd::desktop::file_chooser::{FileFilter, SelectedFiles};
+use cosmic::Apply;
+use cosmic::widget::button;
 use cosmic::{
     Element, Task,
     cosmic_config::CosmicConfigEntry,
@@ -23,12 +25,13 @@ pub mod preview;
 pub struct ColorSchemes {
     installed: Vec<ColorScheme>,
     available: Vec<ColorScheme>,
-    color_scheme: ColorScheme,
+    current_color_scheme: ColorScheme,
     pub theme_builder: ThemeBuilder,
     pub model: segmented_button::Model<SingleSelect>,
     pub status: Status,
     pub limit: usize,
     offset: usize,
+    saved_color_theme: ColorScheme,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -46,16 +49,19 @@ pub enum Tab {
 
 impl Default for ColorSchemes {
     fn default() -> Self {
+        let current_color_scheme = match ColorScheme::get_entry(&ColorScheme::config()) {
+            Ok(config) => config,
+            Err((errors, default)) => {
+                log::error!("Failed to load color scheme config: {errors:#?}");
+                default
+            }
+        };
+
         Self {
             installed: ColorScheme::installed().unwrap_or_default(),
             available: vec![],
-            color_scheme: match ColorScheme::get_entry(&ColorScheme::config()) {
-                Ok(config) => config,
-                Err((errors, default)) => {
-                    log::error!("Failed to load color scheme config: {errors:#?}");
-                    default
-                }
-            },
+            saved_color_theme: current_color_scheme.clone(),
+            current_color_scheme,
             model: segmented_button::Model::builder()
                 .insert(|b| b.text("Installed").data(Tab::Installed).activate())
                 .insert(|b| b.text("Available").data(Tab::Available))
@@ -76,6 +82,8 @@ pub enum Message {
     ImportSuccess(Box<ThemeBuilder>),
     SaveCurrentColorScheme(Option<String>),
     SetColorScheme(ColorScheme),
+    SetColorSchemeWithRollBack(ColorScheme),
+    RevertOldTheme,
     DeleteColorScheme(ColorScheme),
     InstallColorScheme(ColorScheme),
     FetchAvailableColorSchemes(ColorSchemeProvider, usize),
@@ -92,6 +100,29 @@ pub enum ColorSchemeProvider {
 }
 
 impl ColorSchemes {
+    fn set_color_scheme(&mut self, color_scheme: ColorScheme) -> Task<Message> {
+        let config = ColorScheme::config();
+        if let Err(e) = self
+            .current_color_scheme
+            .set_name(&config, color_scheme.name.clone())
+        {
+            log::error!("There was an error selecting the color scheme: {e}");
+        }
+        if let Err(e) = self
+            .current_color_scheme
+            .set_path(&config, color_scheme.path.clone())
+        {
+            log::error!("There was an error selecting the color scheme: {e}");
+        }
+
+        if let Ok(theme) = &color_scheme.read_theme() {
+            log::info!("Color scheme has a theme, setting the theme...");
+            return self.update(Message::ImportSuccess(Box::new(theme.clone())));
+        } else {
+            return Task::none();
+        }
+    }
+
     pub fn update(&mut self, message: Message) -> Task<Message> {
         let mut tasks = vec![];
         match message {
@@ -200,27 +231,18 @@ impl ColorSchemes {
                 tasks.push(self.update(Message::ReloadColorSchemes));
             }
             Message::SetColorScheme(color_scheme) => {
-                let config = ColorScheme::config();
-                if let Err(e) = self
-                    .color_scheme
-                    .set_name(&config, color_scheme.name.clone())
-                {
-                    log::error!("There was an error selecting the color scheme: {e}");
-                }
-                if let Err(e) = self
-                    .color_scheme
-                    .set_path(&config, color_scheme.path.clone())
-                {
-                    log::error!("There was an error selecting the color scheme: {e}");
-                }
+                tasks.push(self.set_color_scheme(color_scheme.clone()));
+                self.saved_color_theme = color_scheme;
+            }
+            Message::SetColorSchemeWithRollBack(color_scheme) => {
+                tasks.push(self.set_color_scheme(color_scheme.clone()));
+            }
 
-                if let Ok(theme) = &color_scheme.read_theme() {
-                    log::info!("Color scheme has a theme, setting the theme...");
-                    tasks.push(self.update(Message::ImportSuccess(Box::new(theme.clone()))))
-                }
+            Message::RevertOldTheme => {
+                tasks.push(self.set_color_scheme(self.saved_color_theme.clone()));
             }
             Message::DeleteColorScheme(color_scheme) => {
-                if self.color_scheme.name == color_scheme.name
+                if self.current_color_scheme.name == color_scheme.name
                     && let Some(color_scheme) = self.installed.first()
                 {
                     tasks.push(self.update(Message::SetColorScheme(color_scheme.clone())));
@@ -261,29 +283,29 @@ impl ColorSchemes {
                 let limit = self.limit;
                 let offset = self.offset;
                 tasks.push(Task::perform(
-                    async move {
-                        let url = match provider {
-                            ColorSchemeProvider::CosmicThemes => {
-                                format!("https://cosmic-themes.org/api/themes/?order=name&limit={}&offset={}", limit, offset)
-                            }
-                        };
+                                    async move {
+                                        let url = match provider {
+                                            ColorSchemeProvider::CosmicThemes => {
+                                                format!("https://cosmic-themes.org/api/themes/?order=name&limit={}&offset={}", limit, offset)
+                                            }
+                                        };
 
-                        let response = reqwest::get(url).await?;
-                        let themes: Vec<CosmicTheme> = response.json().await?;
-                        let available = themes
-                            .into_iter()
-                            .map(ColorScheme::from)
-                            .collect();
-                        Ok(available)
-                    },
-                    |res: Result<Vec<ColorScheme>, reqwest::Error>| match res {
-                        Ok(themes) => Message::SetAvailableColorSchemes(themes),
-                        Err(e) => {
-                            log::error!("{e}");
-                            Message::SetAvailableColorSchemes(vec![])
-                        }
-                    },
-                ));
+                                        let response = reqwest::get(url).await?;
+                                        let themes: Vec<CosmicTheme> = response.json().await?;
+                                        let available = themes
+                                            .into_iter()
+                                            .map(ColorScheme::from)
+                                            .collect();
+                                        Ok(available)
+                                    },
+                                    |res: Result<Vec<ColorScheme>, reqwest::Error>| match res {
+                                        Ok(themes) => Message::SetAvailableColorSchemes(themes),
+                                        Err(e) => {
+                                            log::error!("{e}");
+                                            Message::SetAvailableColorSchemes(vec![])
+                                        }
+                                    },
+                                ));
             }
             Message::SetAvailableColorSchemes(mut available) => {
                 self.status = Status::Idle;
@@ -390,7 +412,7 @@ impl ColorSchemes {
                     }
                     grid = grid.push(preview::installed(
                         color_scheme,
-                        &self.color_scheme,
+                        &self.current_color_scheme,
                         &spacing,
                         item_width,
                     ));
@@ -449,6 +471,58 @@ impl ColorSchemes {
                 }
             }
             Status::Loading => widget::text(fl!("loading")).into(),
+        }
+    }
+
+    pub fn footer(&self) -> Option<Element<'_, Message>> {
+        let spacing = cosmic::theme::spacing();
+
+        match self.model.active_data::<Tab>().unwrap() {
+            Tab::Installed => Some(
+                widget::row()
+                    .push(widget::horizontal_space())
+                    .push(
+                        widget::button::standard(fl!("save-current-color-scheme"))
+                            .trailing_icon(icons::get_handle("arrow-into-box-symbolic", 16))
+                            .spacing(spacing.space_xs)
+                            .on_press(Message::SaveCurrentColorScheme(None)),
+                    )
+                    .push(
+                        widget::button::standard(fl!("import-color-scheme"))
+                            .trailing_icon(icons::get_handle("document-save-symbolic", 16))
+                            .spacing(spacing.space_xs)
+                            .on_press(Message::StartImport),
+                    )
+                    .spacing(spacing.space_xxs)
+                    .apply(widget::container)
+                    .class(cosmic::style::Container::Card)
+                    .padding(spacing.space_xxs)
+                    .into(),
+            ),
+            Tab::Available => Some(
+                widget::row()
+                    .push(widget::horizontal_space())
+                    .push(match self.status {
+                        Status::Idle => widget::button::standard(fl!("show-more"))
+                            .leading_icon(crate::app::core::icons::get_handle(
+                                "content-loading-symbolic",
+                                16,
+                            ))
+                            .on_press(Message::FetchAvailableColorSchemes(
+                                ColorSchemeProvider::CosmicThemes,
+                                self.limit,
+                            )),
+                        Status::LoadingMore | Status::Loading => {
+                            widget::button::standard(fl!("loading"))
+                        }
+                    })
+                    .push(button::text("Revert old theme").on_press(Message::RevertOldTheme))
+                    .spacing(spacing.space_xxs)
+                    .apply(widget::container)
+                    .class(cosmic::style::Container::Card)
+                    .padding(spacing.space_xxs)
+                    .into(),
+            ),
         }
     }
 }
