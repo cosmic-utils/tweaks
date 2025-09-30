@@ -94,7 +94,7 @@ pub fn available<'a>(
                     color_scheme
                         .author
                         .as_ref()
-                        .map(|author| widget::text::caption(author.clone())),
+                        .map(|author| widget::text::caption(format!("By {}", author))),
                 )
                 .width(Length::Fill)
                 .align_x(Alignment::Center)
