@@ -117,7 +117,7 @@ light = Light
 view = View
 
 
-## Shortcuts
+## Shortcuts
 
 warning = Warning: this will override some of your existing custom shortcuts
 windows-desc = Super+Arrows to move windows. Ctrl+Alt+Arrows to navigate workspaces.

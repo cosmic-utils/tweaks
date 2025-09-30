@@ -81,7 +81,7 @@ light = Estilo claro
 view = Exibir
 
 
-## Shortcuts
+## Shortcuts
 
 warning = Aviso: isso removerá seus atalhos personalizados existentes
 windows-desc = Super+Setas para mover as janelas. Ctrl+Alt+Setas para navegar pelas áreas de trabalho.

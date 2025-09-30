@@ -81,7 +81,7 @@ light = Licht
 view = Beeld
 
 
-## Shortcuts
+## Shortcuts
 
 warning = Waarschuwing: hierdoor worden al uw bestaande aangepaste sneltoetsen verwijderd
 windows-desc = Gebruik Super+Pijltjes om vensters te verplaatsen, en gebruik Ctrl+Alt+Pijltjes om tussen werkbladen te wisselen.
