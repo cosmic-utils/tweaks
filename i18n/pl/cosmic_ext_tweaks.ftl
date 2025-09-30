@@ -117,7 +117,7 @@ light = Jasny
 view = Widok
 
 
-## Shortcuts
+## Shortcuts
 
 warning = Uwaga: to może nadpisać niektóre z twoich własnych skrótów
 windows-desc = Super+Strzałki by poruszać oknami. Ctrl+Alt+Strzałki by nawigować przestrzeniami roboczymi.
