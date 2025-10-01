@@ -1,28 +1,23 @@
 use std::collections::VecDeque;
 
 use cosmic::{
+    Application, ApplicationExt, Task,
     app::{self, Core},
     iced::keyboard::Modifiers,
     widget::{self, about::About},
-    Application, ApplicationExt, Task,
 };
 
+use crate::app::App;
 use crate::app::flags::Flags;
 use crate::app::message::Message;
 use crate::app::page::Page;
-use crate::app::App;
 use crate::app::{context::ContextPage, pages::snapshots::config::SnapshotKind};
 
 use super::Cosmic;
 use crate::app::core::key_bindings::KeyBindings;
 use crate::app::pages::{
-    self,
-    color_schemes::{self, ColorSchemes},
-    dock::Dock,
-    layouts::Layouts,
-    panel::Panel,
-    shortcuts::ShortcutsPage,
-    snapshots::Snapshots,
+    self, color_schemes::ColorSchemes, dock::Dock, layouts::Layouts, panel::Panel,
+    shortcuts::ShortcutsPage, snapshots::Snapshots,
 };
 use crate::fl;
 
@@ -59,6 +54,12 @@ impl Cosmic {
             ])
             .developers([("Eduardo Flores", "edfloreshz@proton.me")]);
 
+        let mut tasks = vec![];
+
+        let (color_schemes, task) = ColorSchemes::new();
+
+        tasks.push(task.map(|m| cosmic::Action::App(Message::ColorSchemes(Box::new(m)))));
+
         let mut app = App {
             cosmic: Cosmic {
                 core,
@@ -73,7 +74,7 @@ impl Cosmic {
             },
             handler: flags.handler,
             config: flags.config,
-            color_schemes: ColorSchemes::default(),
+            color_schemes,
             layouts: Layouts::default(),
             dock: Dock::default(),
             panel: Panel::default(),
@@ -81,20 +82,12 @@ impl Cosmic {
             shortcuts: ShortcutsPage::new(),
         };
 
-        let mut tasks = vec![
-            app.update(Message::ColorSchemes(Box::new(
-                color_schemes::Message::FetchAvailableColorSchemes(
-                    color_schemes::ColorSchemeProvider::CosmicThemes,
-                    app.color_schemes.limit,
-                ),
-            ))),
-            app.update(Message::Snapshots(
-                pages::snapshots::Message::CreateSnapshot(
-                    fl!("application-opened"),
-                    SnapshotKind::System,
-                ),
-            )),
-        ];
+        tasks.push(app.update(Message::Snapshots(
+            pages::snapshots::Message::CreateSnapshot(
+                fl!("application-opened"),
+                SnapshotKind::System,
+            ),
+        )));
 
         match pages::layouts::config::Layout::list() {
             Ok(list) => {

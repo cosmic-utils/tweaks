@@ -16,6 +16,8 @@ rust-embed = "8"
 chrono = { version = "0.4", features = ["serde"] }
 thiserror = "2"
 uuid = { version = "1", features = ["serde", "v4"] }
+anyhow = "1"
+bincode = { version = "2", features = ["serde"] }
 
 [dependencies.ashpd]
 version = "0.12"
