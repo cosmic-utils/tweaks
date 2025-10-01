@@ -146,14 +146,20 @@ impl ColorSchemes {
                     .push(widget::horizontal_space())
                     .push(match self.status {
                         Status::Idle => widget::button::standard("refresh")
-                            .leading_icon(crate::app::core::icons::get_handle(
-                                "content-loading-symbolic",
-                                16,
-                            ))
                             .on_press(Message::FetchAvailableColorSchemes),
                         Status::Loading => widget::button::standard(fl!("loading")),
                     })
-                    .push(button::text("Revert old theme").on_press(Message::RevertOldTheme))
+                    .push(
+                        button::text("Revert old theme").on_press_maybe(
+                            match (&self.saved_color_theme, &self.config.current_config) {
+                                (None, None) => false,
+                                (None, Some(_)) => false,
+                                (Some(_), None) => true,
+                                (Some(old), Some(current)) => old.name != current.name,
+                            }
+                            .then_some(Message::RevertOldTheme),
+                        ),
+                    )
                     .spacing(spacing.space_xxs)
                     .apply(widget::container)
                     .class(cosmic::style::Container::Card)
