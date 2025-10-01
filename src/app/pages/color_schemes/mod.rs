@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::fs::{self, File};
 use std::io::{BufReader, BufWriter};
 use std::path::PathBuf;
@@ -18,7 +19,7 @@ use serde::{Deserialize, Serialize};
 pub mod view;
 
 pub struct ColorSchemes {
-    installed: Vec<ColorScheme>,
+    installed: HashMap<String, ColorScheme>,
     available: Vec<ColorScheme>,
     config_writer: Config,
     config: ColorSchemesPageConfig,
@@ -55,7 +56,11 @@ impl ColorSchemes {
         };
 
         let s = ColorSchemes {
-            installed: installed_system_themes().unwrap(),
+            installed: installed_system_themes()
+                .unwrap()
+                .into_iter()
+                .map(|e| (e.name.clone(), e))
+                .collect(),
             available: themes,
             saved_color_theme: config.current_config.clone(),
             config,
@@ -161,7 +166,7 @@ impl ColorSchemes {
             }
             Message::ImportFilePickerResult(f) => match import_file(f) {
                 Ok(theme) => {
-                    self.installed.push(theme.clone());
+                    self.installed.insert(theme.name.clone(), theme.clone());
                     if let Err(e) = apply_theme(theme.theme.clone()) {
                         error!("can't apply theme: {e}");
                     } else {
@@ -212,11 +217,11 @@ impl ColorSchemes {
                     let _ = fs::remove_file(path);
                 }
 
-                self.installed.retain(|e| e.name != color_scheme.name);
+                self.installed.remove(&color_scheme.name);
             }
             Message::InstallColorScheme(color_scheme) => match install_theme(color_scheme, false) {
                 Ok(theme) => {
-                    self.installed.push(theme);
+                    self.installed.insert(theme.name.clone(), theme);
                 }
                 Err(e) => {
                     error!("can't install theme: {e}");
@@ -263,7 +268,7 @@ impl ColorSchemes {
 
                         match install_theme(color_scheme, false) {
                             Ok(theme) => {
-                                self.installed.push(theme.clone());
+                                self.installed.insert(theme.name.clone(), theme.clone());
 
                                 let _ = self
                                     .config
