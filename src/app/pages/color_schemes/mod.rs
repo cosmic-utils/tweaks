@@ -16,15 +16,15 @@ use cosmic_config::CosmicConfigEntry;
 use cosmic_config::cosmic_config_derive::CosmicConfigEntry;
 use serde::{Deserialize, Serialize};
 
-pub mod view;
+mod view;
 
 pub struct ColorSchemes {
     installed: HashMap<String, ColorScheme>,
     available: Vec<ColorScheme>,
     config_writer: Config,
     config: ColorSchemesPageConfig,
-    pub model: segmented_button::Model<SingleSelect>,
-    pub status: Status,
+    model: segmented_button::Model<SingleSelect>,
+    status: Status,
     saved_color_theme: Option<ColorScheme>,
 }
 
@@ -40,7 +40,7 @@ impl ColorSchemes {
 
         let mut need_fetching = true;
 
-        let themes = if is_cache_exist() {
+        let available = if is_cache_exist() {
             match get_themes_from_cache() {
                 Ok(themes) => {
                     need_fetching = false;
@@ -61,7 +61,7 @@ impl ColorSchemes {
                 .into_iter()
                 .map(|e| (e.name.clone(), e))
                 .collect(),
-            available: themes,
+            available,
             saved_color_theme: config.current_config.clone(),
             config,
             config_writer: ColorSchemesPageConfig::config(),
