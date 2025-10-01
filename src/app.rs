@@ -7,7 +7,6 @@ use cosmic::{
 };
 use std::collections::{HashMap, VecDeque};
 
-use crate::app::pages::color_schemes::config::ColorScheme;
 use dialog::DialogPage;
 use flags::Flags;
 use message::Message;
@@ -113,7 +112,6 @@ impl Application for App {
 
 impl App {
     fn update_config(&mut self) -> Task<Message> {
-        self.color_schemes.theme_builder = ColorScheme::current_theme();
         Task::batch(vec![cosmic::command::set_theme(
             self.config.app_theme.theme(),
         )])

@@ -4,7 +4,6 @@ use cosmic_ext_config_templates::load_template;
 use dirs::data_local_dir;
 
 use crate::app::core::icons;
-use crate::app::pages;
 use crate::app::pages::snapshots::config::SnapshotKind;
 use crate::{app::App, fl};
 
@@ -148,12 +147,6 @@ impl Snapshots {
                 } else {
                     log::warn!("Snapshot does not contain a valid schema.");
                 }
-
-                tasks.push(cosmic::task::message(crate::app::Message::ColorSchemes(
-                    Box::new(pages::color_schemes::Message::SetColorScheme(
-                        snapshot.color_scheme,
-                    )),
-                )));
             }
             Message::CreateSnapshot(name, kind) => {
                 let path = data_local_dir()

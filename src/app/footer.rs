@@ -9,10 +9,7 @@ use crate::app::{page::Page, pages};
 
 use super::Cosmic;
 use crate::app::core::icons;
-use crate::app::pages::{
-    color_schemes::{self, Status, Tab},
-    layouts::preview::LayoutPreview,
-};
+use crate::app::pages::layouts::preview::LayoutPreview;
 use crate::fl;
 
 impl Cosmic {
