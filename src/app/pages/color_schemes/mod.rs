@@ -29,8 +29,6 @@ pub struct ColorSchemes {
 
 impl ColorSchemes {
     pub fn new() -> (Self, Task<Message>) {
-        let is_cache = is_cache_exist();
-
         let config = match ColorSchemesPageConfig::get_entry(&ColorSchemesPageConfig::config()) {
             Ok(config) => config,
             Err((errors, default)) => {
@@ -39,13 +37,26 @@ impl ColorSchemes {
             }
         };
 
+        let mut need_fetching = true;
+
+        let themes = if is_cache_exist() {
+            match get_themes_from_cache() {
+                Ok(themes) => {
+                    need_fetching = false;
+                    themes
+                }
+                Err(e) => {
+                    error!("can't load themes from cache: {e}");
+                    vec![]
+                }
+            }
+        } else {
+            vec![]
+        };
+
         let s = ColorSchemes {
             installed: installed_system_themes().unwrap(),
-            available: if is_cache {
-                get_themes_from_cache().unwrap()
-            } else {
-                vec![]
-            },
+            available: themes,
             saved_color_theme: config.current_config.clone(),
             config,
             config_writer: ColorSchemesPageConfig::config(),
@@ -53,20 +64,26 @@ impl ColorSchemes {
                 .insert(|b| b.text("Installed").data(Tab::Installed).activate())
                 .insert(|b| b.text("Available").data(Tab::Available))
                 .build(),
-            status: if is_cache {
-                Status::Idle
-            } else {
+            status: if need_fetching {
                 Status::Loading
+            } else {
+                Status::Idle
             },
         };
 
-        (
-            s,
-            Task::perform(async { download_themes().await }, |res| match res {
-                Ok(themes) => Message::SetAvailableColorSchemes(themes),
-                Err(e) => Message::Error(MessageErrorKind::Fetching, format!("{e}")),
-            }),
-        )
+        let mut tasks = vec![];
+
+        if need_fetching {
+            tasks.push(Task::perform(
+                async { download_themes().await },
+                |res| match res {
+                    Ok(themes) => Message::SetAvailableColorSchemes(themes),
+                    Err(e) => Message::Error(MessageErrorKind::Fetching, format!("{e}")),
+                },
+            ));
+        }
+
+        (s, Task::batch(tasks))
     }
 }
 
@@ -381,9 +398,10 @@ pub fn cache_themes(themes: &Vec<ColorScheme>) -> anyhow::Result<()> {
     std::fs::create_dir_all(filepath.parent().unwrap())?;
 
     let file = File::create(&filepath)?;
-    let mut writer = BufWriter::new(file);
+    let writer = BufWriter::new(file);
 
-    bincode::serde::encode_into_std_write(themes, &mut writer, bincode::config::standard())?;
+    serde_json::to_writer(writer, themes)?;
+
     Ok(())
 }
 
@@ -391,9 +409,10 @@ pub fn get_themes_from_cache() -> anyhow::Result<Vec<ColorScheme>> {
     let filepath = cache_themes_file_path();
 
     let file = File::open(&filepath)?;
-    let mut reader = BufReader::new(file);
+    let reader = BufReader::new(file);
 
-    let value = bincode::serde::decode_from_reader(&mut reader, bincode::config::standard())?;
+    let value = serde_json::from_reader(reader)?;
+
     Ok(value)
 }
 
