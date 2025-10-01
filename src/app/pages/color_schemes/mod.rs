@@ -214,7 +214,7 @@ impl ColorSchemes {
 
                 self.installed.retain(|e| e.name != color_scheme.name);
             }
-            Message::InstallColorScheme(color_scheme) => match install_theme(color_scheme) {
+            Message::InstallColorScheme(color_scheme) => match install_theme(color_scheme, false) {
                 Ok(theme) => {
                     self.installed.push(theme);
                 }
@@ -261,7 +261,7 @@ impl ColorSchemes {
                         let mut color_scheme = ColorScheme::new(name, theme_builder);
                         color_scheme.source = Some(Source::Saved);
 
-                        match install_theme(color_scheme) {
+                        match install_theme(color_scheme, false) {
                             Ok(theme) => {
                                 self.installed.push(theme.clone());
 
@@ -553,7 +553,7 @@ fn import_file(f: Arc<SelectedFiles>) -> anyhow::Result<ColorScheme> {
     Ok(theme)
 }
 
-fn install_theme(mut theme: ColorScheme) -> anyhow::Result<ColorScheme> {
+fn install_theme(mut theme: ColorScheme, should_override: bool) -> anyhow::Result<ColorScheme> {
     let new_file_path = dirs::data_local_dir()
         .unwrap()
         .join("themes/cosmic")
@@ -561,6 +561,12 @@ fn install_theme(mut theme: ColorScheme) -> anyhow::Result<ColorScheme> {
         .with_extension("ron");
 
     fs::create_dir_all(new_file_path.parent().unwrap())?;
+
+    if !should_override {
+        if fs::exists(&new_file_path).unwrap_or(false) {
+            bail!("the path of the theme {} already exist", theme.name);
+        }
+    }
     fs::write(&new_file_path, ron::ser::to_string(&theme.theme)?)?;
 
     theme.path = Some(new_file_path);
