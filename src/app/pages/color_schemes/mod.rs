@@ -28,9 +28,9 @@ mod view;
 
 #[derive(Debug, Clone, Default, PartialEq)]
 pub enum SortBy {
-    #[default]
     Az,
     MostDownloaded,
+    #[default]
     LastModified,
     Author,
 }
@@ -222,20 +222,20 @@ impl ColorSchemes {
             SortBy::Az => vec.sort_by(|a, b| LANGUAGE_SORTER.compare(&a.name, &b.name)),
             SortBy::MostDownloaded => vec.sort_by(|a, b| match (a.downloads, b.downloads) {
                 (None, None) => Ordering::Equal,
-                (None, Some(_)) => Ordering::Less,
-                (Some(_), None) => Ordering::Greater,
+                (None, Some(_)) => Ordering::Greater,
+                (Some(_), None) => Ordering::Less,
                 (Some(a), Some(b)) => a.cmp(&b),
             }),
             SortBy::LastModified => vec.sort_by(|a, b| match (a.updated, b.updated) {
                 (None, None) => Ordering::Equal,
-                (None, Some(_)) => Ordering::Less,
-                (Some(_), None) => Ordering::Greater,
+                (None, Some(_)) => Ordering::Greater,
+                (Some(_), None) => Ordering::Less,
                 (Some(a), Some(b)) => a.cmp(&b),
             }),
             SortBy::Author => vec.sort_by(|a, b| match (&a.author, &b.author) {
                 (None, None) => Ordering::Equal,
-                (None, Some(_)) => Ordering::Less,
-                (Some(_), None) => Ordering::Greater,
+                (None, Some(_)) => Ordering::Greater,
+                (Some(_), None) => Ordering::Less,
                 (Some(a), Some(b)) => LANGUAGE_SORTER.compare(a, b),
             }),
         };
@@ -479,8 +479,8 @@ pub async fn download_themes() -> anyhow::Result<Vec<ColorScheme>> {
             Ok(Self {
                 name: value.name,
                 theme: ron::from_str(&value.ron)?,
-                author: value.author,
-                link: value.link,
+                author: value.author.filter(|a| !a.is_empty()),
+                link: value.link.filter(|l| !l.is_empty()),
                 downloads: Some(value.downloads),
                 created: Some(
                     chrono::DateTime::parse_from_rfc3339(&value.created)?.timestamp_millis(),
