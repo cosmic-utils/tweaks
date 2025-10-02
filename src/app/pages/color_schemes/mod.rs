@@ -1,3 +1,5 @@
+use std::cell::RefCell;
+use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::fs::{self, File};
 use std::io::{BufReader, BufWriter};
@@ -14,9 +16,23 @@ use cosmic::{
 };
 use cosmic_config::CosmicConfigEntry;
 use cosmic_config::cosmic_config_derive::CosmicConfigEntry;
+use nucleo::{
+    Matcher, Utf32Str,
+    pattern::{Atom, AtomKind, CaseMatching, Normalization},
+};
 use serde::{Deserialize, Serialize};
 
+use crate::localize::LANGUAGE_SORTER;
 mod view;
+
+#[derive(Debug, Clone, Default)]
+enum SortBy {
+    #[default]
+    Az,
+    MostDownloaded,
+    LastModified,
+    Author,
+}
 
 pub struct ColorSchemes {
     installed: HashMap<String, ColorScheme>,
@@ -27,6 +43,10 @@ pub struct ColorSchemes {
     status: Status,
     saved_color_theme: Option<ColorScheme>,
     theme_mode: ThemeMode,
+    query: String,
+    sort_by: SortBy,
+    needle: Option<Atom>,
+    matcher: RefCell<Matcher>,
 }
 
 impl ColorSchemes {
@@ -82,6 +102,10 @@ impl ColorSchemes {
                 let theme_mode_config = ThemeMode::config().unwrap();
                 ThemeMode::get_entry(&theme_mode_config).unwrap()
             },
+            query: String::new(),
+            sort_by: SortBy::default(),
+            needle: None,
+            matcher: Matcher::new(nucleo::Config::DEFAULT).into(),
         };
 
         let mut tasks = vec![];
@@ -139,6 +163,78 @@ pub enum MessageErrorKind {
 }
 
 impl ColorSchemes {
+    fn set_query(&mut self, query: String) {
+        if query.is_empty() {
+            self.needle.take();
+        } else {
+            let atom = Atom::new(
+                &query,
+                CaseMatching::Smart,
+                Normalization::Smart,
+                AtomKind::Substring,
+                true,
+            );
+
+            self.needle.replace(atom);
+        }
+
+        self.query = query;
+    }
+
+    fn values<'a>(&'a self) -> Box<dyn Iterator<Item = &'a ColorScheme> + 'a> {
+        let data: Box<dyn Iterator<Item = &ColorScheme>> =
+            match self.model.active_data::<Tab>().unwrap() {
+                Tab::Installed => Box::new(self.installed.values()),
+                Tab::Available => Box::new(self.available.iter()),
+            };
+
+        if self.query.is_empty() {
+            return data;
+        }
+
+        if let Some(atom) = &self.needle {
+            let mut vec = data
+                .filter(|c| {
+                    let mut buf = Vec::new();
+
+                    let haystack = Utf32Str::new(&c.name, &mut buf);
+
+                    let mut indices = Vec::new();
+
+                    let _res = atom.indices(haystack, &mut self.matcher.borrow_mut(), &mut indices);
+
+                    !indices.is_empty()
+                })
+                .collect::<Vec<_>>();
+
+            match self.sort_by {
+                SortBy::Az => vec.sort_by(|a, b| LANGUAGE_SORTER.compare(&a.name, &b.name)),
+                SortBy::MostDownloaded => vec.sort_by(|a, b| match (a.downloads, b.downloads) {
+                    (None, None) => Ordering::Equal,
+                    (None, Some(_)) => Ordering::Less,
+                    (Some(_), None) => Ordering::Greater,
+                    (Some(a), Some(b)) => a.cmp(&b),
+                }),
+                SortBy::LastModified => vec.sort_by(|a, b| match (a.updated, b.updated) {
+                    (None, None) => Ordering::Equal,
+                    (None, Some(_)) => Ordering::Less,
+                    (Some(_), None) => Ordering::Greater,
+                    (Some(a), Some(b)) => a.cmp(&b),
+                }),
+                SortBy::Author => vec.sort_by(|a, b| match (&a.author, &b.author) {
+                    (None, None) => Ordering::Equal,
+                    (None, Some(_)) => Ordering::Less,
+                    (Some(_), None) => Ordering::Greater,
+                    (Some(a), Some(b)) => LANGUAGE_SORTER.compare(a, b),
+                }),
+            }
+
+            Box::new(vec.into_iter())
+        } else {
+            return data;
+        }
+    }
+
     pub fn update(&mut self, message: Message) -> Task<Message> {
         let mut tasks = vec![];
         match message {
