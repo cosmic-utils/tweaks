@@ -60,7 +60,18 @@ impl ColorSchemes {
                         grid = grid.insert_row();
                         col = 0;
                     }
-                    grid = grid.push(self.installed(color_scheme, false, &spacing, item_width));
+                    grid = grid.push(
+                        self.installed(
+                            color_scheme,
+                            self.config
+                                .current_config
+                                .as_ref()
+                                .map(|c| c.name == color_scheme.name)
+                                .unwrap_or(false),
+                            &spacing,
+                            item_width,
+                        ),
+                    );
                     col += 1;
                 }
 
