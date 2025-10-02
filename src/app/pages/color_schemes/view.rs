@@ -239,7 +239,7 @@ impl ColorSchemes {
     fn installed<'a>(
         &self,
         color_scheme: &ColorScheme,
-        selected: bool,
+        _selected: bool,
         spacing: &cosmic::cosmic_theme::Spacing,
         item_width: usize,
     ) -> Element<'a, super::Message> {
@@ -299,7 +299,7 @@ impl ColorSchemes {
     fn available<'a>(
         &self,
         color_scheme: &'a ColorScheme,
-        selected: bool,
+        _selected: bool,
         spacing: &cosmic::cosmic_theme::Spacing,
         item_width: usize,
     ) -> Element<'a, Message> {
