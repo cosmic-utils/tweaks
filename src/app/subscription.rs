@@ -7,8 +7,8 @@ use cosmic::{
     iced::{Event, Subscription, event, keyboard::Event as KeyEvent},
 };
 
-use crate::app::App;
-use crate::app::message::Message;
+use crate::app::message::{Message, SettingsMessage};
+use crate::app::{App, core::config::TweaksConfig};
 
 use crate::app::core::config::CONFIG_VERSION;
 
@@ -19,8 +19,10 @@ impl Cosmic {
         struct ConfigSubscription;
         struct ThemeSubscription;
 
-        let subscriptions = vec![
-            event::listen_with(|event, _status, _window_id| match event {
+        let mut subscriptions = Vec::new();
+
+        subscriptions.push(event::listen_with(
+            |event, _status, _window_id| match event {
                 Event::Keyboard(KeyEvent::KeyPressed { key, modifiers, .. }) => {
                     Some(Message::Key(modifiers, key))
                 }
@@ -28,13 +30,16 @@ impl Cosmic {
                     Some(Message::Modifiers(modifiers))
                 }
                 _ => None,
-            }),
+            },
+        ));
+
+        subscriptions.push(
             cosmic_config::config_subscription(
                 TypeId::of::<ConfigSubscription>(),
                 App::APP_ID.into(),
                 CONFIG_VERSION,
             )
-            .map(|update: Update<ThemeMode>| {
+            .map(|update: Update<TweaksConfig>| {
                 if !update.errors.is_empty() {
                     log::info!(
                         "errors loading config {:?}: {:?}",
@@ -42,8 +47,12 @@ impl Cosmic {
                         update.errors
                     );
                 }
-                Message::SystemThemeModeChange
+
+                Message::Settings(SettingsMessage::ConfigUpdate(update.config))
             }),
+        );
+
+        subscriptions.push(
             cosmic_config::config_subscription::<_, cosmic_theme::ThemeMode>(
                 TypeId::of::<ThemeSubscription>(),
                 cosmic_theme::THEME_MODE_ID.into(),
@@ -57,9 +66,9 @@ impl Cosmic {
                         update.errors
                     );
                 }
-                Message::SystemThemeModeChange
+                Message::SystemThemeModeChange(update.config)
             }),
-        ];
+        );
 
         Subscription::batch(subscriptions)
     }

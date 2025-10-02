@@ -4,7 +4,9 @@ use cosmic::{
     widget::{self, menu::Action},
 };
 
-use crate::app::{App, dialog::DialogPage, pages::snapshots::config::SnapshotKind};
+use crate::app::{
+    App, dialog::DialogPage, message::SettingsMessage, pages::snapshots::config::SnapshotKind,
+};
 use crate::app::{message::Message, pages::layouts::dialog::CreateLayoutDialog};
 
 use super::Cosmic;
@@ -19,17 +21,6 @@ impl Cosmic {
                 if let Err(err) = open::that_detached(url) {
                     log::error!("{err}")
                 }
-            }
-            Message::AppTheme(index) => {
-                let app_theme = match index {
-                    1 => AppTheme::Dark,
-                    2 => AppTheme::Light,
-                    _ => AppTheme::System,
-                };
-                if let Err(err) = app.config.set_app_theme(&app.handler, app_theme) {
-                    log::warn!("failed to save config: {}", err);
-                };
-                tasks.push(app.update_config());
             }
             Message::ToggleContextPage(page) => {
                 if app.cosmic.context_page == page {
@@ -148,9 +139,27 @@ impl Cosmic {
             Message::Modifiers(modifiers) => {
                 app.cosmic.modifiers = modifiers;
             }
-            Message::SystemThemeModeChange => {
-                tasks.push(app.update_config());
+            Message::SystemThemeModeChange(theme_mode) => {
+                app.color_schemes.set_theme_mode(theme_mode.clone());
+                tasks.push(app.set_theme());
             }
+            Message::Settings(settings_message) => match settings_message {
+                SettingsMessage::AppTheme(index) => {
+                    let app_theme = match index {
+                        1 => AppTheme::Dark,
+                        2 => AppTheme::Light,
+                        _ => AppTheme::System,
+                    };
+                    if let Err(err) = app.config.set_app_theme(&app.handler, app_theme) {
+                        log::warn!("failed to save config: {}", err);
+                    };
+                    tasks.push(app.set_theme());
+                }
+                SettingsMessage::ConfigUpdate(config) => {
+                    app.config = config;
+                    tasks.push(app.set_theme());
+                }
+            },
         }
         Task::batch(tasks)
     }

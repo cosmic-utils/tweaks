@@ -143,7 +143,7 @@ impl ColorSchemes {
             .align_y(Vertical::Center)
             .push(icon!("dark-mode-2-symbolic", 48))
             .push(horizontal_space().width(10))
-            .push(toggler(self.theme_mode_config.is_dark).on_toggle(Message::ToggleDarkMode));
+            .push(toggler(self.theme_mode.is_dark).on_toggle(Message::ToggleDarkMode));
 
         match self.model.active_data::<Tab>().unwrap() {
             Tab::Installed => Some(
