@@ -18,7 +18,7 @@ impl Cosmic {
         Some(match app.cosmic.context_page {
             ContextPage::About => app::context_drawer::about(
                 &app.cosmic.about,
-                Message::Open,
+                |url| Message::Open(url.to_string()),
                 Message::ToggleContextDrawer,
             ),
             ContextPage::Settings => {
