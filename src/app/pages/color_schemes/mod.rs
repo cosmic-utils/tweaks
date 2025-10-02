@@ -224,13 +224,13 @@ impl ColorSchemes {
                 (None, None) => Ordering::Equal,
                 (None, Some(_)) => Ordering::Greater,
                 (Some(_), None) => Ordering::Less,
-                (Some(a), Some(b)) => a.cmp(&b),
+                (Some(a), Some(b)) => b.cmp(&a),
             }),
             SortBy::LastModified => vec.sort_by(|a, b| match (a.updated, b.updated) {
                 (None, None) => Ordering::Equal,
                 (None, Some(_)) => Ordering::Greater,
                 (Some(_), None) => Ordering::Less,
-                (Some(a), Some(b)) => a.cmp(&b),
+                (Some(a), Some(b)) => b.cmp(&a),
             }),
             SortBy::Author => vec.sort_by(|a, b| match (&a.author, &b.author) {
                 (None, None) => Ordering::Equal,
