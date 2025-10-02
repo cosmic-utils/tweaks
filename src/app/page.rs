@@ -1,8 +1,6 @@
 use cosmic::widget::Icon;
 
-use crate::fl;
-
-use crate::app::core::icons;
+use crate::{fl, icon};
 
 #[derive(Clone, Copy, Default, Debug, Eq, PartialEq)]
 pub enum Page {
@@ -35,12 +33,12 @@ impl Page {
 
     pub fn icon(&self) -> Icon {
         match self {
-            Self::ColorSchemes => icons::get_icon("dark-mode-symbolic", 18),
-            Self::Dock => icons::get_icon("dock-bottom-symbolic", 18),
-            Self::Panel => icons::get_icon("dock-top-symbolic", 18),
-            Self::Layouts => icons::get_icon("view-coverflow-symbolic", 18),
-            Self::Shortcuts => icons::get_icon("keyboard-symbolic", 18),
-            Self::Snapshots => icons::get_icon("snapshots-symbolic", 18),
+            Self::ColorSchemes => icon!("dark-mode-symbolic", 18),
+            Self::Dock => icon!("dock-bottom-symbolic", 18),
+            Self::Panel => icon!("dock-top-symbolic", 18),
+            Self::Layouts => icon!("view-coverflow-symbolic", 18),
+            Self::Shortcuts => icon!("keyboard-symbolic", 18),
+            Self::Snapshots => icon!("snapshots-symbolic", 18),
         }
     }
 

@@ -1,15 +1,17 @@
-use crate::app::{
-    core::{
-        grid::GridMetrics,
-        icons,
-        style::{destructive_button, link_button, standard_button},
-    },
-    pages::{
-        ColorSchemes,
-        color_schemes::{ColorScheme, Message, Status, Tab},
-    },
-};
 use crate::fl;
+use crate::{
+    app::{
+        core::{
+            grid::GridMetrics,
+            style::{destructive_button, link_button, standard_button},
+        },
+        pages::{
+            ColorSchemes,
+            color_schemes::{ColorScheme, Message, Status, Tab},
+        },
+    },
+    icon_handle,
+};
 use cosmic::{
     Apply, Element,
     iced::{Alignment, Length},
@@ -125,13 +127,13 @@ impl ColorSchemes {
                     .push(widget::horizontal_space())
                     .push(
                         widget::button::standard(fl!("save-current-color-scheme"))
-                            .trailing_icon(icons::get_handle("arrow-into-box-symbolic", 16))
+                            .trailing_icon(icon_handle!("arrow-into-box-symbolic", 16))
                             .spacing(spacing.space_xs)
                             .on_press(Message::SaveCurrentColorScheme(None)),
                     )
                     .push(
                         widget::button::standard(fl!("import-color-scheme"))
-                            .trailing_icon(icons::get_handle("document-save-symbolic", 16))
+                            .trailing_icon(icon_handle!("document-save-symbolic", 16))
                             .spacing(spacing.space_xs)
                             .on_press(Message::StartImport),
                     )
@@ -199,7 +201,7 @@ impl ColorSchemes {
                         )
                         .push(widget::horizontal_space())
                         .push(widget::tooltip::tooltip(
-                            icons::get_handle("symbolic-link-symbolic", 14)
+                            icon_handle!("symbolic-link-symbolic", 14)
                                 .apply(widget::button::icon)
                                 .class(link_button(theme.clone()))
                                 .padding(spacing.space_xxs)
@@ -208,7 +210,7 @@ impl ColorSchemes {
                             tooltip::Position::Bottom,
                         ))
                         .push(widget::tooltip::tooltip(
-                            icons::get_handle("user-trash-symbolic", 14)
+                            icon_handle!("user-trash-symbolic", 14)
                                 .apply(widget::button::icon)
                                 .class(destructive_button(theme.clone()))
                                 .padding(spacing.space_xxs)
@@ -263,7 +265,7 @@ impl ColorSchemes {
                         )
                         .push(widget::horizontal_space())
                         .push(widget::tooltip::tooltip(
-                            icons::get_handle("symbolic-link-symbolic", 14)
+                            icon_handle!("symbolic-link-symbolic", 14)
                                 .apply(widget::button::icon)
                                 .class(link_button(theme.clone()))
                                 .padding(spacing.space_xxs)
@@ -272,7 +274,7 @@ impl ColorSchemes {
                             cosmic::widget::tooltip::Position::Bottom,
                         ))
                         .push(widget::tooltip::tooltip(
-                            icons::get_handle("folder-download-symbolic", 14)
+                            icon_handle!("folder-download-symbolic", 14)
                                 .apply(widget::button::icon)
                                 .class(standard_button(theme.clone()))
                                 .padding(spacing.space_xxs)

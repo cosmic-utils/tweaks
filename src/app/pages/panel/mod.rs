@@ -6,9 +6,8 @@ use cosmic::{
 use cosmic_panel_config::{AutoHide, CosmicPanelConfig};
 use serde::{Deserialize, Serialize};
 
-use crate::fl;
+use crate::{fl, icon};
 
-use crate::app::core::icons;
 use config::{CosmicPanelButtonConfig, IndividualConfig, Override};
 
 pub mod config;
@@ -166,18 +165,18 @@ impl Panel {
                 .title("Panel")
                 .add(
                     widget::settings::item::builder(fl!("show-panel"))
-                        .icon(icons::get_icon("eye-outline-symbolic", 18))
+                        .icon(icon!("eye-outline-symbolic", 18))
                         .toggler(self.show_panel, Message::ShowPanel),
                 )
                 .add(
                     widget::settings::item::builder(fl!("force-icon-buttons-in-panel"))
-                        .icon(icons::get_icon("smile-symbolic", 18))
+                        .icon(icon!("smile-symbolic", 18))
                         .toggler(self.force_icons, Message::ForceIcons),
                 )
                 .add(
                     widget::settings::item::builder(fl!("size"))
                         .description(fl!("size-description"))
-                        .icon(icons::get_icon("size-vertically-symbolic", 18))
+                        .icon(icon!("size-vertically-symbolic", 18))
                         .control(
                             widget::row()
                                 .push(
@@ -196,7 +195,7 @@ impl Panel {
                 .add(
                     widget::settings::item::builder(fl!("padding"))
                         .description(fl!("padding-description"))
-                        .icon(icons::get_icon("resize-mode-symbolic", 18))
+                        .icon(icon!("resize-mode-symbolic", 18))
                         .control(
                             widget::row()
                                 .push(widget::slider(0..=20, self.padding, Message::SetPadding))
@@ -207,7 +206,7 @@ impl Panel {
                 .add(
                     widget::settings::item::builder(fl!("margin"))
                         .description(fl!("margin-description"))
-                        .icon(icons::get_icon("object-layout-symbolic", 18))
+                        .icon(icon!("object-layout-symbolic", 18))
                         .control(
                             widget::row()
                                 .push(widget::slider(0..=20, self.margin, Message::SetMargin))
@@ -218,7 +217,7 @@ impl Panel {
                 .add(
                     widget::settings::item::builder(fl!("spacing"))
                         .description(fl!("spacing-description"))
-                        .icon(icons::get_icon("size-horizontally-symbolic", 18))
+                        .icon(icon!("size-horizontally-symbolic", 18))
                         .control(
                             widget::row()
                                 .push(widget::slider(0..=28, self.spacing, Message::SetSpacing))
@@ -232,7 +231,7 @@ impl Panel {
                 .add(
                     widget::settings::item::builder(fl!("wait-time"))
                         .description(fl!("wait-time-description"))
-                        .icon(icons::get_icon("size-vertically-symbolic", 18))
+                        .icon(icon!("size-vertically-symbolic", 18))
                         .control(
                             widget::row()
                                 .push(
@@ -251,7 +250,7 @@ impl Panel {
                 .add(
                     widget::settings::item::builder(fl!("transition-time"))
                         .description(fl!("transition-time-description"))
-                        .icon(icons::get_icon("size-vertically-symbolic", 18))
+                        .icon(icon!("size-vertically-symbolic", 18))
                         .control(
                             widget::row()
                                 .push(
@@ -273,7 +272,7 @@ impl Panel {
                 .add(
                     widget::settings::item::builder(fl!("handle-size"))
                         .description(fl!("handle-size-description"))
-                        .icon(icons::get_icon("size-vertically-symbolic", 18))
+                        .icon(icon!("size-vertically-symbolic", 18))
                         .control(
                             widget::row()
                                 .push(

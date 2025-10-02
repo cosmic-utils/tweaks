@@ -2,9 +2,10 @@
 
 use cosmic::widget::icon;
 use std::collections::HashMap;
-use std::sync::{Mutex, OnceLock};
+use std::sync::{LazyLock, RwLock};
 
-pub(crate) static ICON_CACHE: OnceLock<Mutex<IconCache>> = OnceLock::new();
+pub static ICON_CACHE: LazyLock<RwLock<HashMap<IconCacheKey, icon::Handle>>> =
+    LazyLock::new(|| RwLock::new(HashMap::new()));
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct IconCacheKey {
@@ -12,87 +13,47 @@ pub struct IconCacheKey {
     size: u16,
 }
 
-pub struct IconCache {
-    cache: HashMap<IconCacheKey, icon::Handle>,
+impl IconCacheKey {
+    pub fn new(name: &'static str, size: u16) -> Self {
+        Self { name, size }
+    }
 }
 
-impl IconCache {
-    pub fn new() -> Self {
-        let mut cache = HashMap::new();
+#[macro_export]
+macro_rules! icon_handle {
+    ($name:literal, $size:expr) => {{
+        use $crate::app::core::icons::{ICON_CACHE, IconCacheKey};
 
-        macro_rules! bundle {
-            ($name:expr, $size:expr) => {
-                let data: &'static [u8] =
-                    include_bytes!(concat!("../../../res/icons/bundled/", $name, ".svg"));
-                cache.insert(
-                    IconCacheKey {
-                        name: $name,
-                        size: $size,
-                    },
-                    icon::from_svg_bytes(data).symbolic(true),
-                );
-            };
+        let key = IconCacheKey::new($name, $size);
+
+        if let Some(handle) = ICON_CACHE.read().unwrap().get(&key) {
+            handle.clone()
+        } else {
+            let bytes = include_bytes!(concat!(
+                env!("CARGO_MANIFEST_DIR"),
+                "/res/icons/bundled/",
+                $name,
+                ".svg"
+            ));
+            let handle = cosmic::widget::icon::from_svg_bytes(bytes).symbolic(true);
+
+            ICON_CACHE.write().unwrap().insert(key, handle.clone());
+            handle
         }
-
-        // Menu items
-        bundle!("cross-small-square-filled-symbolic", 14);
-        bundle!("edit-symbolic", 14);
-        bundle!("face-smile-big-symbolic", 14);
-        bundle!("plus-square-filled-symbolic", 14);
-        bundle!("settings-symbolic", 14);
-        bundle!("tabs-stack-symbolic", 14);
-        bundle!("info-outline-symbolic", 14);
-        bundle!("keyboard-symbolic", 18);
-        bundle!("size-vertically-symbolic", 18);
-        bundle!("smile-symbolic", 18);
-        bundle!("eye-outline-symbolic", 18);
-
-        bundle!("size-horizontally-symbolic", 18);
-        bundle!("dock-bottom-symbolic", 18);
-        bundle!("dock-top-symbolic", 18);
-        bundle!("dark-mode-symbolic", 18);
-        bundle!("resize-mode-symbolic", 18);
-        bundle!("view-coverflow-symbolic", 18);
-        bundle!("object-layout-symbolic", 18);
-        bundle!("snapshots-symbolic", 18);
-        bundle!("checkmark-symbolic", 16);
-        bundle!("recycling-bin-symbolic", 16);
-        bundle!("arrow-into-box-symbolic", 16);
-        bundle!("document-save-symbolic", 16);
-        bundle!("search-global-symbolic", 16);
-        bundle!("list-add-symbolic", 16);
-        bundle!("symbolic-link-symbolic", 14);
-        bundle!("user-trash-symbolic", 14);
-        bundle!("selection-mode-symbolic", 14);
-        bundle!("folder-download-symbolic", 14);
-        bundle!("arrow-circular-bottom-right-symbolic", 14);
-
-        Self { cache }
-    }
-
-    pub fn get(&mut self, name: &'static str, size: u16) -> icon::Icon {
-        let handle = self
-            .cache
-            .entry(IconCacheKey { name, size })
-            .or_insert_with(|| icon::from_name(name).size(size).handle())
-            .clone();
-        icon::icon(handle).size(size)
-    }
-
-    pub fn get_handle(&mut self, name: &'static str, size: u16) -> icon::Handle {
-        self.cache
-            .entry(IconCacheKey { name, size })
-            .or_insert_with(|| icon::from_name(name).size(size).handle())
-            .clone()
-    }
+    }};
 }
 
-pub fn get_icon(name: &'static str, size: u16) -> icon::Icon {
-    let mut icon_cache = ICON_CACHE.get().unwrap().lock().unwrap();
-    icon_cache.get(name, size)
+#[macro_export]
+macro_rules! icon {
+    ($name:literal, $size:expr) => {{
+        use $crate::icon_handle;
+        cosmic::widget::icon::icon(icon_handle!($name, $size))
+    }};
 }
-
-pub fn get_handle(name: &'static str, size: u16) -> icon::Handle {
-    let mut icon_cache = ICON_CACHE.get().unwrap().lock().unwrap();
-    icon_cache.get_handle(name, size)
+#[macro_export]
+macro_rules! icon_button {
+    ($name:literal, $size:expr) => {{
+        use $crate::icon_handle;
+        cosmic::widget::button::icon(icon_handle!($name, $size))
+    }};
 }

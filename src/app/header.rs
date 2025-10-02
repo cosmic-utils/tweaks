@@ -7,8 +7,7 @@ use crate::app::action::TweaksAction;
 use crate::app::message::Message;
 
 use super::Cosmic;
-use crate::app::core::icons;
-use crate::fl;
+use crate::{fl, icon_handle};
 
 impl Cosmic {
     pub fn header_start<'a>(app: &'a App) -> Vec<Element<'a, Message>> {
@@ -19,13 +18,13 @@ impl Cosmic {
                 vec![
                     menu::Item::Button(
                         fl!("settings"),
-                        Some(icons::get_handle("settings-symbolic", 14)),
+                        Some(icon_handle!("settings-symbolic", 14)),
                         TweaksAction::Settings,
                     ),
                     menu::Item::Divider,
                     menu::Item::Button(
                         fl!("about"),
-                        Some(icons::get_handle("info-outline-symbolic", 14)),
+                        Some(icon_handle!("info-outline-symbolic", 14)),
                         TweaksAction::About,
                     ),
                 ],
