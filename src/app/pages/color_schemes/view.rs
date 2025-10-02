@@ -29,7 +29,6 @@ impl ColorSchemes {
     pub fn view<'a>(&'a self) -> Element<'a, Message> {
         let spacing = cosmic::theme::spacing();
         let active_tab = self.model.active_data::<Tab>().unwrap();
-        let title = text::title3(fl!("color-schemes"));
         let tabs = segmented_button::horizontal(&self.model)
             .padding(spacing.space_xxxs)
             .button_alignment(cosmic::iced::Alignment::Center)
@@ -40,7 +39,6 @@ impl ColorSchemes {
         };
 
         column()
-            .push(title)
             .push(tabs)
             .push(active_tab)
             .spacing(spacing.space_xxs)
@@ -62,7 +60,7 @@ impl ColorSchemes {
 
                 let mut grid = grid();
                 let mut col = 0;
-                for color_scheme in self.installed.values() {
+                for color_scheme in self.values() {
                     if col >= cols {
                         grid = grid.insert_row();
                         col = 0;
@@ -111,13 +109,24 @@ impl ColorSchemes {
 
                         let mut grid = grid();
                         let mut col = 0;
-                        for color_scheme in self.available.iter() {
+                        for color_scheme in self.values() {
                             if col >= cols {
                                 grid = grid.insert_row();
                                 col = 0;
                             }
 
-                            grid = grid.push(self.available(color_scheme, &spacing, item_width));
+                            grid = grid.push(
+                                self.available(
+                                    color_scheme,
+                                    self.config
+                                        .current_config
+                                        .as_ref()
+                                        .map(|c| c.name == color_scheme.name)
+                                        .unwrap_or(false),
+                                    &spacing,
+                                    item_width,
+                                ),
+                            );
                             col += 1;
                         }
 
@@ -202,7 +211,7 @@ impl ColorSchemes {
     fn installed<'a>(
         &self,
         color_scheme: &ColorScheme,
-        _selected: bool,
+        selected: bool,
         spacing: &cosmic::cosmic_theme::Spacing,
         item_width: usize,
     ) -> Element<'a, super::Message> {
@@ -262,6 +271,7 @@ impl ColorSchemes {
     fn available<'a>(
         &self,
         color_scheme: &'a ColorScheme,
+        selected: bool,
         spacing: &cosmic::cosmic_theme::Spacing,
         item_width: usize,
     ) -> Element<'a, Message> {
