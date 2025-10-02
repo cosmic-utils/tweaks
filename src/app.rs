@@ -11,6 +11,8 @@ use dialog::DialogPage;
 use flags::Flags;
 use message::Message;
 
+use crate::app::message::SettingsMessage;
+
 pub mod action;
 pub mod context;
 pub mod context_drawer;
@@ -111,10 +113,8 @@ impl Application for App {
 }
 
 impl App {
-    fn update_config(&mut self) -> Task<Message> {
-        Task::batch(vec![cosmic::command::set_theme(
-            self.config.app_theme.theme(),
-        )])
+    fn set_theme(&mut self) -> Task<Message> {
+        cosmic::command::set_theme(self.config.app_theme.theme())
     }
 
     fn settings<'a>(&'a self) -> Element<'a, Message> {
@@ -130,7 +130,7 @@ impl App {
                     widget::settings::item::builder(crate::fl!("theme")).control(widget::dropdown(
                         &self.cosmic.app_themes,
                         Some(app_theme_selected),
-                        Message::AppTheme,
+                        |i| Message::Settings(SettingsMessage::AppTheme(i)),
                     )),
                 )
                 .into(),

@@ -26,10 +26,13 @@ pub struct ColorSchemes {
     model: segmented_button::Model<SingleSelect>,
     status: Status,
     saved_color_theme: Option<ColorScheme>,
-    theme_mode_config: ThemeMode,
+    theme_mode: ThemeMode,
 }
 
 impl ColorSchemes {
+    pub fn set_theme_mode(&mut self, mode: ThemeMode) {
+        self.theme_mode = mode;
+    }
     pub fn new() -> (Self, Task<Message>) {
         let config = match ColorSchemesPageConfig::get_entry(&ColorSchemesPageConfig::config()) {
             Ok(config) => config,
@@ -75,7 +78,7 @@ impl ColorSchemes {
             } else {
                 Status::Idle
             },
-            theme_mode_config: {
+            theme_mode: {
                 let theme_mode_config = ThemeMode::config().unwrap();
                 ThemeMode::get_entry(&theme_mode_config).unwrap()
             },
@@ -290,7 +293,7 @@ impl ColorSchemes {
             }
             Message::ToggleDarkMode(dark) => {
                 let theme_mode_config = ThemeMode::config().unwrap();
-                let _ = self.theme_mode_config.set_is_dark(&theme_mode_config, dark);
+                let _ = self.theme_mode.set_is_dark(&theme_mode_config, dark);
             }
         }
         Task::batch(tasks)
