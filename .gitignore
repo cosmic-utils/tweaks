@@ -16,7 +16,6 @@ target/
 
 vendor/
 
-.cargo/
 .direnv/
 result*
 

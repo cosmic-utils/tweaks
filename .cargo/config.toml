@@ -1,0 +1,2 @@
+[env]
+RUST_LOG = "cosmic_ext_tweaks=info"
