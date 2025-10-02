@@ -1,6 +1,7 @@
 use std::cell::RefCell;
 use std::cmp::Ordering;
 use std::collections::HashMap;
+use std::fmt::Display;
 use std::fs::{self, File};
 use std::io::{BufReader, BufWriter};
 use std::path::PathBuf;
@@ -25,13 +26,24 @@ use serde::{Deserialize, Serialize};
 use crate::localize::LANGUAGE_SORTER;
 mod view;
 
-#[derive(Debug, Clone, Default)]
-enum SortBy {
+#[derive(Debug, Clone, Default, PartialEq)]
+pub enum SortBy {
     #[default]
     Az,
     MostDownloaded,
     LastModified,
     Author,
+}
+
+impl Display for SortBy {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            SortBy::Az => write!(f, "A-Z"),
+            SortBy::MostDownloaded => write!(f, "Most downloaded"),
+            SortBy::LastModified => write!(f, "Last modified"),
+            SortBy::Author => write!(f, "Author"),
+        }
+    }
 }
 
 pub struct ColorSchemes {
@@ -154,6 +166,8 @@ pub enum Message {
     OpenLink(String),
     TabSelected(segmented_button::Entity),
     ToggleDarkMode(bool),
+    SortBy(SortBy),
+    Query(String),
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -182,57 +196,51 @@ impl ColorSchemes {
     }
 
     fn values<'a>(&'a self) -> Box<dyn Iterator<Item = &'a ColorScheme> + 'a> {
-        let data: Box<dyn Iterator<Item = &ColorScheme>> =
+        let mut data: Box<dyn Iterator<Item = &ColorScheme>> =
             match self.model.active_data::<Tab>().unwrap() {
                 Tab::Installed => Box::new(self.installed.values()),
                 Tab::Available => Box::new(self.available.iter()),
             };
 
-        if self.query.is_empty() {
-            return data;
-        }
-
         if let Some(atom) = &self.needle {
-            let mut vec = data
-                .filter(|c| {
-                    let mut buf = Vec::new();
+            data = Box::new(data.filter(|c| {
+                let mut buf = Vec::new();
 
-                    let haystack = Utf32Str::new(&c.name, &mut buf);
+                let haystack = Utf32Str::new(&c.name, &mut buf);
 
-                    let mut indices = Vec::new();
+                let mut indices = Vec::new();
 
-                    let _res = atom.indices(haystack, &mut self.matcher.borrow_mut(), &mut indices);
+                let _res = atom.indices(haystack, &mut self.matcher.borrow_mut(), &mut indices);
 
-                    !indices.is_empty()
-                })
-                .collect::<Vec<_>>();
+                !indices.is_empty()
+            }));
+        };
 
-            match self.sort_by {
-                SortBy::Az => vec.sort_by(|a, b| LANGUAGE_SORTER.compare(&a.name, &b.name)),
-                SortBy::MostDownloaded => vec.sort_by(|a, b| match (a.downloads, b.downloads) {
-                    (None, None) => Ordering::Equal,
-                    (None, Some(_)) => Ordering::Less,
-                    (Some(_), None) => Ordering::Greater,
-                    (Some(a), Some(b)) => a.cmp(&b),
-                }),
-                SortBy::LastModified => vec.sort_by(|a, b| match (a.updated, b.updated) {
-                    (None, None) => Ordering::Equal,
-                    (None, Some(_)) => Ordering::Less,
-                    (Some(_), None) => Ordering::Greater,
-                    (Some(a), Some(b)) => a.cmp(&b),
-                }),
-                SortBy::Author => vec.sort_by(|a, b| match (&a.author, &b.author) {
-                    (None, None) => Ordering::Equal,
-                    (None, Some(_)) => Ordering::Less,
-                    (Some(_), None) => Ordering::Greater,
-                    (Some(a), Some(b)) => LANGUAGE_SORTER.compare(a, b),
-                }),
-            }
+        let mut vec = data.collect::<Vec<_>>();
 
-            Box::new(vec.into_iter())
-        } else {
-            return data;
-        }
+        match self.sort_by {
+            SortBy::Az => vec.sort_by(|a, b| LANGUAGE_SORTER.compare(&a.name, &b.name)),
+            SortBy::MostDownloaded => vec.sort_by(|a, b| match (a.downloads, b.downloads) {
+                (None, None) => Ordering::Equal,
+                (None, Some(_)) => Ordering::Less,
+                (Some(_), None) => Ordering::Greater,
+                (Some(a), Some(b)) => a.cmp(&b),
+            }),
+            SortBy::LastModified => vec.sort_by(|a, b| match (a.updated, b.updated) {
+                (None, None) => Ordering::Equal,
+                (None, Some(_)) => Ordering::Less,
+                (Some(_), None) => Ordering::Greater,
+                (Some(a), Some(b)) => a.cmp(&b),
+            }),
+            SortBy::Author => vec.sort_by(|a, b| match (&a.author, &b.author) {
+                (None, None) => Ordering::Equal,
+                (None, Some(_)) => Ordering::Less,
+                (Some(_), None) => Ordering::Greater,
+                (Some(a), Some(b)) => LANGUAGE_SORTER.compare(a, b),
+            }),
+        };
+
+        Box::new(vec.into_iter())
     }
 
     pub fn update(&mut self, message: Message) -> Task<Message> {
@@ -391,6 +399,8 @@ impl ColorSchemes {
                 let theme_mode_config = ThemeMode::config().unwrap();
                 let _ = self.theme_mode.set_is_dark(&theme_mode_config, dark);
             }
+            Message::SortBy(sort_by) => self.sort_by = sort_by,
+            Message::Query(query) => self.set_query(query),
         }
         Task::batch(tasks)
     }
@@ -476,7 +486,7 @@ pub async fn download_themes() -> anyhow::Result<Vec<ColorScheme>> {
                     chrono::DateTime::parse_from_rfc3339(&value.created)?.timestamp_millis(),
                 ),
                 updated: Some(
-                    chrono::DateTime::parse_from_rfc3339(&value.created)?.timestamp_millis(),
+                    chrono::DateTime::parse_from_rfc3339(&value.updated)?.timestamp_millis(),
                 ),
                 source: Some(Source::CosmicThemesOrg),
                 path: None,

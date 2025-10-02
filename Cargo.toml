@@ -22,7 +22,6 @@ nucleo = "0.5"
 icu_collator = "2"
 icu_provider = { version = "2", features = ["sync"] }
 
-
 [dependencies.ashpd]
 version = "0.12"
 default-features = false

@@ -79,6 +79,10 @@ impl Application for App {
         Cosmic::header_start(self)
     }
 
+    fn header_end(&self) -> Vec<Element<'_, Self::Message>> {
+        Cosmic::header_end(self)
+    }
+
     fn nav_model(&self) -> Option<&widget::nav_bar::Model> {
         Some(&self.cosmic.nav_model)
     }

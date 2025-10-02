@@ -123,7 +123,7 @@ impl Default for Panel {
         let autohide = panel_config
             .clone()
             .map(|config| config.autohide.unwrap_or_default())
-            .unwrap_or(AutoHide::default());
+            .unwrap_or_default();
 
         Self {
             panel_helper,

@@ -5,6 +5,7 @@ use cosmic::widget::menu::{self, ItemHeight, ItemWidth};
 use crate::app::App;
 use crate::app::action::TweaksAction;
 use crate::app::message::Message;
+use crate::app::page::Page;
 
 use super::Cosmic;
 use crate::{fl, icon_handle};
@@ -35,5 +36,21 @@ impl Cosmic {
         .spacing(4.0);
 
         vec![Element::from(menu_bar)]
+    }
+
+    pub fn header_end(app: &App) -> Vec<Element<'_, Message>> {
+        let Some(page) = app.cosmic.nav_model.active_data::<Page>() else {
+            return vec![];
+        };
+
+        match page {
+            Page::ColorSchemes => app
+                .color_schemes
+                .header_end()
+                .into_iter()
+                .map(|e| e.map(|m| Message::ColorSchemes(Box::new(m))))
+                .collect(),
+            _ => vec![],
+        }
     }
 }
