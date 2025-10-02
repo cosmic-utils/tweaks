@@ -140,7 +140,7 @@ impl Cosmic {
                 app.cosmic.modifiers = modifiers;
             }
             Message::SystemThemeModeChange(theme_mode) => {
-                app.color_schemes.set_theme_mode(theme_mode.clone());
+                app.color_schemes.set_theme_mode(theme_mode);
                 tasks.push(app.set_theme());
             }
             Message::Settings(settings_message) => match settings_message {

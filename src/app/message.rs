@@ -1,8 +1,13 @@
-use crate::app::{core::config::TweaksConfig, pages::{self, layouts::preview::LayoutPreview}};
+use crate::app::{
+    core::config::TweaksConfig,
+    pages::{self, layouts::preview::LayoutPreview},
+};
 
 use super::{context::ContextPage, dialog::DialogPage};
 use cosmic::{
-    cosmic_theme::ThemeMode, iced::keyboard::{Key, Modifiers}, widget
+    cosmic_theme::ThemeMode,
+    iced::keyboard::{Key, Modifiers},
+    widget,
 };
 
 #[derive(Debug, Clone)]
@@ -26,11 +31,11 @@ pub enum Message {
     Modifiers(Modifiers),
     SystemThemeModeChange(ThemeMode),
     Open(String),
-    Settings(SettingsMessage)
+    Settings(SettingsMessage),
 }
 
 #[derive(Debug, Clone)]
 pub enum SettingsMessage {
     AppTheme(usize),
-    ConfigUpdate(TweaksConfig)
+    ConfigUpdate(TweaksConfig),
 }

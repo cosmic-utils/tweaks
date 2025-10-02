@@ -6,16 +6,17 @@ use crate::{
         },
         pages::{
             ColorSchemes,
-            color_schemes::{ColorScheme, Message, Status, Tab},
+            color_schemes::{ColorScheme, Message, SortBy, Status, Tab},
         },
     },
     icon_handle,
 };
 use crate::{fl, icon};
 use cosmic::{
-    Apply, Element,
+    self, Apply, Element,
     iced::{Alignment, Length},
-    {self},
+    iced_widget::pick_list,
+    widget::search_input,
 };
 use cosmic::{
     iced::alignment::Vertical,
@@ -26,6 +27,33 @@ use cosmic::{
 };
 
 impl ColorSchemes {
+    pub fn header_end(&self) -> Vec<Element<'_, Message>> {
+        let mut v = vec![];
+
+        v.push(
+            search_input("Search", &self.query)
+                .on_input(Message::Query)
+                .width(200)
+                .into(),
+        );
+
+        v.push(
+            pick_list(
+                [
+                    SortBy::Az,
+                    SortBy::MostDownloaded,
+                    SortBy::LastModified,
+                    SortBy::Author,
+                ],
+                Some(&self.sort_by),
+                Message::SortBy,
+            )
+            .into(),
+        );
+
+        v
+    }
+
     pub fn view<'a>(&'a self) -> Element<'a, Message> {
         let spacing = cosmic::theme::spacing();
         let active_tab = self.model.active_data::<Tab>().unwrap();
