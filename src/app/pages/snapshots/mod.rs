@@ -3,8 +3,8 @@ use cosmic::{Application, Element, Task, iced::Length, widget};
 use cosmic_ext_config_templates::load_template;
 use dirs::data_local_dir;
 
-use crate::app::core::icons;
 use crate::app::pages::snapshots::config::SnapshotKind;
+use crate::icon_handle;
 use crate::{app::App, fl};
 
 pub mod config;
@@ -56,9 +56,9 @@ impl Snapshots {
                         .into(),
                     widget::row()
                         .push(widget::tooltip(
-                            widget::button::icon(icons::get_handle(
+                            widget::button::icon(icon_handle!(
                                 "arrow-circular-bottom-right-symbolic",
-                                14,
+                                14
                             ))
                             .class(cosmic::style::Button::Standard)
                             .on_press(Message::RestoreSnapshot(snapshot.clone())),
@@ -66,7 +66,7 @@ impl Snapshots {
                             widget::tooltip::Position::Bottom,
                         ))
                         .push(widget::tooltip(
-                            widget::button::icon(icons::get_handle("user-trash-symbolic", 14))
+                            widget::button::icon(icon_handle!("user-trash-symbolic", 14))
                                 .class(cosmic::style::Button::Destructive)
                                 .on_press(Message::DeleteSnapshot(snapshot.clone())),
                             widget::text(fl!("delete-snapshot")),

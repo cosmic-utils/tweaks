@@ -3,12 +3,14 @@ use cosmic::{
     widget::{self},
 };
 
-use crate::app::{App, dialog::DialogPage};
 use crate::app::{message::Message, pages::layouts::dialog::CreateLayoutDialog};
 use crate::app::{page::Page, pages};
+use crate::{
+    app::{App, dialog::DialogPage},
+    icon_handle,
+};
 
 use super::Cosmic;
-use crate::app::core::icons;
 use crate::app::pages::layouts::preview::LayoutPreview;
 use crate::fl;
 
@@ -26,7 +28,7 @@ impl Cosmic {
                     .push(widget::horizontal_space())
                     .push(
                         widget::button::standard(fl!("save-current-layout"))
-                            .trailing_icon(icons::get_handle("arrow-into-box-symbolic", 16))
+                            .trailing_icon(icon_handle!("arrow-into-box-symbolic", 16))
                             .spacing(spacing.space_xs)
                             .on_press(Message::ToggleDialogPage(DialogPage::CreateLayout(
                                 CreateLayoutDialog::new(
@@ -38,7 +40,7 @@ impl Cosmic {
                     )
                     .push_maybe(app.layouts.selected_layout.as_ref().map(|_| {
                         widget::button::standard(fl!("apply-layout"))
-                            .trailing_icon(icons::get_handle("checkmark-symbolic", 16))
+                            .trailing_icon(icon_handle!("checkmark-symbolic", 16))
                             .spacing(spacing.space_xs)
                             .on_press(Message::Layouts(pages::layouts::Message::Apply))
                     }))
@@ -46,7 +48,7 @@ impl Cosmic {
                         if selected.custom {
                             Some(
                                 widget::button::standard(fl!("delete-layout"))
-                                    .trailing_icon(icons::get_handle("recycling-bin-symbolic", 16))
+                                    .trailing_icon(icon_handle!("recycling-bin-symbolic", 16))
                                     .spacing(spacing.space_xs)
                                     .on_press(Message::Layouts(pages::layouts::Message::Delete)),
                             )
@@ -65,7 +67,7 @@ impl Cosmic {
                     .push(widget::horizontal_space())
                     .push(
                         widget::button::standard(fl!("create-snapshot"))
-                            .trailing_icon(icons::get_handle("list-add-symbolic", 16))
+                            .trailing_icon(icon_handle!("list-add-symbolic", 16))
                             .spacing(spacing.space_xs)
                             .on_press(Message::ToggleDialogPage(DialogPage::CreateSnapshot(
                                 String::new(),

@@ -5,8 +5,8 @@ use cosmic::{
 };
 use cosmic_panel_config::{AutoHide, CosmicPanelConfig};
 
-use crate::app::core::icons;
 use crate::fl;
+use crate::icon;
 
 #[derive(Debug)]
 pub struct Dock {
@@ -68,7 +68,7 @@ impl Dock {
                 .add(
                     widget::settings::item::builder(fl!("padding"))
                         .description(fl!("padding-description"))
-                        .icon(icons::get_icon("resize-mode-symbolic", 18))
+                        .icon(icon!("resize-mode-symbolic", 18))
                         .control(
                             widget::row()
                                 .push(widget::slider(0..=28, self.padding, Message::SetPadding))
@@ -79,7 +79,7 @@ impl Dock {
                 .add(
                     widget::settings::item::builder(fl!("margin"))
                         .description(fl!("margin-description"))
-                        .icon(icons::get_icon("object-layout-symbolic", 18))
+                        .icon(icon!("object-layout-symbolic", 18))
                         .control(
                             widget::row()
                                 .push(widget::slider(0..=20, self.margin, Message::SetMargin))
@@ -90,7 +90,7 @@ impl Dock {
                 .add(
                     widget::settings::item::builder(fl!("spacing"))
                         .description(fl!("spacing-description"))
-                        .icon(icons::get_icon("size-horizontally-symbolic", 18))
+                        .icon(icon!("size-horizontally-symbolic", 18))
                         .control(
                             widget::row()
                                 .push(widget::slider(0..=28, self.spacing, Message::SetSpacing))
@@ -104,7 +104,7 @@ impl Dock {
                 .add(
                     widget::settings::item::builder(fl!("wait-time"))
                         .description(fl!("wait-time-description"))
-                        .icon(icons::get_icon("size-vertically-symbolic", 18))
+                        .icon(icon!("size-vertically-symbolic", 18))
                         .control(
                             widget::row()
                                 .push(
@@ -123,7 +123,7 @@ impl Dock {
                 .add(
                     widget::settings::item::builder(fl!("transition-time"))
                         .description(fl!("transition-time-description"))
-                        .icon(icons::get_icon("size-vertically-symbolic", 18))
+                        .icon(icon!("size-vertically-symbolic", 18))
                         .control(
                             widget::row()
                                 .push(
@@ -145,7 +145,7 @@ impl Dock {
                 .add(
                     widget::settings::item::builder(fl!("handle-size"))
                         .description(fl!("handle-size-description"))
-                        .icon(icons::get_icon("size-vertically-symbolic", 18))
+                        .icon(icon!("size-vertically-symbolic", 18))
                         .control(
                             widget::row()
                                 .push(

@@ -567,10 +567,8 @@ fn install_theme(mut theme: ColorScheme, should_override: bool) -> anyhow::Resul
 
     fs::create_dir_all(new_file_path.parent().unwrap())?;
 
-    if !should_override {
-        if fs::exists(&new_file_path).unwrap_or(false) {
-            bail!("the path of the theme {} already exist", theme.name);
-        }
+    if !should_override && fs::exists(&new_file_path).unwrap_or(false) {
+        bail!("the path of the theme {} already exist", theme.name);
     }
     fs::write(&new_file_path, ron::ser::to_string(&theme.theme)?)?;
 

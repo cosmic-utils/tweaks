@@ -3,9 +3,8 @@ use cosmic::{Element, iced::Alignment, widget};
 use crate::app::dialog::DialogPage;
 use crate::app::message::Message;
 
-use crate::app::core::icons;
 use crate::app::pages::layouts::preview::{LayoutPreview, PanelProperties};
-use crate::fl;
+use crate::{fl, icon};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CreateLayoutDialog {
@@ -64,7 +63,7 @@ impl CreateLayoutDialog {
         current_props: &'a PanelProperties,
     ) -> impl Into<Element<'a, Message>> {
         widget::settings::item::builder(fl!("show"))
-            .icon(icons::get_icon("resize-mode-symbolic", 18))
+            .icon(icon!("resize-mode-symbolic", 18))
             .control(
                 widget::toggler(!current_props.hidden).on_toggle(move |hidden| {
                     let mut new_preview = self.preview;
@@ -97,7 +96,7 @@ impl CreateLayoutDialog {
         current_props: &'a PanelProperties,
     ) -> impl Into<Element<'a, Message>> {
         widget::settings::item::builder(fl!("extend"))
-            .icon(icons::get_icon("resize-mode-symbolic", 18))
+            .icon(icon!("resize-mode-symbolic", 18))
             .control(
                 widget::toggler(current_props.extend).on_toggle(move |extend| {
                     let mut new_preview = self.preview;
@@ -135,7 +134,7 @@ impl CreateLayoutDialog {
         let panel_type = panel_type;
 
         widget::settings::item::builder(fl!("position"))
-            .icon(icons::get_icon("resize-mode-symbolic", 18))
+            .icon(icon!("resize-mode-symbolic", 18))
             .control(
                 widget::segmented_button::horizontal(model)
                     .on_activate(move |entity| match panel_type {
@@ -163,7 +162,7 @@ impl CreateLayoutDialog {
         let panel_type = panel_type;
 
         widget::settings::item::builder(fl!("size"))
-            .icon(icons::get_icon("resize-mode-symbolic", 18))
+            .icon(icon!("resize-mode-symbolic", 18))
             .control(widget::spin_button(
                 panel_props.size.to_string(),
                 panel_props.size as f32,
@@ -201,7 +200,7 @@ impl CreateLayoutDialog {
         let error = self.error.clone();
 
         widget::settings::item::builder(fl!("dock-icons"))
-            .icon(icons::get_icon("resize-mode-symbolic", 18))
+            .icon(icon!("resize-mode-symbolic", 18))
             .control(widget::spin_button(
                 preview.dock_icons.to_string(),
                 preview.dock_icons,
