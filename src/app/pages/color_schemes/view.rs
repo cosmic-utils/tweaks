@@ -1,4 +1,3 @@
-use crate::fl;
 use crate::{
     app::{
         core::{
@@ -12,27 +11,35 @@ use crate::{
     },
     icon_handle,
 };
+use crate::{fl, icon};
 use cosmic::{
     Apply, Element,
     iced::{Alignment, Length},
-    widget::{self, button, mouse_area, tooltip},
+    {self},
+};
+use cosmic::{
+    iced::alignment::Vertical,
+    widget::{
+        button, column, container, grid, horizontal_space, mouse_area, responsive, row, scrollable,
+        segmented_button, settings, text, toggler, tooltip,
+    },
 };
 
 impl ColorSchemes {
     pub fn view<'a>(&'a self) -> Element<'a, Message> {
         let spacing = cosmic::theme::spacing();
         let active_tab = self.model.active_data::<Tab>().unwrap();
-        let title = widget::text::title3(fl!("color-schemes"));
-        let tabs = widget::segmented_button::horizontal(&self.model)
+        let title = text::title3(fl!("color-schemes"));
+        let tabs = segmented_button::horizontal(&self.model)
             .padding(spacing.space_xxxs)
             .button_alignment(cosmic::iced::Alignment::Center)
             .on_activate(Message::TabSelected);
         let active_tab = match active_tab {
-            Tab::Installed => widget::settings::section().add(self.installed_themes()),
-            Tab::Available => widget::settings::section().add(self.available_themes()),
+            Tab::Installed => settings::section().add(self.installed_themes()),
+            Tab::Available => settings::section().add(self.available_themes()),
         };
 
-        widget::column()
+        column()
             .push(title)
             .push(tabs)
             .push(active_tab)
@@ -42,9 +49,9 @@ impl ColorSchemes {
 
     fn installed_themes<'a>(&'a self) -> Element<'a, Message> {
         if self.installed.is_empty() {
-            widget::text("No color schemes installed").into()
+            text("No color schemes installed").into()
         } else {
-            widget::responsive(move |size| {
+            responsive(move |size| {
                 let spacing = cosmic::theme::spacing();
 
                 let GridMetrics {
@@ -53,7 +60,7 @@ impl ColorSchemes {
                     column_spacing,
                 } = GridMetrics::custom(&spacing, size.width as usize);
 
-                let mut grid = widget::grid();
+                let mut grid = grid();
                 let mut col = 0;
                 for color_scheme in self.installed.values() {
                     if col >= cols {
@@ -75,7 +82,7 @@ impl ColorSchemes {
                     col += 1;
                 }
 
-                widget::scrollable(
+                scrollable(
                     grid.column_spacing(column_spacing)
                         .row_spacing(column_spacing),
                 )
@@ -91,9 +98,9 @@ impl ColorSchemes {
         match self.status {
             Status::Idle => {
                 if self.available.is_empty() {
-                    widget::text("No color schemes found").into()
+                    text("No color schemes found").into()
                 } else {
-                    widget::responsive(move |size| {
+                    responsive(move |size| {
                         let spacing = cosmic::theme::spacing();
 
                         let GridMetrics {
@@ -102,7 +109,7 @@ impl ColorSchemes {
                             column_spacing,
                         } = GridMetrics::custom(&spacing, size.width as usize);
 
-                        let mut grid = widget::grid();
+                        let mut grid = grid();
                         let mut col = 0;
                         for color_scheme in self.available.iter() {
                             if col >= cols {
@@ -114,7 +121,7 @@ impl ColorSchemes {
                             col += 1;
                         }
 
-                        widget::scrollable(
+                        scrollable(
                             grid.column_spacing(column_spacing)
                                 .row_spacing(column_spacing),
                         )
@@ -125,42 +132,52 @@ impl ColorSchemes {
                     .into()
                 }
             }
-            Status::Loading => widget::text(fl!("loading")).into(),
+            Status::Loading => text(fl!("loading")).into(),
         }
     }
 
     pub fn footer(&self) -> Option<Element<'_, Message>> {
         let spacing = cosmic::theme::spacing();
 
+        let dark_mode = row()
+            .align_y(Vertical::Center)
+            .push(icon!("dark-mode-2-symbolic", 48))
+            .push(horizontal_space().width(10))
+            .push(toggler(self.theme_mode_config.is_dark).on_toggle(Message::ToggleDarkMode));
+
         match self.model.active_data::<Tab>().unwrap() {
             Tab::Installed => Some(
-                widget::row()
-                    .push(widget::horizontal_space())
+                row()
+                    .align_y(Vertical::Center)
+                    .push(dark_mode)
+                    .push(horizontal_space())
                     .push(
-                        widget::button::standard(fl!("save-current-color-scheme"))
+                        button::standard(fl!("save-current-color-scheme"))
                             .trailing_icon(icon_handle!("arrow-into-box-symbolic", 16))
                             .spacing(spacing.space_xs)
                             .on_press(Message::SaveCurrentColorScheme(None)),
                     )
                     .push(
-                        widget::button::standard(fl!("import-color-scheme"))
+                        button::standard(fl!("import-color-scheme"))
                             .trailing_icon(icon_handle!("document-save-symbolic", 16))
                             .spacing(spacing.space_xs)
                             .on_press(Message::StartImport),
                     )
                     .spacing(spacing.space_xxs)
-                    .apply(widget::container)
+                    .apply(container)
                     .class(cosmic::style::Container::Card)
                     .padding(spacing.space_xxs)
                     .into(),
             ),
             Tab::Available => Some(
-                widget::row()
-                    .push(widget::horizontal_space())
+                row()
+                    .align_y(Vertical::Center)
+                    .push(dark_mode)
+                    .push(horizontal_space())
                     .push(match self.status {
-                        Status::Idle => widget::button::standard("refresh")
+                        Status::Idle => button::standard("refresh")
                             .on_press(Message::FetchAvailableColorSchemes),
-                        Status::Loading => widget::button::standard(fl!("loading")),
+                        Status::Loading => button::standard(fl!("loading")),
                     })
                     .push(
                         button::text("Revert old theme").on_press_maybe(
@@ -174,7 +191,7 @@ impl ColorSchemes {
                         ),
                     )
                     .spacing(spacing.space_xxs)
-                    .apply(widget::container)
+                    .apply(container)
                     .class(cosmic::style::Container::Card)
                     .padding(spacing.space_xxs)
                     .into(),
@@ -193,40 +210,40 @@ impl ColorSchemes {
         let color_scheme_name = color_scheme.name.clone();
 
         mouse_area(
-            widget::column()
+            column()
                 .push(
-                    widget::row()
-                        .push(widget::horizontal_space())
-                        .push(widget::text(color_scheme_name))
-                        .push(widget::horizontal_space())
+                    row()
+                        .push(horizontal_space())
+                        .push(text(color_scheme_name))
+                        .push(horizontal_space())
                         .padding(spacing.space_xxs),
                 )
                 .push(
-                    widget::row()
+                    row()
                         .push(
-                            widget::container(widget::text(fl!("navigation")))
+                            container(text(fl!("navigation")))
                                 .padding(spacing.space_xxs)
                                 .width(90.0)
                                 .height(Length::Fill)
                                 .class(crate::app::core::style::card(theme.clone())),
                         )
-                        .push(widget::horizontal_space())
-                        .push(widget::tooltip::tooltip(
+                        .push(horizontal_space())
+                        .push(tooltip::tooltip(
                             icon_handle!("symbolic-link-symbolic", 14)
-                                .apply(widget::button::icon)
+                                .apply(button::icon)
                                 .class(link_button(theme.clone()))
                                 .padding(spacing.space_xxs)
                                 .on_press_maybe(color_scheme.path.clone().map(Message::OpenFolder)),
-                            widget::text(fl!("open-containing-folder")),
+                            text(fl!("open-containing-folder")),
                             tooltip::Position::Bottom,
                         ))
-                        .push(widget::tooltip::tooltip(
+                        .push(tooltip::tooltip(
                             icon_handle!("user-trash-symbolic", 14)
-                                .apply(widget::button::icon)
+                                .apply(button::icon)
                                 .class(destructive_button(theme.clone()))
                                 .padding(spacing.space_xxs)
                                 .on_press(super::Message::DeleteColorScheme(color_scheme.clone())),
-                            widget::text(fl!("delete-color-scheme")),
+                            text(fl!("delete-color-scheme")),
                             tooltip::Position::Bottom,
                         ))
                         .align_y(Alignment::End)
@@ -235,10 +252,10 @@ impl ColorSchemes {
                 )
                 .width(item_width as f32)
                 .height(160.)
-                .apply(widget::container)
+                .apply(container)
                 .class(crate::app::core::style::background(&theme)),
         )
-        .on_press(super::Message::SetColorScheme(color_scheme.clone()))
+        .on_press(Message::SetColorScheme(color_scheme.clone()))
         .into()
     }
 
@@ -251,42 +268,42 @@ impl ColorSchemes {
         let theme = color_scheme.theme.clone().build();
 
         mouse_area(
-            widget::column()
+            column()
                 .push(
-                    widget::column()
-                        .push(widget::text(&color_scheme.name))
+                    column()
+                        .push(text(&color_scheme.name))
                         .push_maybe(
                             color_scheme
                                 .author
                                 .as_ref()
-                                .map(|author| widget::text::caption(format!("By {}", author))),
+                                .map(|author| text::caption(format!("By {}", author))),
                         )
                         .width(Length::Fill)
                         .align_x(Alignment::Center)
                         .padding([spacing.space_xxs, spacing.space_none]),
                 )
                 .push(
-                    widget::row()
+                    row()
                         .push(
-                            widget::container(widget::text(fl!("navigation")))
+                            container(text(fl!("navigation")))
                                 .padding(spacing.space_xxs)
                                 .width(90.0)
                                 .height(Length::Fill)
                                 .class(crate::app::core::style::card(theme.clone())),
                         )
-                        .push(widget::horizontal_space())
-                        .push(widget::tooltip::tooltip(
+                        .push(horizontal_space())
+                        .push(tooltip(
                             icon_handle!("symbolic-link-symbolic", 14)
-                                .apply(widget::button::icon)
+                                .apply(button::icon)
                                 .class(link_button(theme.clone()))
                                 .padding(spacing.space_xxs)
                                 .on_press_maybe(color_scheme.link.clone().map(Message::OpenLink)),
-                            widget::text(fl!("open-link")),
-                            cosmic::widget::tooltip::Position::Bottom,
+                            text(fl!("open-link")),
+                            tooltip::Position::Bottom,
                         ))
-                        .push(widget::tooltip::tooltip(
+                        .push(tooltip(
                             icon_handle!("folder-download-symbolic", 14)
-                                .apply(widget::button::icon)
+                                .apply(button::icon)
                                 .class(standard_button(theme.clone()))
                                 .padding(spacing.space_xxs)
                                 .on_press_maybe(
@@ -294,8 +311,8 @@ impl ColorSchemes {
                                         Message::InstallColorScheme(color_scheme.clone()),
                                     ),
                                 ),
-                            widget::text(fl!("install-color-scheme")),
-                            cosmic::widget::tooltip::Position::Bottom,
+                            text(fl!("install-color-scheme")),
+                            tooltip::Position::Bottom,
                         ))
                         .align_y(Alignment::End)
                         .spacing(spacing.space_xxs)
@@ -303,12 +320,10 @@ impl ColorSchemes {
                 )
                 .width(item_width as f32)
                 .height(160.)
-                .apply(widget::container)
+                .apply(container)
                 .class(crate::app::core::style::background(&theme)),
         )
-        .on_press(super::Message::SetColorSchemeWithRollBack(
-            color_scheme.clone(),
-        ))
+        .on_press(Message::SetColorSchemeWithRollBack(color_scheme.clone()))
         .into()
     }
 }

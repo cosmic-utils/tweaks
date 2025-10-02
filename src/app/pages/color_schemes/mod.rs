@@ -26,6 +26,7 @@ pub struct ColorSchemes {
     model: segmented_button::Model<SingleSelect>,
     status: Status,
     saved_color_theme: Option<ColorScheme>,
+    theme_mode_config: ThemeMode,
 }
 
 impl ColorSchemes {
@@ -74,6 +75,10 @@ impl ColorSchemes {
             } else {
                 Status::Idle
             },
+            theme_mode_config: {
+                let theme_mode_config = ThemeMode::config().unwrap();
+                ThemeMode::get_entry(&theme_mode_config).unwrap()
+            },
         };
 
         let mut tasks = vec![];
@@ -121,6 +126,7 @@ pub enum Message {
     OpenFolder(PathBuf),
     OpenLink(String),
     TabSelected(segmented_button::Entity),
+    ToggleDarkMode(bool),
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -180,7 +186,6 @@ impl ColorSchemes {
                     error!("can't import file: {e}");
                 }
             },
-
             Message::SetColorScheme(color_scheme) => {
                 if let Err(e) = apply_theme(color_scheme.theme.clone()) {
                     error!("can't apply theme: {e}");
@@ -200,7 +205,6 @@ impl ColorSchemes {
                         .set_current_config(&self.config_writer, Some(color_scheme));
                 }
             }
-
             Message::RevertOldTheme => {
                 if let Some(old_theme) = &self.saved_color_theme {
                     if let Err(e) = apply_theme(old_theme.theme.clone()) {
@@ -283,6 +287,10 @@ impl ColorSchemes {
                         error!("can't get current theme: {e}");
                     }
                 }
+            }
+            Message::ToggleDarkMode(dark) => {
+                let theme_mode_config = ThemeMode::config().unwrap();
+                let _ = self.theme_mode_config.set_is_dark(&theme_mode_config, dark);
             }
         }
         Task::batch(tasks)
