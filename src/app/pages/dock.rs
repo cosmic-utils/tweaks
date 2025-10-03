@@ -15,6 +15,7 @@ pub struct Dock {
     pub padding: u32,
     pub margin: u16,
     pub spacing: u32,
+    pub border_radius: u32,
     autohide: AutoHide,
 }
 
@@ -34,6 +35,10 @@ impl Default for Dock {
             .clone()
             .map(|config| config.spacing)
             .unwrap_or(0);
+        let border_radius = dock_config
+            .clone()
+            .map(|config| config.border_radius)
+            .unwrap_or(0);
         let autohide = dock_config
             .clone()
             .map(|config| config.autohide.unwrap_or(AutoHide::default()))
@@ -44,6 +49,7 @@ impl Default for Dock {
             padding,
             margin,
             spacing,
+            border_radius,
             autohide,
         }
     }
@@ -54,6 +60,7 @@ pub enum Message {
     SetPadding(u32),
     SetMargin(u16),
     SetSpacing(u32),
+    SetBorder(u32),
     SetWaitTime(u32),
     SetTransitionTime(u32),
     SetHandleSize(u32),
@@ -95,6 +102,17 @@ impl Dock {
                             widget::row()
                                 .push(widget::slider(0..=28, self.spacing, Message::SetSpacing))
                                 .push(widget::text::text(format!("{} px", self.spacing)))
+                                .spacing(spacing.space_xxs),
+                        ),
+                )
+                .add(
+                    widget::settings::item::builder(fl!("border-radius"))
+                        .description(fl!("border-radius-description"))
+                        .icon(icons::get_icon("size-horizontally-symbolic", 18))
+                        .control(
+                            widget::row()
+                                .push(widget::slider(0..=28, self.border_radius, Message::SetBorder))
+                                .push(widget::text::text(format!("{} px", self.border_radius)))
                                 .spacing(spacing.space_xxs),
                         ),
                 )
@@ -194,6 +212,13 @@ impl Dock {
                 let update = dock_config.set_spacing(dock_helper, self.spacing);
                 if let Err(err) = update {
                     log::error!("Error updating dock spacing: {}", err);
+                }
+            }
+            Message::SetBorder(border_radius) => {
+                self.border_radius = border_radius;
+                let update = dock_config.set_border_radius(dock_helper, self.border_radius);
+                if let Err(err) = update {
+                    log::error!("Error updating panel border: {}", err);
                 }
             }
             Message::SetWaitTime(wait_time) => {
