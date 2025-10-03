@@ -21,7 +21,18 @@ open-link = Öppna länk
 installed = Installerat
 available = Tillgängligt
 loading = Laddar...
+refresh = Refresh
 show-more = Visa mer
+no-color-schemes-installed = No color schemes installed
+no-color-schemes-found = No color schemes found
+by = By {$author}
+revert-old-color-scheme = Revert old color scheme
+
+a-z = A-Z
+most-downloaded = Most downloaded
+last-modified = Last modified
+author = Author
+search = Search
 
 show-panel = Visa panel
 force-icon-buttons-in-panel = Forcera ikonknappar i panelen
@@ -59,6 +70,7 @@ user = Användare
 
 ## Ögonblicksavbilder
 application-opened = Program öppnat
+restore-info = Each time you open Tweaks, we save the current state of your desktop, if you ever break it, simply restore it
 
 ## Om
 about = Om

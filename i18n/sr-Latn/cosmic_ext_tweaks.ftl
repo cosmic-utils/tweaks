@@ -21,7 +21,19 @@ open-link = Otvori link
 installed = Instalirano
 available = Dostupno
 loading = Učitavanje...
+refresh = Refresh
 show-more = Prikaži još
+no-color-schemes-installed = No color schemes installed
+no-color-schemes-found = No color schemes found
+by = By {$author}
+revert-old-color-scheme = Revert old color scheme
+
+a-z = A-Z
+most-downloaded = Most downloaded
+last-modified = Last modified
+author = Author
+search = Search
+
 about = O programu
 find-themes = Pronađi teme
 

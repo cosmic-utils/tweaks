@@ -22,7 +22,18 @@ open-link = Abrir link
 installed = Instalado
 available = Disponível
 loading = Carregando...
+refresh = Refresh
 show-more = Mostrar mais
+no-color-schemes-installed = No color schemes installed
+no-color-schemes-found = No color schemes found
+by = By {$author}
+revert-old-color-scheme = Revert old color scheme
+
+a-z = A-Z
+most-downloaded = Most downloaded
+last-modified = Last modified
+author = Author
+search = Search
 
 show-panel = Mostrar painel
 force-icon-buttons-in-panel = Forçar botões com ícones no painel
@@ -60,6 +71,7 @@ user = Usuário
 
 ## Snapshots
 application-opened = Aplicativo aberto
+restore-info = Each time you open Tweaks, we save the current state of your desktop, if you ever break it, simply restore it
 
 ## About
 about = Sobre

@@ -22,7 +22,18 @@ open-link = Deschide link
 installed = Instalate
 available = Disponibile
 loading = Se încarcă...
+refresh = Refresh
 show-more = Afișează mai mult
+no-color-schemes-installed = No color schemes installed
+no-color-schemes-found = No color schemes found
+by = By {$author}
+revert-old-color-scheme = Revert old color scheme
+
+a-z = A-Z
+most-downloaded = Most downloaded
+last-modified = Last modified
+author = Author
+search = Search
 
 show-panel = Afișează panoul
 force-icon-buttons-in-panel = Forțează butoane cu pictogramă în panou
@@ -60,6 +71,7 @@ user = Utilizator
 
 ## Snapshots
 application-opened = Aplicație deschisă
+restore-info = Each time you open Tweaks, we save the current state of your desktop, if you ever break it, simply restore it
 
 ## About
 about = Despre

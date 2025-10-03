@@ -119,7 +119,7 @@ impl Snapshots {
                         .push(widget::horizontal_space())
                         .spacing(spacing.space_xxs),
                 )
-                .push(widget::text::body("Each time you open Tweaks, we save the current state of your desktop, if you ever break it, simply restore it."))
+                .push(widget::text::body(fl!("restore-info")))
                 .push_maybe(header)
                 .push(snapshots)
                 .spacing(spacing.space_xs),

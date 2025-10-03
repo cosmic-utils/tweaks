@@ -21,7 +21,18 @@ open-link = リンクを開く
 installed = インストール済み
 available = Available
 loading = 読み込み中…
+refresh = Refresh
 show-more = さらに表示
+no-color-schemes-installed = No color schemes installed
+no-color-schemes-found = No color schemes found
+by = By {$author}
+revert-old-color-scheme = Revert old color scheme
+
+a-z = A-Z
+most-downloaded = Most downloaded
+last-modified = Last modified
+author = Author
+search = Search
 
 show-panel = パネルを表示
 force-icon-buttons-in-panel = 常にパネルでボタンを表示
@@ -59,6 +70,7 @@ user = ユーザー
 
 ## Snapshots
 application-opened = アプリケーションを開きました
+restore-info = Each time you open Tweaks, we save the current state of your desktop, if you ever break it, simply restore it
 
 ## About
 about = Tweaks for COSMICについて

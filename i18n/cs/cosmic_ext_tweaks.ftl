@@ -47,7 +47,18 @@ open-link = Otevřít odkaz
 installed = Nainstalované
 available = Dostupné
 loading = Načítání...
+refresh = Refresh
 show-more = Zobrazit více
+no-color-schemes-installed = No color schemes installed
+no-color-schemes-found = No color schemes found
+by = By {$author}
+revert-old-color-scheme = Revert old color scheme
+
+a-z = A-Z
+most-downloaded = Most downloaded
+last-modified = Last modified
+author = Author
+search = Search
 
 ## Panel
 show-panel = Zobrazit panel
@@ -96,6 +107,7 @@ user = Uživatel
 
 ## Snapshots
 application-opened = Aplikace otevřena
+restore-info = Each time you open Tweaks, we save the current state of your desktop, if you ever break it, simply restore it
 
 ## About
 about = O aplikaci

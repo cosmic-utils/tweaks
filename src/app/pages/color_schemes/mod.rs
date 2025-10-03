@@ -38,10 +38,10 @@ pub enum SortBy {
 impl Display for SortBy {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            SortBy::Az => write!(f, "A-Z"),
-            SortBy::MostDownloaded => write!(f, "Most downloaded"),
-            SortBy::LastModified => write!(f, "Last modified"),
-            SortBy::Author => write!(f, "Author"),
+            SortBy::Az => write!(f, "{}", fl!("a-z")),
+            SortBy::MostDownloaded => write!(f, "{}", fl!("most-downloaded")),
+            SortBy::LastModified => write!(f, "{}", fl!("last-modified")),
+            SortBy::Author => write!(f, "{}", fl!("author")),
         }
     }
 }
@@ -102,8 +102,8 @@ impl ColorSchemes {
             config,
             config_writer: ColorSchemesPageConfig::config(),
             model: segmented_button::Model::builder()
-                .insert(|b| b.text("Installed").data(Tab::Installed).activate())
-                .insert(|b| b.text("Available").data(Tab::Available))
+                .insert(|b| b.text(fl!("installed")).data(Tab::Installed).activate())
+                .insert(|b| b.text(fl!("available")).data(Tab::Available))
                 .build(),
             status: if need_fetching {
                 Status::Loading

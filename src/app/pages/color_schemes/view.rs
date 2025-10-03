@@ -31,7 +31,7 @@ impl ColorSchemes {
         let mut v = vec![];
 
         v.push(
-            search_input("Search", &self.query)
+            search_input(fl!("search"), &self.query)
                 .on_input(Message::Query)
                 .width(200)
                 .into(),
@@ -75,7 +75,7 @@ impl ColorSchemes {
 
     fn installed_themes<'a>(&'a self) -> Element<'a, Message> {
         if self.installed.is_empty() {
-            text("No color schemes installed").into()
+            text(fl!("no-color-schemes-installed")).into()
         } else {
             responsive(move |size| {
                 let spacing = cosmic::theme::spacing();
@@ -124,7 +124,7 @@ impl ColorSchemes {
         match self.status {
             Status::Idle => {
                 if self.available.is_empty() {
-                    text("No color schemes found").into()
+                    text(fl!("no-color-schemes-found")).into()
                 } else {
                     responsive(move |size| {
                         let spacing = cosmic::theme::spacing();
@@ -212,12 +212,12 @@ impl ColorSchemes {
                     .push(dark_mode)
                     .push(horizontal_space())
                     .push(match self.status {
-                        Status::Idle => button::standard("refresh")
+                        Status::Idle => button::standard(fl!("refresh"))
                             .on_press(Message::FetchAvailableColorSchemes),
                         Status::Loading => button::standard(fl!("loading")),
                     })
                     .push(
-                        button::text("Revert old theme").on_press_maybe(
+                        button::text(fl!("revert-old-color-scheme")).on_press_maybe(
                             match (&self.saved_color_theme, &self.config.current_config) {
                                 (None, None) => false,
                                 (None, Some(_)) => false,
@@ -314,7 +314,7 @@ impl ColorSchemes {
                             color_scheme
                                 .author
                                 .as_ref()
-                                .map(|author| text::caption(format!("By {}", author))),
+                                .map(|author| text::caption(fl!("by", author = author))),
                         )
                         .width(Length::Fill)
                         .align_x(Alignment::Center)
