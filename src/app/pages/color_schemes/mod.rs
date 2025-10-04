@@ -280,7 +280,7 @@ impl ColorSchemes {
             Message::ImportFilePickerResult(f) => match import_file(f) {
                 Ok(theme) => {
                     self.installed.insert(theme.name.clone(), theme.clone());
-                    if let Err(e) = apply_theme(theme.theme_builder.clone()) {
+                    if let Err(e) = apply_theme(&theme.theme) {
                         error!("can't apply theme: {e}");
                     } else {
                         let _ = self
@@ -294,7 +294,7 @@ impl ColorSchemes {
                 }
             },
             Message::SetColorScheme(color_scheme) => {
-                if let Err(e) = apply_theme(color_scheme.theme_builder.clone()) {
+                if let Err(e) = apply_theme(&color_scheme.theme) {
                     error!("can't apply theme: {e}");
                 } else {
                     let _ = self
@@ -304,7 +304,7 @@ impl ColorSchemes {
                 }
             }
             Message::SetColorSchemeWithRollBack(color_scheme) => {
-                if let Err(e) = apply_theme(color_scheme.theme_builder.clone()) {
+                if let Err(e) = apply_theme(&color_scheme.theme) {
                     error!("can't apply theme: {e}");
                 } else {
                     let _ = self
@@ -314,7 +314,7 @@ impl ColorSchemes {
             }
             Message::RevertOldTheme => {
                 if let Some(old_theme) = &self.saved_color_theme {
-                    if let Err(e) = apply_theme(old_theme.theme_builder.clone()) {
+                    if let Err(e) = apply_theme(&old_theme.theme) {
                         error!("can't apply theme: {e}");
                     }
 
@@ -547,7 +547,7 @@ pub fn get_themes_from_cache() -> anyhow::Result<Vec<ColorScheme>> {
     Ok(value)
 }
 
-pub fn apply_theme(theme: ThemeBuilder) -> anyhow::Result<()> {
+pub fn apply_theme(theme: &Theme) -> anyhow::Result<()> {
     let theme_mode_config = ThemeMode::config()?;
 
     let theme_mode = ThemeMode::get_entry(&theme_mode_config).unwrap();
@@ -558,7 +558,7 @@ pub fn apply_theme(theme: ThemeBuilder) -> anyhow::Result<()> {
         Theme::light_config()?
     };
 
-    theme.build().write_entry(&theme_config)?;
+    theme.write_entry(&theme_config)?;
 
     Ok(())
 }
