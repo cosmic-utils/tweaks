@@ -108,7 +108,7 @@ impl Dock {
                 .add(
                     widget::settings::item::builder(fl!("border-radius"))
                         .description(fl!("border-radius-description"))
-                        .icon(icons::get_icon("size-horizontally-symbolic", 18))
+                        .icon(icon!("size-horizontally-symbolic", 18))
                         .control(
                             widget::row()
                                 .push(widget::slider(
