@@ -47,18 +47,18 @@ open-link = Otwórz link
 installed = Zainstalowany
 available = Dostępny
 loading = Ładowanie…
-refresh = Refresh
+refresh = Odśwież
 show-more = Pokaż więcej
-no-color-schemes-installed = No color schemes installed
-no-color-schemes-found = No color schemes found
-by = By {$author}
-revert-old-color-scheme = Revert old color scheme
+no-color-schemes-installed = Brak zainstalowanych schematów kolorów
+no-color-schemes-found = Nie znaleziono schematów kolorów
+by = Od {$author}
+revert-old-color-scheme = Przywróć stary schemat kolorów
 
 a-z = A-Z
-most-downloaded = Most downloaded
-last-modified = Last modified
-author = Author
-search = Search
+most-downloaded = Najczęściej pobierany
+last-modified = Ostatnio zmieniony
+author = Autor
+search = Wyszukaj
 
 ## Panel
 show-panel = Pokaż panel
@@ -107,7 +107,7 @@ user = Użytkownik
 
 ## Snapshots
 application-opened = Aplikacja otwarta
-restore-info = Each time you open Tweaks, we save the current state of your desktop, if you ever break it, simply restore it
+restore-info = Za każdym razem gdy otworzysz Podkręcanie zapisujemy obecny stan twojego środowiska, jeśli kiedykolwiek się zepsuje, po prostu ten stan przywróć
 
 ## About
 about = O programie
