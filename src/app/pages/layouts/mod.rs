@@ -72,6 +72,7 @@ impl Layouts {
                 include_str!("../../../../res/layouts/windows.ron"),
             ),
             ("ubuntu", include_str!("../../../../res/layouts/ubuntu.ron")),
+            ("gnome-2", include_str!("../../../../res/layouts/gnome-2.ron")),
         ];
 
         for (name, content) in layouts {
