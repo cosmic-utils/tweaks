@@ -111,7 +111,11 @@ impl Dock {
                         .icon(icons::get_icon("size-horizontally-symbolic", 18))
                         .control(
                             widget::row()
-                                .push(widget::slider(0..=28, self.border_radius, Message::SetBorder))
+                                .push(widget::slider(
+                                    0..=160,
+                                    self.border_radius,
+                                    Message::SetBorder,
+                                ))
                                 .push(widget::text::text(format!("{} px", self.border_radius)))
                                 .spacing(spacing.space_xxs),
                         ),
