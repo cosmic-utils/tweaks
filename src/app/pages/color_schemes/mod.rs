@@ -412,7 +412,7 @@ pub struct ColorScheme {
     pub theme_builder: ThemeBuilder,
     // xxx: should we not serialize theme ?
     // building it is costly, but this struct my change over time
-    pub theme: Theme,
+    pub theme: Arc<Theme>,
     pub author: Option<String>,
     pub link: Option<String>,
     pub downloads: Option<u64>,
@@ -426,7 +426,7 @@ impl ColorScheme {
     pub fn new(name: String, theme: ThemeBuilder) -> Self {
         Self {
             name,
-            theme: theme.clone().build(),
+            theme: Arc::new(theme.clone().build()),
             theme_builder: theme,
             author: None,
             link: None,
@@ -484,7 +484,7 @@ pub async fn download_themes() -> anyhow::Result<Vec<ColorScheme>> {
 
             Ok(Self {
                 name: value.name,
-                theme: theme_builder.clone().build(),
+                theme: Arc::new(theme_builder.clone().build()),
                 theme_builder,
                 author: value.author.filter(|a| !a.is_empty()),
                 link: value.link.filter(|l| !l.is_empty()),

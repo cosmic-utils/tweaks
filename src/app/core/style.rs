@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use cosmic::{
     cosmic_theme::{Component, Theme},
     iced::{Background, Border, Color},
@@ -53,11 +55,11 @@ pub fn panel_style(theme: &cosmic::Theme) -> widget::container::Style {
     }
 }
 
-pub fn standard_button(theme: &Theme) -> Button {
+pub fn standard_button(theme: Arc<Theme>) -> Button {
     let theme_active = theme.clone();
     let theme_disabled = theme.clone();
     let theme_hovered = theme.clone();
-    let theme_pressed = theme.clone();
+    let theme_pressed = theme;
 
     Button::Custom {
         active: Box::new(move |_, _| {
@@ -122,11 +124,11 @@ pub fn standard_button(theme: &Theme) -> Button {
     }
 }
 
-pub fn destructive_button(theme: &Theme) -> Button {
+pub fn destructive_button(theme: Arc<Theme>) -> Button {
     let theme_active = theme.clone();
     let theme_disabled = theme.clone();
     let theme_hovered = theme.clone();
-    let theme_pressed = theme.clone();
+    let theme_pressed = theme;
 
     Button::Custom {
         active: Box::new(move |_, _| {
@@ -191,11 +193,11 @@ pub fn destructive_button(theme: &Theme) -> Button {
     }
 }
 
-pub fn link_button(theme: &Theme) -> Button {
+pub fn link_button(theme: Arc<Theme>) -> Button {
     let theme_active = theme.clone();
     let theme_disabled = theme.clone();
     let theme_hovered = theme.clone();
-    let theme_pressed = theme.clone();
+    let theme_pressed = theme;
 
     Button::Custom {
         active: Box::new(move |_, _| {
