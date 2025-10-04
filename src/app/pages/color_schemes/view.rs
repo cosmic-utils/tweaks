@@ -267,7 +267,7 @@ impl ColorSchemes {
                         .push(tooltip::tooltip(
                             icon_handle!("symbolic-link-symbolic", 14)
                                 .apply(button::icon)
-                                .class(link_button(theme))
+                                .class(link_button(theme.clone()))
                                 .padding(spacing.space_xxs)
                                 .on_press_maybe(color_scheme.path.clone().map(Message::OpenFolder)),
                             text(fl!("open-containing-folder")),
@@ -276,7 +276,7 @@ impl ColorSchemes {
                         .push(tooltip::tooltip(
                             icon_handle!("user-trash-symbolic", 14)
                                 .apply(button::icon)
-                                .class(destructive_button(theme))
+                                .class(destructive_button(theme.clone()))
                                 .padding(spacing.space_xxs)
                                 .on_press(super::Message::DeleteColorScheme(color_scheme.clone())),
                             text(fl!("delete-color-scheme")),
@@ -332,7 +332,7 @@ impl ColorSchemes {
                         .push(tooltip(
                             icon_handle!("symbolic-link-symbolic", 14)
                                 .apply(button::icon)
-                                .class(link_button(theme))
+                                .class(link_button(theme.clone()))
                                 .padding(spacing.space_xxs)
                                 .on_press_maybe(color_scheme.link.clone().map(Message::OpenLink)),
                             text(fl!("open-link")),
@@ -341,7 +341,7 @@ impl ColorSchemes {
                         .push(tooltip(
                             icon_handle!("folder-download-symbolic", 14)
                                 .apply(button::icon)
-                                .class(standard_button(theme))
+                                .class(standard_button(theme.clone()))
                                 .padding(spacing.space_xxs)
                                 .on_press_maybe(
                                     (!self.installed.contains_key(&color_scheme.name)).then_some(

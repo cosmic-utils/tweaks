@@ -47,7 +47,7 @@ git = "https://github.com/pop-os/cosmic-settings-daemon"
 
 [dependencies.serde]
 version = "1"
-features = ["derive"]
+features = ["derive", "rc"]
 
 [dependencies.tokio]
 version = "1"
