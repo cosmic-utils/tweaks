@@ -129,7 +129,7 @@ light = Světlé
 view = Zobrazení
 
 
-## Shortcuts
+## Shortcuts
 
 warning = Varování: Toto přepíše některé vaše existující zkratky
 windows-desc = Super+Šipky pro přesun oken. Ctrl+Alt+Šipky pro přepnutí pracovních ploch.

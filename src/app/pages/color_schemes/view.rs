@@ -6,7 +6,7 @@ use crate::{
         },
         pages::{
             ColorSchemes,
-            color_schemes::{ColorScheme, Message, SortBy, Status, Tab},
+            color_schemes::{ColorScheme, ColorSchemeKey, Message, SortBy, Status, Tab},
         },
     },
     icon_handle,
@@ -88,13 +88,14 @@ impl ColorSchemes {
 
                 let mut grid = grid();
                 let mut col = 0;
-                for color_scheme in self.values() {
+                for (key, color_scheme) in self.values() {
                     if col >= cols {
                         grid = grid.insert_row();
                         col = 0;
                     }
                     grid = grid.push(
                         self.installed(
+                            key,
                             color_scheme,
                             self.config
                                 .current_config
@@ -137,7 +138,7 @@ impl ColorSchemes {
 
                         let mut grid = grid();
                         let mut col = 0;
-                        for color_scheme in self.values() {
+                        for (key, color_scheme) in self.values() {
                             if col >= cols {
                                 grid = grid.insert_row();
                                 col = 0;
@@ -145,6 +146,7 @@ impl ColorSchemes {
 
                             grid = grid.push(
                                 self.available(
+                                    key,
                                     color_scheme,
                                     self.config
                                         .current_config
@@ -238,20 +240,20 @@ impl ColorSchemes {
 
     fn installed<'a>(
         &self,
-        color_scheme: &ColorScheme,
+        key: ColorSchemeKey,
+        color_scheme: &'a ColorScheme,
         _selected: bool,
         spacing: &cosmic::cosmic_theme::Spacing,
         item_width: usize,
     ) -> Element<'a, super::Message> {
-        let theme = color_scheme.theme.clone().build();
-        let color_scheme_name = color_scheme.name.clone();
+        let theme = &color_scheme.theme;
 
         mouse_area(
             column()
                 .push(
                     row()
                         .push(horizontal_space())
-                        .push(text(color_scheme_name))
+                        .push(text(&color_scheme.name))
                         .push(horizontal_space())
                         .padding(spacing.space_xxs),
                 )
@@ -262,7 +264,7 @@ impl ColorSchemes {
                                 .padding(spacing.space_xxs)
                                 .width(90.0)
                                 .height(Length::Fill)
-                                .class(crate::app::core::style::card(theme.clone())),
+                                .class(crate::app::core::style::card(theme)),
                         )
                         .push(horizontal_space())
                         .push(tooltip::tooltip(
@@ -279,7 +281,7 @@ impl ColorSchemes {
                                 .apply(button::icon)
                                 .class(destructive_button(theme.clone()))
                                 .padding(spacing.space_xxs)
-                                .on_press(super::Message::DeleteColorScheme(color_scheme.clone())),
+                                .on_press(super::Message::DeleteColorScheme(key.clone())),
                             text(fl!("delete-color-scheme")),
                             tooltip::Position::Bottom,
                         ))
@@ -290,20 +292,21 @@ impl ColorSchemes {
                 .width(item_width as f32)
                 .height(160.)
                 .apply(container)
-                .class(crate::app::core::style::background(&theme)),
+                .class(crate::app::core::style::background(theme)),
         )
-        .on_press(Message::SetColorScheme(color_scheme.clone()))
+        .on_press(Message::SetColorScheme(key))
         .into()
     }
 
     fn available<'a>(
         &self,
+        key: ColorSchemeKey,
         color_scheme: &'a ColorScheme,
         _selected: bool,
         spacing: &cosmic::cosmic_theme::Spacing,
         item_width: usize,
     ) -> Element<'a, Message> {
-        let theme = color_scheme.theme.clone().build();
+        let theme = &color_scheme.theme;
 
         mouse_area(
             column()
@@ -327,7 +330,7 @@ impl ColorSchemes {
                                 .padding(spacing.space_xxs)
                                 .width(90.0)
                                 .height(Length::Fill)
-                                .class(crate::app::core::style::card(theme.clone())),
+                                .class(crate::app::core::style::card(theme)),
                         )
                         .push(horizontal_space())
                         .push(tooltip(
@@ -345,9 +348,8 @@ impl ColorSchemes {
                                 .class(standard_button(theme.clone()))
                                 .padding(spacing.space_xxs)
                                 .on_press_maybe(
-                                    (!self.installed.contains_key(&color_scheme.name)).then_some(
-                                        Message::InstallColorScheme(color_scheme.clone()),
-                                    ),
+                                    (!self.installed.contains_key(&color_scheme.name))
+                                        .then_some(Message::InstallColorScheme(key.clone())),
                                 ),
                             text(fl!("install-color-scheme")),
                             tooltip::Position::Bottom,
@@ -359,9 +361,9 @@ impl ColorSchemes {
                 .width(item_width as f32)
                 .height(160.)
                 .apply(container)
-                .class(crate::app::core::style::background(&theme)),
+                .class(crate::app::core::style::background(theme)),
         )
-        .on_press(Message::SetColorSchemeWithRollBack(color_scheme.clone()))
+        .on_press(Message::SetColorSchemeWithRollBack(key))
         .into()
     }
 }
