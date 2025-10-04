@@ -280,7 +280,7 @@ impl ColorSchemes {
             Message::ImportFilePickerResult(f) => match import_file(f) {
                 Ok(theme) => {
                     self.installed.insert(theme.name.clone(), theme.clone());
-                    if let Err(e) = apply_theme(theme.theme.clone()) {
+                    if let Err(e) = apply_theme(theme.theme_builder.clone()) {
                         error!("can't apply theme: {e}");
                     } else {
                         let _ = self
@@ -294,7 +294,7 @@ impl ColorSchemes {
                 }
             },
             Message::SetColorScheme(color_scheme) => {
-                if let Err(e) = apply_theme(color_scheme.theme.clone()) {
+                if let Err(e) = apply_theme(color_scheme.theme_builder.clone()) {
                     error!("can't apply theme: {e}");
                 } else {
                     let _ = self
@@ -304,7 +304,7 @@ impl ColorSchemes {
                 }
             }
             Message::SetColorSchemeWithRollBack(color_scheme) => {
-                if let Err(e) = apply_theme(color_scheme.theme.clone()) {
+                if let Err(e) = apply_theme(color_scheme.theme_builder.clone()) {
                     error!("can't apply theme: {e}");
                 } else {
                     let _ = self
@@ -314,7 +314,7 @@ impl ColorSchemes {
             }
             Message::RevertOldTheme => {
                 if let Some(old_theme) = &self.saved_color_theme {
-                    if let Err(e) = apply_theme(old_theme.theme.clone()) {
+                    if let Err(e) = apply_theme(old_theme.theme_builder.clone()) {
                         error!("can't apply theme: {e}");
                     }
 
@@ -409,7 +409,10 @@ impl ColorSchemes {
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct ColorScheme {
     pub name: String,
-    pub theme: ThemeBuilder,
+    pub theme_builder: ThemeBuilder,
+    // xxx: should we not serialize theme ?
+    // building it is costly, but this struct my change over time
+    pub theme: Theme,
     pub author: Option<String>,
     pub link: Option<String>,
     pub downloads: Option<u64>,
@@ -423,7 +426,8 @@ impl ColorScheme {
     pub fn new(name: String, theme: ThemeBuilder) -> Self {
         Self {
             name,
-            theme,
+            theme: theme.clone().build(),
+            theme_builder: theme,
             author: None,
             link: None,
             downloads: None,
@@ -462,7 +466,7 @@ impl ColorSchemesPageConfig {
 
 pub async fn download_themes() -> anyhow::Result<Vec<ColorScheme>> {
     #[derive(Deserialize)]
-    struct CosmicThemeHelper {
+    struct ColorSchemesHelper {
         pub name: String,
         pub ron: String,
         pub author: Option<String>,
@@ -472,13 +476,16 @@ pub async fn download_themes() -> anyhow::Result<Vec<ColorScheme>> {
         pub updated: String,
     }
 
-    impl TryFrom<CosmicThemeHelper> for ColorScheme {
+    impl TryFrom<ColorSchemesHelper> for ColorScheme {
         type Error = anyhow::Error;
 
-        fn try_from(value: CosmicThemeHelper) -> Result<Self, Self::Error> {
+        fn try_from(value: ColorSchemesHelper) -> Result<Self, Self::Error> {
+            let theme_builder: ThemeBuilder = ron::from_str(&value.ron)?;
+
             Ok(Self {
                 name: value.name,
-                theme: ron::from_str(&value.ron)?,
+                theme: theme_builder.clone().build(),
+                theme_builder,
                 author: value.author.filter(|a| !a.is_empty()),
                 link: value.link.filter(|l| !l.is_empty()),
                 downloads: Some(value.downloads),
@@ -496,7 +503,7 @@ pub async fn download_themes() -> anyhow::Result<Vec<ColorScheme>> {
 
     let url = "https://cosmic-themes.org/api/themes/?limit=50000";
     let response = reqwest::get(url).await?;
-    let themes: Vec<CosmicThemeHelper> = response.json().await?;
+    let themes: Vec<ColorSchemesHelper> = response.json().await?;
 
     let themes = themes
         .into_iter()
@@ -507,7 +514,9 @@ pub async fn download_themes() -> anyhow::Result<Vec<ColorScheme>> {
 }
 
 fn cache_themes_file_path() -> PathBuf {
-    dirs::cache_dir().unwrap().join("tweaks/themes.bin")
+    dirs::cache_dir()
+        .unwrap()
+        .join("tweaks/available_themes.json")
 }
 
 pub fn is_cache_exist() -> bool {
@@ -622,17 +631,12 @@ fn installed_system_themes() -> anyhow::Result<Vec<ColorScheme>> {
                 .and_then(|name| name.to_str())
                 .map(|name| name.to_string())
                 .unwrap_or_default();
-            let color_scheme = ColorScheme {
-                name,
-                path: Some(path),
-                link: None,
-                author: None,
-                theme,
-                source: Some(Source::System),
-                downloads: None,
-                created: None,
-                updated: None,
-            };
+
+            let mut color_scheme = ColorScheme::new(name, theme);
+
+            color_scheme.source = Some(Source::System);
+            color_scheme.path = Some(path);
+
             cosmic_themes.push(color_scheme);
         }
     }
@@ -687,7 +691,7 @@ fn install_theme(mut theme: ColorScheme, should_override: bool) -> anyhow::Resul
     if !should_override && fs::exists(&new_file_path).unwrap_or(false) {
         bail!("the path of the theme {} already exist", theme.name);
     }
-    fs::write(&new_file_path, ron::ser::to_string(&theme.theme)?)?;
+    fs::write(&new_file_path, ron::ser::to_string(&theme.theme_builder)?)?;
 
     theme.path = Some(new_file_path);
     Ok(theme)

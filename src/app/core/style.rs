@@ -6,8 +6,7 @@ use cosmic::{
     widget::{self, container},
 };
 
-pub fn background<'a>(theme: &Theme) -> cosmic::theme::Container<'a> {
-    let theme = theme.clone();
+pub fn background<'a>(theme: &'a Theme) -> cosmic::theme::Container<'a> {
     let corner_radii = cosmic::theme::active().cosmic().corner_radii;
     cosmic::theme::Container::custom(move |_| container::Style {
         icon_color: Some(Color::from(theme.background.on)),
@@ -23,8 +22,7 @@ pub fn background<'a>(theme: &Theme) -> cosmic::theme::Container<'a> {
     })
 }
 
-pub fn card<'a>(theme: Theme) -> cosmic::theme::Container<'a> {
-    let theme = theme.clone();
+pub fn card<'a>(theme: &'a Theme) -> cosmic::theme::Container<'a> {
     let corner_radii = cosmic::theme::active().cosmic().corner_radii;
 
     cosmic::theme::Container::custom(move |_| container::Style {
@@ -55,11 +53,11 @@ pub fn panel_style(theme: &cosmic::Theme) -> widget::container::Style {
     }
 }
 
-pub fn standard_button(theme: Theme) -> Button {
+pub fn standard_button(theme: &Theme) -> Button {
     let theme_active = theme.clone();
     let theme_disabled = theme.clone();
     let theme_hovered = theme.clone();
-    let theme_pressed = theme;
+    let theme_pressed = theme.clone();
 
     Button::Custom {
         active: Box::new(move |_, _| {
@@ -124,11 +122,11 @@ pub fn standard_button(theme: Theme) -> Button {
     }
 }
 
-pub fn destructive_button(theme: Theme) -> Button {
+pub fn destructive_button(theme: &Theme) -> Button {
     let theme_active = theme.clone();
     let theme_disabled = theme.clone();
     let theme_hovered = theme.clone();
-    let theme_pressed = theme;
+    let theme_pressed = theme.clone();
 
     Button::Custom {
         active: Box::new(move |_, _| {
@@ -193,11 +191,11 @@ pub fn destructive_button(theme: Theme) -> Button {
     }
 }
 
-pub fn link_button(theme: Theme) -> Button {
+pub fn link_button(theme: &Theme) -> Button {
     let theme_active = theme.clone();
     let theme_disabled = theme.clone();
     let theme_hovered = theme.clone();
-    let theme_pressed = theme;
+    let theme_pressed = theme.clone();
 
     Button::Custom {
         active: Box::new(move |_, _| {

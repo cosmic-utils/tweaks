@@ -238,20 +238,19 @@ impl ColorSchemes {
 
     fn installed<'a>(
         &self,
-        color_scheme: &ColorScheme,
+        color_scheme: &'a ColorScheme,
         _selected: bool,
         spacing: &cosmic::cosmic_theme::Spacing,
         item_width: usize,
     ) -> Element<'a, super::Message> {
-        let theme = color_scheme.theme.clone().build();
-        let color_scheme_name = color_scheme.name.clone();
+        let theme = &color_scheme.theme;
 
         mouse_area(
             column()
                 .push(
                     row()
                         .push(horizontal_space())
-                        .push(text(color_scheme_name))
+                        .push(text(&color_scheme.name))
                         .push(horizontal_space())
                         .padding(spacing.space_xxs),
                 )
@@ -262,13 +261,13 @@ impl ColorSchemes {
                                 .padding(spacing.space_xxs)
                                 .width(90.0)
                                 .height(Length::Fill)
-                                .class(crate::app::core::style::card(theme.clone())),
+                                .class(crate::app::core::style::card(theme)),
                         )
                         .push(horizontal_space())
                         .push(tooltip::tooltip(
                             icon_handle!("symbolic-link-symbolic", 14)
                                 .apply(button::icon)
-                                .class(link_button(theme.clone()))
+                                .class(link_button(theme))
                                 .padding(spacing.space_xxs)
                                 .on_press_maybe(color_scheme.path.clone().map(Message::OpenFolder)),
                             text(fl!("open-containing-folder")),
@@ -277,7 +276,7 @@ impl ColorSchemes {
                         .push(tooltip::tooltip(
                             icon_handle!("user-trash-symbolic", 14)
                                 .apply(button::icon)
-                                .class(destructive_button(theme.clone()))
+                                .class(destructive_button(theme))
                                 .padding(spacing.space_xxs)
                                 .on_press(super::Message::DeleteColorScheme(color_scheme.clone())),
                             text(fl!("delete-color-scheme")),
@@ -290,7 +289,7 @@ impl ColorSchemes {
                 .width(item_width as f32)
                 .height(160.)
                 .apply(container)
-                .class(crate::app::core::style::background(&theme)),
+                .class(crate::app::core::style::background(theme)),
         )
         .on_press(Message::SetColorScheme(color_scheme.clone()))
         .into()
@@ -303,7 +302,7 @@ impl ColorSchemes {
         spacing: &cosmic::cosmic_theme::Spacing,
         item_width: usize,
     ) -> Element<'a, Message> {
-        let theme = color_scheme.theme.clone().build();
+        let theme = &color_scheme.theme;
 
         mouse_area(
             column()
@@ -327,13 +326,13 @@ impl ColorSchemes {
                                 .padding(spacing.space_xxs)
                                 .width(90.0)
                                 .height(Length::Fill)
-                                .class(crate::app::core::style::card(theme.clone())),
+                                .class(crate::app::core::style::card(theme)),
                         )
                         .push(horizontal_space())
                         .push(tooltip(
                             icon_handle!("symbolic-link-symbolic", 14)
                                 .apply(button::icon)
-                                .class(link_button(theme.clone()))
+                                .class(link_button(theme))
                                 .padding(spacing.space_xxs)
                                 .on_press_maybe(color_scheme.link.clone().map(Message::OpenLink)),
                             text(fl!("open-link")),
@@ -342,7 +341,7 @@ impl ColorSchemes {
                         .push(tooltip(
                             icon_handle!("folder-download-symbolic", 14)
                                 .apply(button::icon)
-                                .class(standard_button(theme.clone()))
+                                .class(standard_button(theme))
                                 .padding(spacing.space_xxs)
                                 .on_press_maybe(
                                     (!self.installed.contains_key(&color_scheme.name)).then_some(
@@ -359,7 +358,7 @@ impl ColorSchemes {
                 .width(item_width as f32)
                 .height(160.)
                 .apply(container)
-                .class(crate::app::core::style::background(&theme)),
+                .class(crate::app::core::style::background(theme)),
         )
         .on_press(Message::SetColorSchemeWithRollBack(color_scheme.clone()))
         .into()
