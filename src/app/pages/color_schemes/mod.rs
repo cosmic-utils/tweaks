@@ -149,17 +149,23 @@ pub enum Tab {
 }
 
 #[derive(Debug, Clone)]
+pub enum ColorSchemeKey {
+    Installed(String),
+    Available(usize),
+}
+
+#[derive(Debug, Clone)]
 pub enum Message {
     StartImport,
     ImportFilePickerResult(Arc<SelectedFiles>),
     Error(MessageErrorKind, String),
     // currently, the None variant is intercepted in the outer update fn
     SaveCurrentColorScheme(Option<String>),
-    InstallColorScheme(ColorScheme),
-    SetColorScheme(ColorScheme),
-    SetColorSchemeWithRollBack(ColorScheme),
+    InstallColorScheme(ColorSchemeKey),
+    SetColorScheme(ColorSchemeKey),
+    SetColorSchemeWithRollBack(ColorSchemeKey),
     RevertOldTheme,
-    DeleteColorScheme(ColorScheme),
+    DeleteColorScheme(ColorSchemeKey),
     SetAvailableColorSchemes(Vec<ColorScheme>),
     FetchAvailableColorSchemes,
     OpenFolder(PathBuf),
@@ -177,6 +183,13 @@ pub enum MessageErrorKind {
 }
 
 impl ColorSchemes {
+    fn get(&self, key: ColorSchemeKey) -> &ColorScheme {
+        match key {
+            ColorSchemeKey::Installed(name) => self.installed.get(&name).unwrap(),
+            ColorSchemeKey::Available(index) => &self.available[index],
+        }
+    }
+
     fn set_query(&mut self, query: String) {
         if query.is_empty() {
             self.needle.take();
@@ -195,18 +208,27 @@ impl ColorSchemes {
         self.query = query;
     }
 
-    fn values<'a>(&'a self) -> Box<dyn Iterator<Item = &'a ColorScheme> + 'a> {
-        let mut data: Box<dyn Iterator<Item = &ColorScheme>> =
+    fn values<'a>(&'a self) -> Box<dyn Iterator<Item = (ColorSchemeKey, &'a ColorScheme)> + 'a> {
+        let mut data: Box<dyn Iterator<Item = (ColorSchemeKey, &ColorScheme)>> =
             match self.model.active_data::<Tab>().unwrap() {
-                Tab::Installed => Box::new(self.installed.values()),
-                Tab::Available => Box::new(self.available.iter()),
+                Tab::Installed => Box::new(
+                    self.installed
+                        .iter()
+                        .map(|(a, b)| (ColorSchemeKey::Installed(a.clone()), b)),
+                ),
+                Tab::Available => Box::new(
+                    self.available
+                        .iter()
+                        .enumerate()
+                        .map(|(a, b)| (ColorSchemeKey::Available(a), b)),
+                ),
             };
 
         if let Some(atom) = &self.needle {
             data = Box::new(data.filter(|c| {
                 let mut buf = Vec::new();
 
-                let haystack = Utf32Str::new(&c.name, &mut buf);
+                let haystack = Utf32Str::new(&c.1.name, &mut buf);
 
                 let mut indices = Vec::new();
 
@@ -219,20 +241,20 @@ impl ColorSchemes {
         let mut vec = data.collect::<Vec<_>>();
 
         match self.sort_by {
-            SortBy::Az => vec.sort_by(|a, b| LANGUAGE_SORTER.compare(&a.name, &b.name)),
-            SortBy::MostDownloaded => vec.sort_by(|a, b| match (a.downloads, b.downloads) {
+            SortBy::Az => vec.sort_by(|a, b| LANGUAGE_SORTER.compare(&a.1.name, &b.1.name)),
+            SortBy::MostDownloaded => vec.sort_by(|a, b| match (a.1.downloads, b.1.downloads) {
                 (None, None) => Ordering::Equal,
                 (None, Some(_)) => Ordering::Greater,
                 (Some(_), None) => Ordering::Less,
                 (Some(a), Some(b)) => b.cmp(&a),
             }),
-            SortBy::LastModified => vec.sort_by(|a, b| match (a.updated, b.updated) {
+            SortBy::LastModified => vec.sort_by(|a, b| match (a.1.updated, b.1.updated) {
                 (None, None) => Ordering::Equal,
                 (None, Some(_)) => Ordering::Greater,
                 (Some(_), None) => Ordering::Less,
                 (Some(a), Some(b)) => b.cmp(&a),
             }),
-            SortBy::Author => vec.sort_by(|a, b| match (&a.author, &b.author) {
+            SortBy::Author => vec.sort_by(|a, b| match (&a.1.author, &b.1.author) {
                 (None, None) => Ordering::Equal,
                 (None, Some(_)) => Ordering::Greater,
                 (Some(_), None) => Ordering::Less,
@@ -294,6 +316,7 @@ impl ColorSchemes {
                 }
             },
             Message::SetColorScheme(color_scheme) => {
+                let color_scheme = self.get(color_scheme).clone();
                 if let Err(e) = apply_theme(&color_scheme.theme) {
                     error!("can't apply theme: {e}");
                 } else {
@@ -304,12 +327,13 @@ impl ColorSchemes {
                 }
             }
             Message::SetColorSchemeWithRollBack(color_scheme) => {
+                let color_scheme = self.get(color_scheme);
                 if let Err(e) = apply_theme(&color_scheme.theme) {
                     error!("can't apply theme: {e}");
                 } else {
                     let _ = self
                         .config
-                        .set_current_config(&self.config_writer, Some(color_scheme));
+                        .set_current_config(&self.config_writer, Some(color_scheme.clone()));
                 }
             }
             Message::RevertOldTheme => {
@@ -324,20 +348,24 @@ impl ColorSchemes {
                 }
             }
             Message::DeleteColorScheme(color_scheme) => {
+                let color_scheme = self.get(color_scheme).clone();
                 if let Some(path) = &color_scheme.path {
                     let _ = fs::remove_file(path);
                 }
 
                 self.installed.remove(&color_scheme.name);
             }
-            Message::InstallColorScheme(color_scheme) => match install_theme(color_scheme, false) {
-                Ok(theme) => {
-                    self.installed.insert(theme.name.clone(), theme);
+            Message::InstallColorScheme(color_scheme) => {
+                let color_scheme = self.get(color_scheme);
+                match install_theme(color_scheme.clone(), false) {
+                    Ok(theme) => {
+                        self.installed.insert(theme.name.clone(), theme);
+                    }
+                    Err(e) => {
+                        error!("can't install theme: {e}");
+                    }
                 }
-                Err(e) => {
-                    error!("can't install theme: {e}");
-                }
-            },
+            }
             Message::FetchAvailableColorSchemes => {
                 self.status = Status::Loading;
                 tasks.push(Task::perform(
