@@ -439,7 +439,7 @@ pub struct ColorScheme {
     pub name: String,
     pub theme_builder: ThemeBuilder,
     // xxx: should we not serialize theme ?
-    // building it is costly, but this struct my change over time
+    // building it is costly, but this struct might change over time
     pub theme: Arc<Theme>,
     pub author: Option<String>,
     pub link: Option<String>,
