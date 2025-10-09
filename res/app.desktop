@@ -2,16 +2,19 @@
 Name=Tweaks for COSMIC
 Name[cs]=Vyladění pro COSMIC
 Name[fr]=Tweaks pour COSMIC
+Name[pl]=Podkręcenie dla COSMIC
 Name[pt]=Ajustes do COSMIC
 GenericName = COSMIC tweaks
 GenericName[cs]=Vyladění COSMIC
 Comment=Tweaks your COSMIC desktop environment
 Comment[cs]=Vyladí vaše prostředí COSMIC
 Comment[fr]=Améliorez votre environnement de bureau COSMIC
+Comment[pl]=Narzędzie do dopasowania pod siebie środowiska COSMIC™.
 Comment[pt]=Ajustes adicionais para seu ambiente de trabalho COSMIC
 Keywords=Folder;Manager
 Keywords[cs]=layout;tweaks;vyladění;konfigurace;
 Keywords[fr]=ajustement
+Keywords[pl]=layout;tweaks;podkęcenie;modyfikacja;kompozycja
 Keywords[pt]=layout;tweaks;melhorias;configurações
 
 Exec=cosmic-ext-tweaks
