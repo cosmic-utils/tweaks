@@ -1,4 +1,4 @@
-app-title = Podkręcanie COSMIC™
+app-title = Podkręcanie dla COSMIC™
 app-description = Narzędzie do dopasowania pod siebie środowiska COSMIC™.
 
 # Pages
