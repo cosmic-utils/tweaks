@@ -81,7 +81,7 @@ impl LayoutPreview {
                     Length::Shrink
                 };
 
-                let icons = (0..self.dock_icons)
+                let icons: Vec<Element<_>> = (0..self.dock_icons)
                     .map(|_| Self::square::<Message>(self.dock.size as f32 - 5.0).into())
                     .collect();
 
@@ -176,7 +176,7 @@ impl LayoutPreview {
                     Length::Shrink
                 };
 
-                let icons = (0..self.dock_icons)
+                let icons: Vec<Element<_>> = (0..self.dock_icons)
                     .map(|_| Self::square::<Message>(self.dock.size as f32 - 5.0).into())
                     .collect();
 
