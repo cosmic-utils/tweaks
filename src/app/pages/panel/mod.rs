@@ -390,7 +390,7 @@ impl Panel {
                             if let Err(err) = update {
                                 log::error!("Error updating cosmic panel entries: {}", err);
                             } else {
-                                self.show_panel = false;
+                                self.show_panel = true;
                             }
                         }
                     }
@@ -407,7 +407,7 @@ impl Panel {
                         if let Err(err) = update {
                             log::error!("Error updating cosmic panel entries: {}", err);
                         } else {
-                            self.show_panel = true;
+                            self.show_panel = false;
                         }
                     }
                 }
