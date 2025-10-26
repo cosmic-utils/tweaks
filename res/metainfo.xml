@@ -109,6 +109,15 @@
     <id>com.system76.CosmicApplication</id>
   </provides>
   <releases>
+    <release version="0.2.1" date="2025-10-26">
+      <description>
+        <p>Improved theme discovery! 🎨</p>
+        <ul>
+          <li>Discovering themes has never been easier, we added sort and a search bar.</li>
+          <li>Easily switch between light and dark modes with a new toggle</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.2.0" date="2025-09-24">
       <description>
         <p>New tweaks available! 🛠️</p>
