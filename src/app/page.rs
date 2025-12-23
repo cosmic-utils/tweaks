@@ -6,6 +6,7 @@ use crate::{fl, icon};
 pub enum Page {
     #[default]
     ColorSchemes,
+    DateTime,
     Dock,
     Panel,
     Layouts,
@@ -23,6 +24,7 @@ impl Page {
     pub fn title(&self) -> String {
         match self {
             Self::ColorSchemes => fl!("color-schemes"),
+            Self::DateTime => fl!("date-time"),
             Self::Dock => fl!("dock"),
             Self::Panel => fl!("panel"),
             Self::Layouts => fl!("layouts"),
@@ -34,6 +36,9 @@ impl Page {
     pub fn icon(&self) -> Icon {
         match self {
             Self::ColorSchemes => icon!("dark-mode-symbolic", 18),
+            Self::DateTime => cosmic::widget::icon::from_name("x-office-calendar-symbolic")
+                .icon()
+                .size(18),
             Self::Dock => icon!("dock-bottom-symbolic", 18),
             Self::Panel => icon!("dock-top-symbolic", 18),
             Self::Layouts => icon!("view-coverflow-symbolic", 18),
@@ -45,6 +50,7 @@ impl Page {
     pub fn all() -> &'static [Self] {
         &[
             Self::ColorSchemes,
+            Self::DateTime,
             Self::Dock,
             Self::Panel,
             Self::Layouts,

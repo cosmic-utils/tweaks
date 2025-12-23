@@ -7,10 +7,10 @@ use cosmic::{
     widget::{self, about::About},
 };
 
-use crate::app::App;
 use crate::app::flags::Flags;
 use crate::app::message::Message;
 use crate::app::page::Page;
+use crate::app::{App, pages::DateTime};
 use crate::app::{context::ContextPage, pages::snapshots::config::SnapshotKind};
 
 use super::Cosmic;
@@ -76,6 +76,7 @@ impl Cosmic {
             config: flags.config,
             color_schemes,
             layouts: Layouts::default(),
+            date_time: DateTime::default(),
             dock: Dock::default(),
             panel: Panel::default(),
             snapshots: Snapshots::default(),
