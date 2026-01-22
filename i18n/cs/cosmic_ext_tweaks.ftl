@@ -8,7 +8,7 @@ panel = Panel
 color-schemes = Barevná schémata
 layouts = Rozložení
 shortcuts = Zkratky
-snapshots = Snapshoty
+snapshots = Snímky
 animation = Animace
 
 create-layout = Vytvořit rozložení
@@ -49,16 +49,16 @@ available = Dostupné
 loading = Načítání...
 refresh = Refresh
 show-more = Zobrazit více
-no-color-schemes-installed = No color schemes installed
-no-color-schemes-found = No color schemes found
-by = By {$author}
-revert-old-color-scheme = Revert old color scheme
+no-color-schemes-installed = Nejsou nainstalována žádná barevná schémata
+no-color-schemes-found = Nebyly nalezeny žádná barevná schémata
+by = Od {$author}
+revert-old-color-scheme = Vrátit původní barevné schéma
 
-a-z = A-Z
-most-downloaded = Most downloaded
-last-modified = Last modified
-author = Author
-search = Search
+a-z = A–Z
+most-downloaded = Nejstahovanější
+last-modified = Nedávno upravené
+author = Autor
+search = Hledat
 
 ## Panel
 show-panel = Zobrazit panel
@@ -67,18 +67,20 @@ force-icon-buttons-in-panel = Vynutit režim ikon pro tlačítka v panelu
 size = Velikost
 size-description = Velikost panelu a appletů
 padding = Vnitřní okraj
-padding-description = Místo mezi obsahem a hranicemi doku nebo panelu.
+padding-description = Místo mezi obsahem a hranicemi doku nebo panelu
 margin = Vnější okraj
-margin-description = Místo mezi panelem a kraji obrazovky.
+margin-description = Místo mezi panelem a okraji obrazovky
 spacing = Rozestupy
-spacing-description = Místo mezi ikonami v doku nebo na panelu.
+spacing-description = Místo mezi ikonami doku nebo panelu
+border-radius = Zakulacení rohů
+border-radius-description = Určuje, jak kulaté jsou rohy doku nebo panelu
 animation-speed = Rychlost animací
 wait-time = Doba čekání
-wait-time-description = Doba, po které se panel skryje poté, co ho opustí myš.
+wait-time-description = Doba, po které se panel skryje poté, co ho opustí myš
 transition-time = Doba přechodu
-transition-time-description = Doba, po kterou se panel schovává nebo odkrývá.
+transition-time-description = Doba, po kterou se panel schovává nebo odkrývá
 handle-size = Velikost úchytu
-handle-size-description = Velikost úchytu, který umožňuje ovládat velikost panelu.
+handle-size-description = Velikost úchytu, který umožňuje ovládat velikost panelu
 
 save = Uložit
 cancel = Zrušit
@@ -88,26 +90,26 @@ create = Vytvořit
 navigation = Navigace
 
 
-save-current-layout = Uložit současné rozložení
-save-current-layout-description = Uložit současné rozložení plochy pro budoucí použití.
-save-current-color-scheme = Uložit současné barevné schéma
+save-current-layout = Uložit aktuální rozložení
+save-current-layout-description = Uloží aktuální rozložení plochy pro budoucí použití.
+save-current-color-scheme = Uložit aktuální barevné schéma
 color-scheme-name = Název barevného schématu
-create-snapshot = Vytvořit snapshot
-create-snapshot-description = Právě vytváříte snapshot. Toto uloží současný stav vaší plochy a umožní pozdější obnovu.
-restore-snapshot = Obnovit snapshot
-delete-snapshot = Smazat snapshot
-no-snapshots = Nejsou dostupné žádné snapshoty
-snapshot-name = Název snapshotu
+create-snapshot = Vytvořit snímek
+create-snapshot-description = Právě vytváříte snímek, ten uloží aktuální stav vaší plochy a umožní pozdější obnovu.
+restore-snapshot = Obnovit snímek
+delete-snapshot = Smazat snímek
+no-snapshots = Nejsou dostupné žádné snímky
+snapshot-name = Název snímku
 name = Název
 type = Typ
-created = Vytvořeno
+created = Vytvořen
 actions = Akce
 system = Systém
 user = Uživatel
 
 ## Snapshots
 application-opened = Aplikace otevřena
-restore-info = Each time you open Tweaks, we save the current state of your desktop, if you ever break it, simply restore it
+restore-info = Pokaždé když otevřete Vyladění, uloží se aktuální stav vaší plochy. Pokud se někdy něco pokazí, jednoduše ji obnovte
 
 ## About
 about = O aplikaci
@@ -120,10 +122,10 @@ settings = Nastavení
 
 ### Appearance
 appearance = Vzhled
-theme = Téma
+theme = Motiv
 match-desktop = Podle systému
-dark = Tmavé
-light = Světlé
+dark = Tmavý
+light = Světlý
 
 # Menu
 view = Zobrazení
