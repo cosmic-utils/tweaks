@@ -48,12 +48,10 @@ installed = Инсталирано
 available = Налично
 loading = Зареждане...
 refresh = Опресняване
-refresh = Опресняване
 show-more = Повече
 no-color-schemes-installed = Няма инсталирани цветови схеми
 no-color-schemes-found = Няма намерени цветови схеми
 by = От {$author}
-revert-old-color-scheme = Връщане на старата цветова схема
 revert-old-color-scheme = Връщане на старата цветова схема
 
 a-z = А-Я

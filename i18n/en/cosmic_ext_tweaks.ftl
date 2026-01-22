@@ -48,12 +48,10 @@ installed = Installed
 available = Available
 loading = Loading...
 refresh = Refresh
-refresh = Refresh
 show-more = Show more
 no-color-schemes-installed = No color schemes installed
 no-color-schemes-found = No color schemes found
 by = By {$author}
-revert-old-color-scheme = Revert old color scheme
 revert-old-color-scheme = Revert old color scheme
 
 a-z = A-Z
