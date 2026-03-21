@@ -132,12 +132,7 @@ impl Snapshots {
         match message {
             Message::ReloadSnapshots => {
                 self.snapshots = Snapshots::list();
-                self.snapshots.sort_by(|a, b| {
-                    b.created
-                        .and_utc()
-                        .timestamp()
-                        .cmp(&a.created.and_utc().timestamp())
-                });
+                self.snapshots.sort_by(|a, b| b.created.cmp(&a.created));
             }
             Message::RestoreSnapshot(snapshot) => {
                 if let Some(schema) = snapshot.schema {
