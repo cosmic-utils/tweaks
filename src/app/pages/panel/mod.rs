@@ -6,6 +6,7 @@ use cosmic::{
 use cosmic_panel_config::{AutoHide, CosmicPanelConfig};
 use serde::{Deserialize, Serialize};
 
+use crate::app::core::reset::reset_cosmic_config;
 use crate::icon;
 
 use config::{CosmicPanelButtonConfig, IndividualConfig, Override};
@@ -161,6 +162,7 @@ pub enum Message {
     SetWaitTime(u32),
     SetTransitionTime(u32),
     SetHandleSize(u32),
+    Reset,
 }
 
 impl Panel {
@@ -316,6 +318,12 @@ impl Panel {
     }
 
     pub fn update(&mut self, message: Message) -> Task<crate::app::message::Message> {
+        if let Message::Reset = message {
+            reset_cosmic_config("com.system76.CosmicPanel.Panel");
+            *self = Panel::default();
+            return Task::none();
+        }
+
         let Some(panel_helper) = &self.panel_helper else {
             return cosmic::Task::none();
         };
@@ -443,6 +451,7 @@ impl Panel {
                     log::error!("Error updating panel handle size: {}", err);
                 }
             }
+            Message::Reset => unreachable!(),
         }
         Task::none()
     }

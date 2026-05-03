@@ -189,7 +189,6 @@ impl ColorSchemes {
                 row(vec![])
                     .align_y(Vertical::Center)
                     .push(dark_mode)
-                    .push(space::horizontal())
                     .push(
                         button::standard(fl!("save-current-color-scheme"))
                             .trailing_icon(icon_handle!("arrow-into-box-symbolic", 16))
@@ -203,23 +202,19 @@ impl ColorSchemes {
                             .on_press(Message::StartImport),
                     )
                     .spacing(spacing.space_xxs)
-                    .apply(container)
-                    .class(cosmic::style::Container::Card)
-                    .padding(spacing.space_xxs)
                     .into(),
             ),
             Tab::Available => Some(
                 row(vec![])
                     .align_y(Vertical::Center)
                     .push(dark_mode)
-                    .push(space::horizontal())
                     .push(match self.status {
                         Status::Idle => button::standard(fl!("refresh"))
                             .on_press(Message::FetchAvailableColorSchemes),
                         Status::Loading => button::standard(fl!("loading")),
                     })
                     .push(
-                        button::text(fl!("revert-old-color-scheme")).on_press_maybe(
+                        button::standard(fl!("revert-old-color-scheme")).on_press_maybe(
                             match (&self.saved_color_theme, &self.config.current_config) {
                                 (None, None) => false,
                                 (None, Some(_)) => false,
@@ -230,9 +225,6 @@ impl ColorSchemes {
                         ),
                     )
                     .spacing(spacing.space_xxs)
-                    .apply(container)
-                    .class(cosmic::style::Container::Card)
-                    .padding(spacing.space_xxs)
                     .into(),
             ),
         }

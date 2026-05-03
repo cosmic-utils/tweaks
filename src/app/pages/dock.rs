@@ -5,6 +5,7 @@ use cosmic::{
 };
 use cosmic_panel_config::{AutoHide, CosmicPanelConfig};
 
+use crate::app::core::reset::reset_cosmic_config;
 use crate::icon;
 
 #[derive(Debug)]
@@ -63,6 +64,7 @@ pub enum Message {
     SetWaitTime(u32),
     SetTransitionTime(u32),
     SetHandleSize(u32),
+    Reset,
 }
 
 impl Dock {
@@ -244,6 +246,10 @@ impl Dock {
                 {
                     log::error!("Error updating panel handle size: {}", err);
                 }
+            }
+            Message::Reset => {
+                reset_cosmic_config("com.system76.CosmicPanel.Dock");
+                *self = Dock::default();
             }
         }
         Task::none()

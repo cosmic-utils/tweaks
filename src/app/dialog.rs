@@ -2,6 +2,7 @@ use cosmic::{Element, widget};
 
 use crate::app::App;
 use crate::app::message::Message;
+use crate::app::page::Page;
 use crate::app::pages::layouts::dialog::{CreateLayoutDialog, PanelType};
 
 use super::Cosmic;
@@ -11,6 +12,7 @@ pub enum DialogPage {
     SaveCurrentColorScheme(String),
     CreateSnapshot(String),
     CreateLayout(CreateLayoutDialog),
+    ResetPage(Page),
 }
 
 impl Cosmic {
@@ -126,6 +128,15 @@ impl Cosmic {
                             .spacing(spacing.space_m),
                     )
             }
+            DialogPage::ResetPage(_page) => widget::dialog()
+                .title(fl!("reset-to-defaults"))
+                .body(fl!("reset-to-defaults-warning"))
+                .primary_action(
+                    widget::button::destructive(fl!("reset")).on_press(Message::DialogComplete),
+                )
+                .secondary_action(
+                    widget::button::standard(fl!("cancel")).on_press(Message::DialogCancel),
+                ),
         };
 
         Some(dialog.into())

@@ -10,8 +10,8 @@ use cosmic::{
 use cosmic_ext_config_templates::load_template;
 use preview::{LayoutPreview, Position};
 
-use crate::Error;
 use crate::app::{App, core::grid::GridMetrics};
+use crate::{Error, app::core::reset::reset_cosmic_config};
 
 pub mod config;
 pub mod dialog;
@@ -52,6 +52,7 @@ pub enum Message {
     Delete,
     LoadLayouts(Vec<Layout>),
     Create(String, LayoutPreview),
+    Reset,
 }
 
 impl Layouts {
@@ -162,6 +163,28 @@ impl Layouts {
                             }
                         }
                     }
+                }
+            }
+            Message::Reset => {
+                reset_cosmic_config("com.system76.CosmicPanel.Dock");
+                reset_cosmic_config("com.system76.CosmicPanel.Panel");
+
+                let layouts_dir =
+                    dirs::data_local_dir().map(|path| path.join(App::APP_ID).join("layouts"));
+                if let Some(dir) = layouts_dir {
+                    if dir.exists() {
+                        if let Err(e) = std::fs::remove_dir_all(&dir) {
+                            log::error!("Failed to clear layouts directory: {}", e);
+                        }
+                    }
+                }
+                if let Err(e) = Layouts::init() {
+                    log::error!("Failed to reinitialize default layouts: {}", e);
+                }
+                *self = Layouts::default();
+                match crate::app::pages::layouts::config::Layout::list() {
+                    Ok(layouts) => return self.update(Message::LoadLayouts(layouts)),
+                    Err(e) => log::error!("Failed to reload layouts after reset: {}", e),
                 }
             }
             Message::Create(name, preview) => {

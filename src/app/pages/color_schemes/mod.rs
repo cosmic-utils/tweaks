@@ -23,6 +23,7 @@ use nucleo::{
 };
 use serde::{Deserialize, Serialize};
 
+use crate::app::core::reset::reset_cosmic_config;
 use crate::localize::LANGUAGE_SORTER;
 mod view;
 
@@ -174,6 +175,7 @@ pub enum Message {
     ToggleDarkMode(bool),
     SortBy(SortBy),
     Query(String),
+    Reset,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -429,6 +431,15 @@ impl ColorSchemes {
             }
             Message::SortBy(sort_by) => self.sort_by = sort_by,
             Message::Query(query) => self.set_query(query),
+            Message::Reset => {
+                reset_cosmic_config("com.system76.CosmicTheme.Dark");
+                reset_cosmic_config("com.system76.CosmicTheme.Dark.Builder");
+                reset_cosmic_config("com.system76.CosmicTheme.Light");
+                reset_cosmic_config("com.system76.CosmicTheme.Light.Builder");
+                let (new_self, task) = ColorSchemes::new();
+                *self = new_self;
+                return task;
+            }
         }
         Task::batch(tasks)
     }

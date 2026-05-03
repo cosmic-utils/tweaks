@@ -8,6 +8,8 @@ use cosmic::{
 };
 use cosmic_settings_config::{Shortcuts, shortcuts};
 
+use crate::app::core::reset::reset_cosmic_config;
+
 pub struct ShortcutsPage {
     pub config: cosmic_config::Config,
 }
@@ -45,6 +47,7 @@ impl ShortcutsGroup {
 #[allow(private_interfaces)]
 pub enum Message {
     ApplyShortcuts(ShortcutsGroup),
+    Reset,
 }
 
 impl ShortcutsPage {
@@ -75,6 +78,10 @@ impl ShortcutsPage {
                 if let Err(e) = self.config.set("custom", shortcuts) {
                     error!("failed to write shortcuts config: {e}");
                 }
+            }
+            Message::Reset => {
+                reset_cosmic_config("com.system76.CosmicSettings.Shortcuts");
+                *self = ShortcutsPage::new();
             }
         }
         Task::none()

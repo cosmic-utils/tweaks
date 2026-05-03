@@ -135,3 +135,8 @@ view = View
 
 warning = Warning: this will override some of your existing custom shortcuts
 windows-desc = Super+Arrows to move windows. Ctrl+Alt+Arrows to navigate workspaces.
+
+## Reset
+reset-to-defaults = Reset to defaults
+reset-to-defaults-warning = This will reset all settings on this page to their default values. Any customizations you have made will be permanently lost.
+reset = Reset

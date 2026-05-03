@@ -123,6 +123,22 @@ impl Cosmic {
                                 )));
                             }
                         }
+                        DialogPage::ResetPage(page) => {
+                            use crate::app::page::Page;
+                            let reset_msg = match page {
+                                Page::Dock => Message::Dock(pages::dock::Message::Reset),
+                                Page::Panel => Message::Panel(pages::panel::Message::Reset),
+                                Page::ColorSchemes => Message::ColorSchemes(Box::new(
+                                    pages::color_schemes::Message::Reset,
+                                )),
+                                Page::Shortcuts => {
+                                    Message::Shortcuts(pages::shortcuts::Message::Reset)
+                                }
+                                Page::Layouts => Message::Layouts(pages::layouts::Message::Reset),
+                                Page::Snapshots => return Task::batch(tasks),
+                            };
+                            tasks.push(app.update(reset_msg));
+                        }
                     }
                 }
             }
