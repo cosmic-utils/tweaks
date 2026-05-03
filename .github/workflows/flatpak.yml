@@ -1,9 +1,8 @@
-name: CI
+name: Flatpak
 
 on:
   push:
     branches: [main]
-  pull_request:
 
 jobs:
   flatpak:
@@ -28,12 +27,6 @@ jobs:
       - name: Upload cargo-sources.json artifact
         uses: actions/upload-artifact@v4
         with:
-          name: cargo-sources-${{ github.ref_name }}
+          name: cargo-sources-${{ github.run_id }}
           path: cargo-sources.json
           retention-days: 30
-
-      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
-        with:
-          bundle: tweaks.flatpak
-          manifest-path: dev.edfloreshz.CosmicTweaks.json
-          cache-key: flatpak-builder-${{ hashFiles('Cargo.lock') }}
