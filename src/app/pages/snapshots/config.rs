@@ -1,7 +1,7 @@
 use std::{fmt::Display, path::PathBuf};
 
 use crate::app::App;
-use chrono::{NaiveDateTime, Utc};
+use chrono::{DateTime, Local, Utc};
 use cosmic::Application;
 use cosmic_ext_config_templates::{Schema, panel::PanelSchema};
 use serde::{Deserialize, Serialize};
@@ -12,7 +12,7 @@ pub struct Snapshot {
     pub id: Uuid,
     pub name: String,
     pub kind: SnapshotKind,
-    pub created: NaiveDateTime,
+    pub created: DateTime<Utc>,
     pub schema: Option<Schema>,
 }
 
@@ -35,7 +35,7 @@ impl Display for SnapshotKind {
 impl Snapshot {
     pub fn new(name: impl ToString, kind: SnapshotKind) -> Self {
         let id = Uuid::new_v4();
-        let created = Utc::now().naive_local();
+        let created = Utc::now();
 
         Self {
             id,
@@ -47,7 +47,10 @@ impl Snapshot {
     }
 
     pub fn created(&self) -> String {
-        self.created.format("%Y-%m-%d %H:%M:%S").to_string()
+        self.created
+            .with_timezone(&Local)
+            .format("%Y-%m-%d %H:%M:%S")
+            .to_string()
     }
 
     pub fn path(&self) -> PathBuf {
