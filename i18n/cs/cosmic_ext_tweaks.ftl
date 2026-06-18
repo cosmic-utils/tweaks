@@ -135,3 +135,8 @@ view = Zobrazení
 
 warning = Varování: Toto přepíše některé vaše existující zkratky
 windows-desc = Super+Šipky pro přesun oken. Ctrl+Alt+Šipky pro přepnutí pracovních ploch.
+
+## Reset
+reset-to-defaults = Obnovit výchozí
+reset-to-defaults-warning = Tímto obnovíte všechna nastavení na této stránce na jejich výchozí hodnoty. Veškeré provedené úpravy budou trvale ztraceny.
+reset = Obnovit
