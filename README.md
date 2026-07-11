@@ -19,6 +19,7 @@ Run `cargo run` in the terminal to build and run the application.
 - `cargo`
 - `just`
 - `libxkbcommon-dev`
+- `libdav1d-dev`
 - [`libcosmic`](https://github.com/pop-os/libcosmic?tab=readme-ov-file#building)
 
 ## Installation
