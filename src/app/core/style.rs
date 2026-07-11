@@ -11,10 +11,10 @@ use cosmic::{
 pub fn background<'a>(theme: &'a Theme) -> cosmic::theme::Container<'a> {
     let corner_radii = cosmic::theme::active().cosmic().corner_radii;
     cosmic::theme::Container::custom(move |_| container::Style {
-        icon_color: Some(Color::from(theme.background.on)),
-        text_color: Some(Color::from(theme.background.on)),
+        icon_color: Some(Color::from(theme.background(false).on)),
+        text_color: Some(Color::from(theme.background(false).on)),
         background: Some(cosmic::iced::Background::Color(
-            theme.background.base.into(),
+            theme.background(false).base.into(),
         )),
         border: Border {
             radius: corner_radii.radius_xs.into(),
@@ -29,10 +29,10 @@ pub fn card<'a>(theme: &'a Theme) -> cosmic::theme::Container<'a> {
     let corner_radii = cosmic::theme::active().cosmic().corner_radii;
 
     cosmic::theme::Container::custom(move |_| container::Style {
-        icon_color: Some(Color::from(theme.primary.component.on)),
-        text_color: Some(Color::from(theme.primary.component.on)),
+        icon_color: Some(Color::from(theme.primary(false).component.on)),
+        text_color: Some(Color::from(theme.primary(false).component.on)),
         background: Some(cosmic::iced::Background::Color(
-            theme.primary.component.base.into(),
+            theme.primary(false).component.base.into(),
         )),
         border: Border {
             radius: corner_radii.radius_s.into(),
@@ -46,9 +46,9 @@ pub fn card<'a>(theme: &'a Theme) -> cosmic::theme::Container<'a> {
 pub fn panel_style(theme: &cosmic::Theme) -> widget::container::Style {
     let theme = theme.cosmic();
     cosmic::widget::container::Style {
-        icon_color: Some(Color::from(theme.background.on)),
-        text_color: Some(Color::from(theme.background.on)),
-        background: Some(Background::Color(theme.background.base.into())),
+        icon_color: Some(Color::from(theme.background(false).on)),
+        text_color: Some(Color::from(theme.background(false).on)),
+        background: Some(Background::Color(theme.background(false).base.into())),
         border: Border {
             radius: theme.corner_radii.radius_0.into(),
             ..Default::default()
@@ -347,19 +347,19 @@ pub fn appearance(
             let (background, _, _) = color(&cosmic.text_button);
             appearance.background = Some(Background::Color(background));
 
-            appearance.icon_color = Some(cosmic.background.on.into());
-            appearance.text_color = Some(cosmic.background.on.into());
+            appearance.icon_color = Some(cosmic.background(false).on.into());
+            appearance.text_color = Some(cosmic.background(false).on.into());
             corner_radii = &cosmic.corner_radii.radius_0;
         }
         Button::AppletIcon => {
             let (background, _, _) = color(&cosmic.text_button);
             appearance.background = Some(Background::Color(background));
 
-            appearance.icon_color = Some(cosmic.background.on.into());
-            appearance.text_color = Some(cosmic.background.on.into());
+            appearance.icon_color = Some(cosmic.background(false).on.into());
+            appearance.text_color = Some(cosmic.background(false).on.into());
         }
         Button::MenuFolder => {
-            let component = &cosmic.background.component;
+            let component = &cosmic.background(false).component;
             let (background, _, _) = color(component);
             appearance.background = Some(Background::Color(background));
             appearance.icon_color = Some(component.on.into());
@@ -367,7 +367,7 @@ pub fn appearance(
             corner_radii = &cosmic.corner_radii.radius_s;
         }
         Button::MenuItem => {
-            let (background, text, icon) = color(&cosmic.background.component);
+            let (background, text, icon) = color(&cosmic.background(false).component);
             appearance.background = Some(Background::Color(background));
             appearance.icon_color = icon;
             appearance.text_color = text;
@@ -381,11 +381,12 @@ pub fn appearance(
 
         Button::ListItem([..]) => {
             corner_radii = &[0.0; 4];
-            let (background, text, icon) = color(&cosmic.background.component);
+            let (background, text, icon) = color(&cosmic.background(false).component);
 
             if selected {
-                appearance.background =
-                    Some(Background::Color(cosmic.primary.component.hover.into()));
+                appearance.background = Some(Background::Color(
+                    cosmic.primary(false).component.hover.into(),
+                ));
                 appearance.icon_color = Some(cosmic.accent.base.into());
                 appearance.text_color = Some(cosmic.accent.base.into());
             } else {

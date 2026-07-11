@@ -147,7 +147,7 @@ impl Cosmic {
             }
             Message::Key(modifiers, key) => {
                 for (key_bind, action) in &app.cosmic.key_binds {
-                    if key_bind.matches(modifiers, &key) {
+                    if key_bind.matches(modifiers, &key, None) {
                         return app.update(action.message());
                     }
                 }

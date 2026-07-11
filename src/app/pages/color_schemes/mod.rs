@@ -5,9 +5,10 @@ use std::fmt::Display;
 use std::fs::{self, File};
 use std::io::{BufReader, BufWriter};
 use std::path::PathBuf;
+use std::str::FromStr;
 use std::sync::Arc;
 
-use anyhow::bail;
+use anyhow::{Context, bail};
 use ashpd::desktop::file_chooser::{FileFilter, SelectedFiles};
 use cosmic::cosmic_theme::{Theme, ThemeBuilder, ThemeMode};
 use cosmic::{
@@ -22,6 +23,7 @@ use nucleo::{
     pattern::{Atom, AtomKind, CaseMatching, Normalization},
 };
 use serde::{Deserialize, Serialize};
+use url::Url;
 
 use crate::app::core::reset::reset_cosmic_config;
 use crate::localize::LANGUAGE_SORTER;
@@ -304,7 +306,7 @@ impl ColorSchemes {
             Message::ImportFilePickerResult(f) => match import_file(f) {
                 Ok(theme) => {
                     self.installed.insert(theme.name.clone(), theme.clone());
-                    if let Err(e) = apply_theme(&theme.theme) {
+                    if let Err(e) = apply_theme(&theme.theme_builder) {
                         error!("can't apply theme: {e}");
                     } else {
                         let _ = self
@@ -319,7 +321,7 @@ impl ColorSchemes {
             },
             Message::SetColorScheme(color_scheme) => {
                 let color_scheme = self.get(color_scheme).clone();
-                if let Err(e) = apply_theme(&color_scheme.theme) {
+                if let Err(e) = apply_theme(&color_scheme.theme_builder) {
                     error!("can't apply theme: {e}");
                 } else {
                     let _ = self
@@ -330,7 +332,7 @@ impl ColorSchemes {
             }
             Message::SetColorSchemeWithRollBack(color_scheme) => {
                 let color_scheme = self.get(color_scheme);
-                if let Err(e) = apply_theme(&color_scheme.theme) {
+                if let Err(e) = apply_theme(&color_scheme.theme_builder) {
                     error!("can't apply theme: {e}");
                 } else {
                     let _ = self
@@ -340,7 +342,7 @@ impl ColorSchemes {
             }
             Message::RevertOldTheme => {
                 if let Some(old_theme) = &self.saved_color_theme {
-                    if let Err(e) = apply_theme(&old_theme.theme) {
+                    if let Err(e) = apply_theme(&old_theme.theme_builder) {
                         error!("can't apply theme: {e}");
                     }
 
@@ -519,12 +521,12 @@ pub async fn download_themes() -> anyhow::Result<Vec<ColorScheme>> {
         type Error = anyhow::Error;
 
         fn try_from(value: ColorSchemesHelper) -> Result<Self, Self::Error> {
-            let theme_builder: ThemeBuilder = ron::from_str(&value.ron)?;
+            let builder: ThemeBuilder = ron::de::from_str(&value.ron)?;
 
             Ok(Self {
                 name: value.name,
-                theme: Arc::new(theme_builder.clone().build()),
-                theme_builder,
+                theme: Arc::new(builder.clone().build()),
+                theme_builder: builder,
                 author: value.author.filter(|a| !a.is_empty()),
                 link: value.link.filter(|l| !l.is_empty()),
                 downloads: Some(value.downloads),
@@ -586,18 +588,52 @@ pub fn get_themes_from_cache() -> anyhow::Result<Vec<ColorScheme>> {
     Ok(value)
 }
 
-pub fn apply_theme(theme: &Theme) -> anyhow::Result<()> {
-    let theme_mode_config = ThemeMode::config()?;
+pub fn apply_theme(builder: &ThemeBuilder) -> anyhow::Result<()> {
+    // Determine whether we're applying the light or dark theme.
+    let is_dark = builder.palette.is_dark();
 
-    let theme_mode = ThemeMode::get_entry(&theme_mode_config).unwrap();
+    // Ensure the current mode matches the imported theme.
+    let mode_config = ThemeMode::config()?;
+    let mut mode = ThemeMode::get_entry(&mode_config)
+        .map(|m| m)
+        .unwrap_or_default();
 
-    let theme_config = if theme_mode.is_dark {
+    if mode.is_dark != is_dark {
+        mode.set_is_dark(&mode_config, is_dark)
+            .context("Failed to switch theme mode")?;
+    }
+
+    // Get the appropriate configs.
+    let builder_config = if is_dark {
+        ThemeBuilder::dark_config()?
+    } else {
+        ThemeBuilder::light_config()?
+    };
+
+    let theme_config = if is_dark {
         Theme::dark_config()?
     } else {
         Theme::light_config()?
     };
 
-    theme.write_entry(&theme_config)?;
+    // Write the builder first.
+    builder
+        .write_entry(&builder_config)
+        .context("Failed to write ThemeBuilder")?;
+
+    let mut theme = builder.clone().build();
+    if let Ok(current) = Theme::get_entry(&theme_config).map_err(|(_, t)| t) {
+        theme.frosted_windows = current.frosted_windows;
+        theme.frosted_system_interface = current.frosted_system_interface;
+        theme.frosted_panel = current.frosted_panel;
+        theme.frosted_applets = current.frosted_applets;
+        theme.alpha_map = current.alpha_map;
+    }
+
+    // Then write the generated theme.
+    theme
+        .write_entry(&theme_config)
+        .context("Failed to write Theme")?;
 
     Ok(())
 }
@@ -687,10 +723,13 @@ fn import_file(f: Arc<SelectedFiles>) -> anyhow::Result<ColorScheme> {
     let Some(f) = f.uris().first() else {
         bail!("no uri")
     };
-    if f.scheme() != "file" {
+
+    let url = Url::from_str(f.as_str())?;
+
+    if url.scheme() != "file" {
         bail!("scheme != file")
     }
-    let Ok(path) = f.to_file_path() else {
+    let Ok(path) = url.to_file_path() else {
         bail!("can't retrieve file path")
     };
 

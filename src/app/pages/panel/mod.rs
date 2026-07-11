@@ -3,7 +3,7 @@ use cosmic::{
     cosmic_config::{self, Config, CosmicConfigEntry},
     widget,
 };
-use cosmic_panel_config::{AutoHide, CosmicPanelConfig};
+use cosmic_panel_config::{AutoHideBehavior, CosmicPanelConfig};
 use serde::{Deserialize, Serialize};
 
 use crate::app::core::reset::reset_cosmic_config;
@@ -29,7 +29,7 @@ pub struct Panel {
     pub cosmic_panel_button_config_helper: Option<Config>,
     pub force_icons: bool,
     panel_size: cosmic_panel_config::PanelSize,
-    autohide: AutoHide,
+    autohide_behavior: AutoHideBehavior,
 }
 
 #[derive(
@@ -128,7 +128,7 @@ impl Default for Panel {
             .unwrap_or(false);
         let autohide = panel_config
             .clone()
-            .map(|config| config.autohide.unwrap_or_default())
+            .map(|config| config.autohide_behavior)
             .unwrap_or_default();
 
         Self {
@@ -145,7 +145,7 @@ impl Default for Panel {
             cosmic_panel_button_config_helper,
             force_icons,
             panel_size,
-            autohide,
+            autohide_behavior: autohide,
         }
     }
 }
@@ -261,13 +261,16 @@ impl Panel {
                                 .push(
                                     widget::slider(
                                         0..=4000,
-                                        self.autohide.wait_time,
+                                        self.autohide_behavior.wait_time,
                                         Message::SetWaitTime,
                                     )
                                     .breakpoints(&[1000, 2000, 3000])
                                     .step(100u32),
                                 )
-                                .push(widget::text(format!("{} ms", self.autohide.wait_time)))
+                                .push(widget::text(format!(
+                                    "{} ms",
+                                    self.autohide_behavior.wait_time
+                                )))
                                 .spacing(spacing.space_xxs),
                         ),
                 )
@@ -280,7 +283,7 @@ impl Panel {
                                 .push(
                                     widget::slider(
                                         0..=4000,
-                                        self.autohide.transition_time,
+                                        self.autohide_behavior.transition_time,
                                         Message::SetTransitionTime,
                                     )
                                     .breakpoints(&[1000, 2000, 3000])
@@ -288,7 +291,7 @@ impl Panel {
                                 )
                                 .push(widget::text(format!(
                                     "{} ms",
-                                    self.autohide.transition_time
+                                    self.autohide_behavior.transition_time
                                 )))
                                 .spacing(spacing.space_xxs),
                         ),
@@ -302,13 +305,16 @@ impl Panel {
                                 .push(
                                     widget::slider(
                                         4..=32,
-                                        self.autohide.handle_size,
+                                        self.autohide_behavior.handle_size,
                                         Message::SetHandleSize,
                                     )
                                     .breakpoints(&[8, 12, 16, 20, 24, 28])
                                     .step(4u32),
                                 )
-                                .push(widget::text(format!("{} px", self.autohide.handle_size)))
+                                .push(widget::text(format!(
+                                    "{} px",
+                                    self.autohide_behavior.handle_size
+                                )))
                                 .spacing(spacing.space_xxs),
                         ),
                 )
@@ -428,25 +434,25 @@ impl Panel {
                 }
             }
             Message::SetWaitTime(wait_time) => {
-                self.autohide.wait_time = wait_time;
+                self.autohide_behavior.wait_time = wait_time;
                 if let Err(err) =
-                    panel_config.set_autohide(panel_helper, Some(self.autohide.clone()))
+                    panel_config.set_autohide_behavior(panel_helper, self.autohide_behavior.clone())
                 {
                     log::error!("Error updating panel wait time: {}", err);
                 }
             }
             Message::SetTransitionTime(transition_time) => {
-                self.autohide.transition_time = transition_time;
+                self.autohide_behavior.transition_time = transition_time;
                 if let Err(err) =
-                    panel_config.set_autohide(panel_helper, Some(self.autohide.clone()))
+                    panel_config.set_autohide_behavior(panel_helper, self.autohide_behavior.clone())
                 {
                     log::error!("Error updating panel transition time: {}", err);
                 }
             }
             Message::SetHandleSize(handle_size) => {
-                self.autohide.handle_size = handle_size;
+                self.autohide_behavior.handle_size = handle_size;
                 if let Err(err) =
-                    panel_config.set_autohide(panel_helper, Some(self.autohide.clone()))
+                    panel_config.set_autohide_behavior(panel_helper, self.autohide_behavior.clone())
                 {
                     log::error!("Error updating panel handle size: {}", err);
                 }

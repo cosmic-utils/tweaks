@@ -39,7 +39,13 @@
                     spacing: 2,
                     border_radius: 0,
                     exclusive_zone: true,
-                    autohide: None,
+                    autohide: Never,
+                    autohide_behavior: (
+                        wait_time: 1000,
+                        transition_time: 200,
+                        handle_size: 4,
+                        unhide_delay: 200
+                    ),
                     margin: 0,
                     opacity: 1.0,
                 ),
@@ -68,7 +74,13 @@
                     spacing: 4,
                     border_radius: 0,
                     exclusive_zone: true,
-                    autohide: None,
+                    autohide: Never,
+                    autohide_behavior: (
+                        wait_time: 1000,
+                        transition_time: 200,
+                        handle_size: 4,
+                        unhide_delay: 200
+                    ),
                     margin: 0,
                     opacity: 1.0,
                 ),
