@@ -60,9 +60,6 @@ features = ["fluent-system", "desktop-requester"]
 [dependencies.cosmic-panel-config]
 git = "https://github.com/pop-os/cosmic-panel"
 
-[dependencies.cosmic-settings]
-git = "https://github.com/pop-os/cosmic-settings"
-
 [dependencies.cosmic-settings-config]
 git = "https://github.com/pop-os/cosmic-settings-daemon"
 

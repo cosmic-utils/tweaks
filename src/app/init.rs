@@ -95,9 +95,7 @@ impl Cosmic {
             Err(error) => log::error!("Failed to load layouts: {}", error),
         }
 
-        tasks.push(
-            app.set_window_title(fl!("app-title"), app.cosmic.core.main_window_id().unwrap()),
-        );
+        tasks.push(app.set_window_title(fl!("app-title")));
 
         (app, Task::batch(tasks))
     }
