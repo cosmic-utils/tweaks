@@ -20,6 +20,8 @@ impl Cosmic {
             fl!("app-title")
         };
 
-        Task::batch(vec![app.set_window_title(title)])
+        Task::batch(vec![
+            app.set_window_title(title, app.cosmic.core.main_window_id().unwrap()),
+        ])
     }
 }

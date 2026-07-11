@@ -30,10 +30,11 @@ features = ["async-io", "file_chooser"]
 
 [dependencies.libcosmic]
 git = "https://github.com/pop-os/libcosmic.git"
-default-features = false
 features = [
     # About widget for the app
     "about",
+    # Support creating additional application windows.
+    "multi-window",
     # On app startup, focuses an existing instance if the app is already open
     "single-instance",
     # Uses tokio as the executor for the runtime
@@ -71,8 +72,11 @@ features = ["derive", "rc"]
 version = "1"
 features = ["macros", "fs", "rt"]
 
-#[patch."https://github.com/pop-os/libcosmic.git"]
-#libcosmic = { path = "../../edfloreshz-ext/libcosmic" }
+# [patch."https://github.com/pop-os/libcosmic.git"]
+# libcosmic = { path = "../../edfloreshz/libcosmic" }
+# cosmic-config = { path = "../../edfloreshz/libcosmic/cosmic-config" }
+# cosmic-theme = { path = "../../edfloreshz/libcosmic/cosmic-theme" }
+# iced = { path = "../../edfloreshz/libcosmic/iced" }
 #cosmic-config = { path = "../../edfloreshz-ext/libcosmic/cosmic-config" }
 #cosmic-config-derive = { path = "../../edfloreshz-ext/libcosmic/cosmic-config-derive" }
 #cosmic-theme = { path = "../../edfloreshz-ext/libcosmic/cosmic-theme" }
