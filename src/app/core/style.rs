@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use cosmic::{
     cosmic_theme::{Component, Theme},
     iced::core::Shadow,
@@ -58,7 +56,7 @@ pub fn panel_style(theme: &cosmic::Theme) -> widget::container::Style {
     }
 }
 
-pub fn standard_button(theme: Arc<Theme>) -> Button {
+pub fn standard_button(theme: Theme) -> Button {
     let theme_active = theme.clone();
     let theme_disabled = theme.clone();
     let theme_hovered = theme.clone();
@@ -127,7 +125,7 @@ pub fn standard_button(theme: Arc<Theme>) -> Button {
     }
 }
 
-pub fn destructive_button(theme: Arc<Theme>) -> Button {
+pub fn destructive_button(theme: Theme) -> Button {
     let theme_active = theme.clone();
     let theme_disabled = theme.clone();
     let theme_hovered = theme.clone();
@@ -196,7 +194,7 @@ pub fn destructive_button(theme: Arc<Theme>) -> Button {
     }
 }
 
-pub fn link_button(theme: Arc<Theme>) -> Button {
+pub fn link_button(theme: Theme) -> Button {
     let theme_active = theme.clone();
     let theme_disabled = theme.clone();
     let theme_hovered = theme.clone();

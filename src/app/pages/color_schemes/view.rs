@@ -231,14 +231,34 @@ impl ColorSchemes {
     }
 
     fn installed<'a>(
-        &self,
+        &'a self,
         key: ColorSchemeKey,
         color_scheme: &'a ColorScheme,
         _selected: bool,
         spacing: &cosmic::cosmic_theme::Spacing,
         item_width: usize,
     ) -> Element<'a, super::Message> {
-        let theme = &color_scheme.theme;
+        let Some(theme) = self.themes.get(&color_scheme.id()) else {
+            return mouse_area(
+                column(vec![])
+                    .push(
+                        row(vec![])
+                            .push(space::horizontal())
+                            .push(text(&color_scheme.name))
+                            .push(space::horizontal())
+                            .padding(spacing.space_xxs),
+                    )
+                    .push(
+                        row(vec![]).push(
+                            container(text(fl!("navigation")))
+                                .padding(spacing.space_xxs)
+                                .width(90.0)
+                                .height(Length::Fill),
+                        ),
+                    ),
+            )
+            .into();
+        };
 
         mouse_area(
             column(vec![])
@@ -291,14 +311,34 @@ impl ColorSchemes {
     }
 
     fn available<'a>(
-        &self,
+        &'a self,
         key: ColorSchemeKey,
         color_scheme: &'a ColorScheme,
         _selected: bool,
         spacing: &cosmic::cosmic_theme::Spacing,
         item_width: usize,
     ) -> Element<'a, Message> {
-        let theme = &color_scheme.theme;
+        let Some(theme) = self.themes.get(&color_scheme.id()) else {
+            return mouse_area(
+                column(vec![])
+                    .push(
+                        row(vec![])
+                            .push(space::horizontal())
+                            .push(text(&color_scheme.name))
+                            .push(space::horizontal())
+                            .padding(spacing.space_xxs),
+                    )
+                    .push(
+                        row(vec![]).push(
+                            container(text(fl!("navigation")))
+                                .padding(spacing.space_xxs)
+                                .width(90.0)
+                                .height(Length::Fill),
+                        ),
+                    ),
+            )
+            .into();
+        };
 
         mouse_area(
             column(vec![])
