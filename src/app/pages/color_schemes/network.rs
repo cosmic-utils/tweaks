@@ -1,8 +1,23 @@
 use anyhow::Result;
 
 use cosmic::cosmic_theme::ThemeBuilder;
+use uuid::Uuid;
 
 use crate::app::pages::color_schemes::{models::Source, storage::TempColorScheme};
+
+#[derive(serde::Deserialize)]
+pub struct RemoteTheme {
+    #[allow(unused)]
+    id: Uuid,
+    uuid: Uuid,
+    pub name: String,
+    ron: String,
+    author: Option<String>,
+    link: Option<String>,
+    downloads: u64,
+    pub created: String,
+    updated: String,
+}
 
 pub async fn download_themes() -> Result<Vec<TempColorScheme>> {
     let themes: Vec<RemoteTheme> =
@@ -26,17 +41,6 @@ pub async fn download_themes() -> Result<Vec<TempColorScheme>> {
         .collect())
 }
 
-#[derive(serde::Deserialize)]
-pub struct RemoteTheme {
-    pub name: String,
-    ron: String,
-    author: Option<String>,
-    link: Option<String>,
-    downloads: u64,
-    pub created: String,
-    updated: String,
-}
-
 impl TryFrom<RemoteTheme> for TempColorScheme {
     type Error = anyhow::Error;
 
@@ -45,6 +49,7 @@ impl TryFrom<RemoteTheme> for TempColorScheme {
             .map_err(|err| anyhow::anyhow!("invalid theme format for {}: {}", value.name, err))?;
 
         Ok(TempColorScheme {
+            id: value.uuid,
             name: value.name,
             theme_builder: builder.clone(),
             theme: builder.build().into(),

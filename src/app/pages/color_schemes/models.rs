@@ -1,9 +1,9 @@
 use std::fmt::Display;
-use std::hash::{DefaultHasher, Hash, Hasher};
 use std::path::PathBuf;
 
 use cosmic::cosmic_theme::ThemeBuilder;
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 use crate::localize::LANGUAGE_SORTER;
 
@@ -84,6 +84,7 @@ pub enum Source {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ColorScheme {
+    pub id: Uuid,
     pub name: String,
     pub theme_builder: ThemeBuilder,
     pub author: Option<String>,
@@ -98,6 +99,7 @@ pub struct ColorScheme {
 impl ColorScheme {
     pub fn new(name: String, theme: ThemeBuilder) -> Self {
         Self {
+            id: Uuid::new_v4(),
             name,
             theme_builder: theme,
             author: None,
@@ -108,13 +110,6 @@ impl ColorScheme {
             source: None,
             path: None,
         }
-    }
-
-    pub fn id(&self) -> String {
-        let mut hasher = DefaultHasher::new();
-        self.name.hash(&mut hasher);
-        self.created.hash(&mut hasher);
-        format!("{:016x}", hasher.finish())
     }
 }
 

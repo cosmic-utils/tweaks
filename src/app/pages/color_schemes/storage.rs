@@ -1,17 +1,18 @@
 use std::{
     fs::{self, File},
-    hash::{DefaultHasher, Hash, Hasher},
     io::{BufReader, BufWriter},
     path::PathBuf,
 };
 
 use anyhow::{Context, bail};
 use cosmic::cosmic_theme::{Theme, ThemeBuilder};
+use uuid::Uuid;
 
 use crate::app::pages::color_schemes::models::{ColorScheme, Source};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct TempColorScheme {
+    pub id: Uuid,
     pub name: String,
     pub theme_builder: ThemeBuilder,
     pub theme: Theme,
@@ -24,18 +25,10 @@ pub struct TempColorScheme {
     pub path: Option<PathBuf>,
 }
 
-impl TempColorScheme {
-    pub fn id(&self) -> String {
-        let mut hasher = DefaultHasher::new();
-        self.name.hash(&mut hasher);
-        self.created.hash(&mut hasher);
-        format!("{:016x}", hasher.finish())
-    }
-}
-
 impl From<TempColorScheme> for ColorScheme {
     fn from(value: TempColorScheme) -> Self {
         Self {
+            id: value.id,
             name: value.name.clone(),
             theme_builder: value.theme_builder.clone(),
             author: value.author.clone(),

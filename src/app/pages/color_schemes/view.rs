@@ -238,7 +238,7 @@ impl ColorSchemes {
         spacing: &cosmic::cosmic_theme::Spacing,
         item_width: usize,
     ) -> Element<'a, super::Message> {
-        let Some(theme) = self.themes.get(&color_scheme.id()) else {
+        let Some(theme) = self.themes.get(&color_scheme.id) else {
             return mouse_area(
                 column(vec![])
                     .push(
@@ -318,7 +318,7 @@ impl ColorSchemes {
         spacing: &cosmic::cosmic_theme::Spacing,
         item_width: usize,
     ) -> Element<'a, Message> {
-        let Some(theme) = self.themes.get(&color_scheme.id()) else {
+        let Some(theme) = self.themes.get(&color_scheme.id) else {
             return mouse_area(
                 column(vec![])
                     .push(

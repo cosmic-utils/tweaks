@@ -16,6 +16,7 @@ use nucleo::{
     Matcher, Utf32Str,
     pattern::{Atom, AtomKind, CaseMatching, Normalization},
 };
+use uuid::Uuid;
 
 use crate::app::core::reset::reset_cosmic_config;
 use crate::app::pages::color_schemes::config::ColorSchemesPageConfig;
@@ -39,7 +40,7 @@ pub mod view;
 pub struct ColorSchemes {
     installed: HashMap<String, ColorScheme>,
     available: Vec<ColorScheme>,
-    themes: HashMap<String, Theme>,
+    themes: HashMap<Uuid, Theme>,
     config_writer: Config,
     config: ColorSchemesPageConfig,
     model: segmented_button::Model<SingleSelect>,
@@ -107,7 +108,7 @@ impl ColorSchemes {
 
         for theme in installed.iter().chain(available.iter()) {
             themes
-                .entry(theme.id().clone())
+                .entry(theme.id)
                 .or_insert(theme.theme_builder.clone().build().clone());
         }
 
@@ -190,7 +191,7 @@ impl ColorSchemes {
                 Ok(theme) => {
                     self.installed.insert(theme.name.clone(), theme.clone());
                     self.themes
-                        .entry(theme.id().clone())
+                        .entry(theme.id)
                         .or_insert(theme.theme_builder.clone().build().clone());
                     if let Err(e) = apply_theme(&theme.theme_builder) {
                         error!("can't apply theme: {e}");
@@ -270,9 +271,7 @@ impl ColorSchemes {
                 self.status = Status::Idle;
 
                 for theme in &available {
-                    self.themes
-                        .entry(theme.id().clone())
-                        .or_insert(theme.theme.clone());
+                    self.themes.entry(theme.id).or_insert(theme.theme.clone());
                 }
 
                 let available: Vec<ColorScheme> =
@@ -309,7 +308,7 @@ impl ColorSchemes {
                                 self.installed
                                     .insert(color_scheme.name.clone(), color_scheme.clone());
                                 self.themes
-                                    .entry(color_scheme.id().clone())
+                                    .entry(color_scheme.id)
                                     .or_insert(color_scheme.theme_builder.clone().build().clone());
 
                                 let _ = self
