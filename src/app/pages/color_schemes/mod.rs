@@ -26,7 +26,7 @@ use crate::app::pages::color_schemes::models::{
 use crate::app::pages::color_schemes::network::download_themes;
 use crate::app::pages::color_schemes::storage::{
     TempColorScheme, cache_themes, get_themes_from_cache, install_theme, installed_system_themes,
-    is_cache_exist,
+    validate_cache_integrity,
 };
 use crate::app::pages::color_schemes::theme::{apply_theme, get_current_theme, import_file};
 
@@ -88,7 +88,7 @@ impl ColorSchemes {
 
         let mut need_fetching = true;
 
-        let available = if is_cache_exist() {
+        let available = if validate_cache_integrity() {
             match get_themes_from_cache() {
                 Ok(themes) => {
                     need_fetching = false;

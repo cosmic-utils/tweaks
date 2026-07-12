@@ -8,7 +8,7 @@ use crate::app::pages::color_schemes::{models::Source, storage::TempColorScheme}
 #[derive(serde::Deserialize)]
 pub struct RemoteTheme {
     #[allow(unused)]
-    id: Uuid,
+    id: u32,
     uuid: Uuid,
     pub name: String,
     ron: String,

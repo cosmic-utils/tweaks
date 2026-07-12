@@ -74,6 +74,22 @@ pub fn cache_themes(themes: &[ColorScheme]) -> anyhow::Result<()> {
     Ok(())
 }
 
+pub fn validate_cache_integrity() -> bool {
+    if !is_cache_exist() {
+        log::warn!("failed to validate cache integrity: directory was removed");
+        return false;
+    }
+
+    if let Err(err) = get_themes_from_cache() {
+        log::warn!("failed to validate cache integrity: {}", err);
+        std::fs::remove_file(cache_path().unwrap()).ok();
+        log::warn!("cache removed, recreating...");
+        return false;
+    }
+
+    true
+}
+
 pub fn get_themes_from_cache() -> anyhow::Result<Vec<ColorScheme>> {
     let file = File::open(cache_path()?)?;
 
