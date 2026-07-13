@@ -4,11 +4,11 @@
   <name>Tweaks</name>
   <name xml:lang="cs">Vyladění</name>
   <name xml:lang="zh-CN">微调</name>
-  <name xml:lang="uk">Тонкощі</name>
+  <name xml:lang="uk">Докрутки</name>
   <summary>Beyond the limits of your desktop</summary>
   <summary xml:lang="cs">Za hranicemi limitu vaší plochy</summary>
   <summary xml:lang="zh-CN">超越桌面的限制</summary>
-  <summary xml:lang="uk">Космічні тонкощі для розширеного налаштування стільниці</summary>
+  <summary xml:lang="uk">Космічні тонкощі розширеного налаштування стільниці</summary>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-only</project_license>
   <project_group>COSMIC</project_group>
@@ -72,42 +72,42 @@
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/dock-light.png</image>
       <caption>Dock page with light mode</caption>
       <caption xml:lang="cs">Stránka doku ve světlém režimu</caption>
-      <caption xml:lang="uk">Область завдань в світлому режимі</caption>
+      <caption xml:lang="uk">Сторінка області завдань у світлому режимі</caption>
       <caption xml:lang="zh-CN">亮模式程序坞页面</caption>
     </screenshot>
     <screenshot>
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/dock-dark.png</image>
       <caption>Dock page with dark mode</caption>
       <caption xml:lang="cs">Stránka doku v tmavém režimu</caption>
-      <caption xml:lang="uk">Область завдань в темному режимі</caption>
+      <caption xml:lang="uk">Сторінка області завдань у темному режимі</caption>
       <caption xml:lang="zh-CN">暗模式程序坞页面</caption>
     </screenshot>
     <screenshot>
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/panel-light.png</image>
       <caption>Panel page with light mode</caption>
       <caption xml:lang="cs">Stránka panelu ve světlém režimu</caption>
-      <caption xml:lang="uk">Панель в світлому режимі</caption>
+      <caption xml:lang="uk">Сторінка панелі у світлому режимі</caption>
       <caption xml:lang="zh-CN">亮模式面板页面</caption>
     </screenshot>
     <screenshot>
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/panel-dark.png</image>
       <caption>Panel page with dark mode</caption>
       <caption xml:lang="cs">Stránka panelu v tmavém režimu</caption>
-      <caption xml:lang="uk">Область завдань в темному режимі</caption>
+      <caption xml:lang="uk">Сторінка панелі у темному режимі</caption>
       <caption xml:lang="zh-CN">暗模式面板页面</caption>
     </screenshot>
     <screenshot>
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/layouts-light.png</image>
       <caption>Layouts page with light mode</caption>
       <caption xml:lang="cs">Stránka rozložení ve světlém režimu</caption>
-      <caption xml:lang="uk">Сторінка макети в світлому режимі</caption>
+      <caption xml:lang="uk">Сторінка макетів в світлому режимі</caption>
       <caption xml:lang="zh-CN">亮模式布局页面</caption>
     </screenshot>
     <screenshot>
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/layouts-dark.png</image>
       <caption>Layouts page with dark mode</caption>
       <caption xml:lang="cs">Stránka rozložení v tmavém režimu</caption>
-      <caption xml:lang="uk">Сторінка макети в темному режимі</caption>
+      <caption xml:lang="uk">Сторінка макетів в темному режимі</caption>
       <caption xml:lang="zh-CN">暗模式布局页面</caption>
     </screenshot>
     <screenshot>
