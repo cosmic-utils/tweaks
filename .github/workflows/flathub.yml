@@ -17,6 +17,11 @@ jobs:
           ref: ${{ github.event.release.tag_name }}
           fetch-depth: 0
 
+      - name: Resolve release commit SHA
+        id: release_sha
+        working-directory: source
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
       - name: Checkout Flathub manifest repo
         uses: actions/checkout@v4
         with:
@@ -37,22 +42,18 @@ jobs:
       - name: Copy cargo-sources.json into Flathub repo
         run: cp source/cargo-sources.json flathub/cargo-sources.json
 
-      - name: Pin manifest to release tag/commit
+      - name: Pin manifest to release commit
         working-directory: flathub
         env:
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
-          RELEASE_COMMIT: ${{ github.sha }}
-          REPO_URL: https://github.com/${{ github.repository }}.git
+          RELEASE_COMMIT: ${{ steps.release_sha.outputs.sha }}
         run: |
           MANIFEST="dev.edfloreshz.CosmicTweaks.json"
 
-          jq --arg url "$REPO_URL" \
-             --arg tag "$RELEASE_TAG" \
-             --arg commit "$RELEASE_COMMIT" \
+          jq --arg commit "$RELEASE_COMMIT" \
              '(.modules[] | select(.name == "tweaks") | .sources) |=
                map(
-                 if type == "object" and .type == "dir" then
-                   {"type": "git", "url": $url, "tag": $tag, "commit": $commit}
+                 if type == "object" and .type == "git" then
+                   .commit = $commit
                  else . end
                )
              ' "$MANIFEST" > "$MANIFEST.tmp"
