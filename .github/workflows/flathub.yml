@@ -25,7 +25,7 @@ jobs:
           token: ${{ secrets.FLATHUB_PAT }}
 
       - name: Install flatpak-cargo-generator deps
-        run: pip3 install aiohttp toml
+        run: pip3 install aiohttp tomlkit
 
       - name: Generate cargo-sources.json
         working-directory: source
