@@ -1,0 +1,69 @@
+name: Update Flathub manifest on release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  update-flathub:
+    name: "Open PR to Flathub"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout app source at release commit
+        uses: actions/checkout@v4
+        with:
+          path: source
+          ref: ${{ github.event.release.tag_name }}
+          fetch-depth: 0
+
+      - name: Checkout Flathub manifest repo
+        uses: actions/checkout@v4
+        with:
+          repository: flathub/dev.edfloreshz.CosmicTweaks
+          path: flathub
+          token: ${{ secrets.FLATHUB_PAT }}
+
+      - name: Install flatpak-cargo-generator deps
+        run: pip3 install aiohttp toml
+
+      - name: Generate cargo-sources.json
+        working-directory: source
+        run: |
+          curl -Lo flatpak-cargo-generator.py \
+            https://raw.githubusercontent.com/flatpak/flatpak-builder-tools/master/cargo/flatpak-cargo-generator.py
+          python3 flatpak-cargo-generator.py Cargo.lock -o cargo-sources.json
+
+      - name: Copy cargo-sources.json into Flathub repo
+        run: cp source/cargo-sources.json flathub/cargo-sources.json
+
+      - name: Pin manifest to release tag/commit
+        working-directory: flathub
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_COMMIT: ${{ github.sha }}
+          REPO_URL: https://github.com/${{ github.repository }}.git
+        run: |
+          MANIFEST="dev.edfloreshz.CosmicTweaks.json"
+
+          jq --arg url "$REPO_URL" \
+             --arg tag "$RELEASE_TAG" \
+             --arg commit "$RELEASE_COMMIT" \
+             '(.modules[] | select(.name == "tweaks") | .sources) |=
+               map(
+                 if type == "object" and .type == "dir" then
+                   {"type": "git", "url": $url, "tag": $tag, "commit": $commit}
+                 else . end
+               )
+             ' "$MANIFEST" > "$MANIFEST.tmp"
+          mv "$MANIFEST.tmp" "$MANIFEST"
+
+      - name: Open PR to Flathub
+        uses: peter-evans/create-pull-request@v7
+        with:
+          path: flathub
+          token: ${{ secrets.FLATHUB_PAT }}
+          commit-message: "Update to ${{ github.event.release.tag_name }}"
+          title: "Update to ${{ github.event.release.tag_name }}"
+          body: "Automated update from release ${{ github.event.release.html_url }}"
+          branch: "update-${{ github.event.release.tag_name }}"
