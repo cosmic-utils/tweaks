@@ -1,4 +1,4 @@
-app-title = Тонкощі COSMIC™
+app-title = Докрутки COSMIC™
 app-description = Інструмент для персоналізації середовища COSMIC™.
 
 # Pages
@@ -42,10 +42,10 @@ available-color-schemes-body = Знайдіть і встановіть коль
 install-color-scheme = Встановити кольорову схему
 set-color-scheme = Застосувати кольорову схему
 find-color-schemes = Знайти кольорові схеми
-open-containing-folder = Відкрити теку
+open-containing-folder = Відкрити теку з файлом
 open-link = Відкрити ланку
-installed = Встановлено
-available = Доступно
+installed = Встановлені
+available = Доступні
 loading = Завантаження…
 refresh = Оновити
 show-more = Показати більше
@@ -55,9 +55,9 @@ by = Від {$author}
 revert-old-color-scheme = Поновити кольорову схему
 
 a-z = A-Z
-most-downloaded = За завантаженнями
-last-modified = Оновлено
-author = Автор
+most-downloaded = за завантаженнями
+last-modified = за датою оновлення
+author = за автором
 search = Пошук
 
 ## Panel
@@ -108,7 +108,7 @@ user = Користувач
 
 ## Знятки
 application-opened = Застосунок відкрито
-restore-info = Кожного разу, коли ви відкриваєте Тонкощі COSMIC™, ми зберігаємо поточний стан вашої стільниці. Якщо щось зламається — просто застосуйте зняток.
+restore-info = Кожного разу, коли ви відкриваєте Докрутки COSMIC™, ми зберігаємо поточний стан вашої стільниці. Якщо щось зламається — просто застосуйте зняток.
 
 ## About
 about = Про застосунок
@@ -129,6 +129,16 @@ light = Світла
 # Menu
 view = Вид
 
+
 ## Shortcuts
-warning = Увага: це може перезаписати деякі з ваших власних сполучень клавіш
+
+warning = Увага
+warning-desc = Це може перезаписати деякі з ваших власних сполучень клавіш
 windows-desc = Super + Стрілки переміщення вікон. Ctrl + Alt + Стрілки — навігація робочими просторами.
+presets = Готові набори
+apply = Застосувати
+
+## Reset
+reset-to-defaults = Скинути до типових
+reset-to-defaults-warning = Відновити типові значення всіх параметрів на сторінці? Усі внесені вами зміни буде втрачено.
+reset = Скинути
