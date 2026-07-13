@@ -24,7 +24,6 @@ impl Cosmic {
                         .push_maybe(app.color_schemes.footer().map(|elem| {
                             elem.map(|message| Message::ColorSchemes(Box::new(message)))
                         }))
-                        .push(widget::space::horizontal())
                         .push(
                             widget::button::destructive(fl!("reset-to-defaults"))
                                 .trailing_icon(icon_handle!("edit-undo-symbolic", 16))
@@ -42,6 +41,7 @@ impl Cosmic {
             }
             Page::Layouts => Some(
                 widget::row(vec![])
+                    .push(widget::space::horizontal())
                     .push(
                         widget::button::standard(fl!("save-current-layout"))
                             .trailing_icon(icon_handle!("arrow-into-box-symbolic", 16))
@@ -54,7 +54,6 @@ impl Cosmic {
                                 ),
                             ))),
                     )
-                    .push(widget::space::horizontal())
                     .push_maybe(app.layouts.selected_layout.as_ref().map(|_| {
                         widget::button::standard(fl!("apply-layout"))
                             .trailing_icon(icon_handle!("checkmark-symbolic", 16))

@@ -133,8 +133,11 @@ view = View
 
 ## Shortcuts
 
-warning = Warning: this will override some of your existing custom shortcuts
+warning = Warning
+warning-desc = This will override some of your existing custom shortcuts
 windows-desc = Super+Arrows to move windows. Ctrl+Alt+Arrows to navigate workspaces.
+presets = Presets
+apply = Apply
 
 ## Reset
 reset-to-defaults = Reset to defaults

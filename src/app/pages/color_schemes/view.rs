@@ -12,6 +12,7 @@ use crate::{
     },
     icon_handle,
 };
+use cosmic::widget;
 use cosmic::{
     self, Apply, Element,
     iced::widget::pick_list,
@@ -189,6 +190,7 @@ impl ColorSchemes {
                 row(vec![])
                     .align_y(Vertical::Center)
                     .push(dark_mode)
+                    .push(widget::space::horizontal())
                     .push(
                         button::standard(fl!("save-current-color-scheme"))
                             .trailing_icon(icon_handle!("arrow-into-box-symbolic", 16))
@@ -208,6 +210,7 @@ impl ColorSchemes {
                 row(vec![])
                     .align_y(Vertical::Center)
                     .push(dark_mode)
+                    .push(widget::space::horizontal())
                     .push(match self.status {
                         Status::Idle => button::standard(fl!("refresh"))
                             .on_press(Message::FetchAvailableColorSchemes),

@@ -72,7 +72,7 @@ impl Dock {
         let spacing = cosmic::theme::spacing();
         widget::scrollable(widget::settings::view_column(vec![
             widget::settings::section()
-                .title("Dock")
+                .title(fl!("appearance"))
                 .add(
                     widget::settings::item::builder(fl!("padding"))
                         .description(fl!("padding-description"))

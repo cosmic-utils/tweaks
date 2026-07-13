@@ -3,8 +3,7 @@ use std::{collections::HashMap, io};
 use cosmic::{
     Element, Task,
     cosmic_config::{self, ConfigGet, ConfigSet},
-    iced::{alignment::Horizontal, padding},
-    widget::{self, button, column, row, text},
+    widget,
 };
 use cosmic_settings_config::{Shortcuts, shortcuts};
 
@@ -88,28 +87,30 @@ impl ShortcutsPage {
     }
 
     pub fn view<'a>(&self) -> Element<'a, Message> {
-        column(vec![])
-            .push(text::heading(fl!("warning")))
-            .push(widget::space::horizontal().height(25))
-            .push(
-                column(vec![])
-                    .spacing(5)
-                    .push(row(vec![]).push(view_button(ShortcutsGroup::Windows))),
-            )
-            .into()
+        let cosmic::cosmic_theme::Spacing { space_xs, .. } =
+            cosmic::theme::active().cosmic().spacing;
+
+        let windows = ShortcutsGroup::Windows;
+
+        widget::settings::view_column(vec![
+            widget::settings::section()
+                .title(fl!("warning"))
+                .add(widget::text::body(fl!("warning-desc")))
+                .into(),
+            widget::settings::section()
+                .title(fl!("presets"))
+                .add(view_list_item(windows))
+                .into(),
+        ])
+        .spacing(space_xs)
+        .into()
     }
 }
 
-fn view_button<'a>(shortcuts: ShortcutsGroup) -> Element<'a, Message> {
-    button::custom(
-        widget::column(vec![])
-            .align_x(Horizontal::Center)
-            .padding(5)
-            .push(text(shortcuts.name()))
-            .push(text(shortcuts.desc()))
-            .max_width(400),
-    )
-    .padding(padding::all(10))
-    .on_press(Message::ApplyShortcuts(shortcuts))
-    .into()
+fn view_list_item<'a>(group: ShortcutsGroup) -> Element<'a, Message> {
+    widget::settings::item::builder(group.name())
+        .description(group.desc())
+        .icon(widget::icon::from_name("preferences-desktop-keyboard-shortcuts-symbolic").size(18))
+        .control(widget::button::standard(fl!("apply")).on_press(Message::ApplyShortcuts(group)))
+        .into()
 }

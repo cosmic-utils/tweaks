@@ -171,7 +171,7 @@ impl Panel {
 
         widget::scrollable(widget::settings::view_column(vec![
             widget::settings::section()
-                .title("Panel")
+                .title(fl!("appearance"))
                 .add(
                     widget::settings::item::builder(fl!("show-panel"))
                         .icon(icon!("eye-outline-symbolic", 18))
