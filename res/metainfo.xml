@@ -142,6 +142,15 @@
     <id>com.system76.CosmicApplication</id>
   </provides>
   <releases>
+    <release version="0.2.4" date="2026-07-13">
+        <description>
+            <p>Frosted Glass! 🧊</p>
+            <ul>
+                <li>Added support for Frosted Glass effects.</li>
+                <li>Revamped shortcuts page.</li>
+            </ul>
+        </description>
+    </release>
     <release version="0.2.3" date="2026-05-06">
         <description>
             <p>Reset to defaults</p>
