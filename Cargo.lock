@@ -1121,7 +1121,7 @@ dependencies = [
 
 [[package]]
 name = "cosmic-ext-tweaks"
-version = "0.2.4"
+version = "0.2.5"
 dependencies = [
  "anyhow",
  "ashpd 0.13.12",
