@@ -3,6 +3,7 @@ app-description = A tool to customize your COSMIC™ desktop experience.
 
 # Pages
 home = Home
+date-time = Date and time
 dock = Dock
 panel = Panel
 color-schemes = Color schemes
@@ -126,6 +127,10 @@ theme = Theme
 match-desktop = Match desktop
 dark = Dark
 light = Light
+
+## Date-time
+time-format = Date & time format
+    .format-strftime = Format date and time with strftime
 
 # Menu
 view = View
