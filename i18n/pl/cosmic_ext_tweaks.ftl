@@ -72,6 +72,8 @@ margin = Margines
 margin-description = Margines jest przestrzenią między panelem a krawędziami ekranu.
 spacing = Rozstaw
 spacing-description = Rozstaw jest przestrzenią pomiędzy ikonami panelu lub doku.
+border-radius = Promień Obramowania
+border-radius-description = Promień obramowania jest zaokrągleniem doku lub panelu
 animation-speed = Szybkość animacji
 wait-time = Czas oczekiwania
 wait-time-description = Czas oczekiwania jest czasem po którym panel się chowa kiedy nie ma nad nim kursora.
@@ -113,7 +115,7 @@ restore-info = Za każdym razem gdy otworzysz Podkręcanie zapisujemy obecny sta
 about = O programie
 repository = Repozytorium
 support = Wsparcie
-website = Strona Internetowa
+website = Strona Domowa
 
 ## Settings
 settings = Ustawienia
@@ -131,5 +133,13 @@ view = Widok
 
 ## Shortcuts
 
-warning = Uwaga: to może nadpisać niektóre z twoich własnych skrótów
+warning = Uwaga
+warning-desc = Może to nadpisać niektóre z twoich własnych skrótów
 windows-desc = Super+Strzałki by poruszać oknami. Ctrl+Alt+Strzałki by nawigować przestrzeniami roboczymi.
+presets = Predefiniowane ustawienia
+apply = Zastosuj
+
+## Reset
+reset-to-defaults = Przywróć do domyślnych
+reset-to-defaults-warning = To przywróci wszystkie ustawienia do domyślnych wartości. Wsztstkie obecne dostosowania będą bezpowrotnie stracone.
+reset = Resetuj
