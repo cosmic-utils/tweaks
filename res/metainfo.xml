@@ -5,10 +5,12 @@
   <name xml:lang="cs">Vyladění</name>
   <name xml:lang="zh-CN">微调</name>
   <name xml:lang="uk">Докрутки</name>
+  <name xml:lang="pl">Dostosowania</name>
   <summary>Beyond the limits of your desktop</summary>
   <summary xml:lang="cs">Za hranicemi limitu vaší plochy</summary>
   <summary xml:lang="zh-CN">超越桌面的限制</summary>
   <summary xml:lang="uk">Космічні тонкощі розширеного налаштування стільниці</summary>
+  <summary xml:lang="pl">Ponad ograniczeniami twojej maszyny</summary>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-only</project_license>
   <project_group>COSMIC</project_group>
@@ -28,23 +30,28 @@
     <p>Personalize your COSMIC desktop beyond infinity</p>
     <p xml:lang="cs">Přizpůsobte si své prostředí COSMIC až za hranice nekonečna</p>
     <p xml:lang="uk">Персоналізуйте свою стільницю COSMIC без обмежень</p>
+    <p xml:lang="pl">Aż do nieskończoności dostosowywuj swoje środowisko COSMIC</p>
     <ul>
       <li>Save, import and download color schemes</li>
       <li xml:lang="cs">Ukládejte, importujte a stahujte barevná schémata</li>
       <li xml:lang="uk">Зберігайте, імпортуйте та завантажуйте кольорові схеми</li>
       <li xml:lang="zh-CN">保存、导入和下载颜色方案</li>
+      <li xml:lang="pl">Zapisuj, importuj i pobieraj schematy kolorystyczne</li>
       <li>Customize the panel and dock</li>
       <li xml:lang="cs">Přizpůsobte si panel a dok</li>
       <li xml:lang="uk">Налаштовуйте панель і область завдань</li>
       <li xml:lang="zh-CN">自定义面板和程序坞</li>
+      <li xml:lang="pl">Dostosuj panel i dok</li>
       <li>Replicate other desktop's layouts</li>
       <li xml:lang="cs">Kopírujte rozložení jiných ploch</li>
       <li xml:lang="uk">Відтворюйте макети інших стільниць</li>
       <li xml:lang="zh-CN">复制其他桌面的布局</li>
+      <li xml:lang="pl">Kopiuj układ pulpitu innych</li>
       <li>Fearless tweaking with snapshots</li>
       <li xml:lang="cs">Bezpečné úpravy díky snímkům</li>
       <li xml:lang="uk">Безпечні зміни за допомогою знятків</li>
       <li xml:lang="zh-CN">使用快照进行无风险微调</li>
+      <li xml:lang="pl">Bez strachu dostosowuj dzięki migawkom</li>
     </ul>
   </description>
   <branding>
@@ -60,6 +67,7 @@
       <caption xml:lang="cs">Stránka barevných schémat ve světlém režimu</caption>
       <caption xml:lang="uk">Сторінка кольорових схем у світлому режимі</caption>
       <caption xml:lang="zh-CN">亮模式颜色方案页面</caption>
+      <caption xml:lang="pl">Schematy kolorystyczne w jasnym trybie</caption>
     </screenshot>
     <screenshot>
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/color-schemes-dark.png</image>
@@ -67,6 +75,7 @@
       <caption xml:lang="cs">Stránka barevných schémat v tmavém režimu</caption>
       <caption xml:lang="uk">Сторінка кольорових схем у темному режимі</caption>
       <caption xml:lang="zh-CN">暗模式颜色方案页面</caption>
+      <caption xml:lang="pl">Schematy kolorystyczne w ciemnym trybie</caption>
     </screenshot>
     <screenshot>
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/dock-light.png</image>
@@ -74,6 +83,7 @@
       <caption xml:lang="cs">Stránka doku ve světlém režimu</caption>
       <caption xml:lang="uk">Сторінка області завдань у світлому режимі</caption>
       <caption xml:lang="zh-CN">亮模式程序坞页面</caption>
+      <caption xml:lang="pl">Zakładka doku w jasnym trybie</caption>
     </screenshot>
     <screenshot>
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/dock-dark.png</image>
@@ -81,6 +91,7 @@
       <caption xml:lang="cs">Stránka doku v tmavém režimu</caption>
       <caption xml:lang="uk">Сторінка області завдань у темному режимі</caption>
       <caption xml:lang="zh-CN">暗模式程序坞页面</caption>
+      <caption xml:lang="pl">Zakładka doku w ciemnym trybie</caption>
     </screenshot>
     <screenshot>
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/panel-light.png</image>
@@ -88,6 +99,7 @@
       <caption xml:lang="cs">Stránka panelu ve světlém režimu</caption>
       <caption xml:lang="uk">Сторінка панелі у світлому режимі</caption>
       <caption xml:lang="zh-CN">亮模式面板页面</caption>
+      <caption xml:lang="pl">Zakładka panelu w jasnym trybie</caption>
     </screenshot>
     <screenshot>
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/panel-dark.png</image>
@@ -95,6 +107,7 @@
       <caption xml:lang="cs">Stránka panelu v tmavém režimu</caption>
       <caption xml:lang="uk">Сторінка панелі у темному режимі</caption>
       <caption xml:lang="zh-CN">暗模式面板页面</caption>
+      <caption xml:lang="pl">Zakładka doku w ciemnym trybie</caption>
     </screenshot>
     <screenshot>
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/layouts-light.png</image>
@@ -102,6 +115,7 @@
       <caption xml:lang="cs">Stránka rozložení ve světlém režimu</caption>
       <caption xml:lang="uk">Сторінка макетів в світлому режимі</caption>
       <caption xml:lang="zh-CN">亮模式布局页面</caption>
+      <caption xml:lang="pl">Zakładka układów w jasnym trybie</caption>
     </screenshot>
     <screenshot>
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/layouts-dark.png</image>
@@ -109,6 +123,7 @@
       <caption xml:lang="cs">Stránka rozložení v tmavém režimu</caption>
       <caption xml:lang="uk">Сторінка макетів в темному режимі</caption>
       <caption xml:lang="zh-CN">暗模式布局页面</caption>
+      <caption xml:lang="pl">Zakładka układów w ciemnym trybie</caption>
     </screenshot>
     <screenshot>
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/snapshots-light.png</image>
@@ -116,6 +131,7 @@
       <caption xml:lang="cs">Stránka snímků ve světlém režimu</caption>
       <caption xml:lang="uk">Сторінка знятків в світлому режимі</caption>
       <caption xml:lang="zh-CN">亮模式快照页面</caption>
+      <caption xml:lang="pl">Zakładka migawek w jasnym trybie</caption>
     </screenshot>
     <screenshot>
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/snapshots-dark.png</image>
@@ -123,6 +139,7 @@
       <caption xml:lang="cs">Stránka snímků v tmavém režimu</caption>
       <caption xml:lang="uk">Сторінка знятків в темному режимі</caption>
       <caption xml:lang="zh-CN">暗模式快照页面</caption>
+      <caption xml:lang="pl">Zakładka migawek w ciemnym trybie</caption>
     </screenshot>
   </screenshots>
   <requires>
