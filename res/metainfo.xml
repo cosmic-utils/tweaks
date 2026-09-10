@@ -4,10 +4,12 @@
   <name>Tweaks</name>
   <name xml:lang="cs">Vyladění</name>
   <name xml:lang="zh-CN">微调</name>
+  <name xml:lang="ru">Доп. настройки</name>
   <name xml:lang="uk">Докрутки</name>
   <summary>Beyond the limits of your desktop</summary>
   <summary xml:lang="cs">Za hranicemi limitu vaší plochy</summary>
   <summary xml:lang="zh-CN">超越桌面的限制</summary>
+  <summary xml:lang="ru">Безграничная настройка окружения по вашему вкусу</summary>
   <summary xml:lang="uk">Космічні тонкощі розширеного налаштування стільниці</summary>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-only</project_license>
@@ -27,22 +29,27 @@
   <description>
     <p>Personalize your COSMIC desktop beyond infinity</p>
     <p xml:lang="cs">Přizpůsobte si své prostředí COSMIC až za hranice nekonečna</p>
+    <p xml:lang="ru">Настройте окружение COSMIC так, как хочется именно вам</p>
     <p xml:lang="uk">Персоналізуйте свою стільницю COSMIC без обмежень</p>
     <ul>
       <li>Save, import and download color schemes</li>
       <li xml:lang="cs">Ukládejte, importujte a stahujte barevná schémata</li>
+      <li xml:lang="ru">Сохраняйте, импортируйте и загружайте цветовые схемы</li>
       <li xml:lang="uk">Зберігайте, імпортуйте та завантажуйте кольорові схеми</li>
       <li xml:lang="zh-CN">保存、导入和下载颜色方案</li>
       <li>Customize the panel and dock</li>
       <li xml:lang="cs">Přizpůsobte si panel a dok</li>
+      <li xml:lang="ru">Выполняйте тонкую настройку панели и дока</li>
       <li xml:lang="uk">Налаштовуйте панель і область завдань</li>
       <li xml:lang="zh-CN">自定义面板和程序坞</li>
       <li>Replicate other desktop's layouts</li>
       <li xml:lang="cs">Kopírujte rozložení jiných ploch</li>
+      <li xml:lang="ru">Воссоздайте макеты других окружений рабочего стола</li>
       <li xml:lang="uk">Відтворюйте макети інших стільниць</li>
       <li xml:lang="zh-CN">复制其他桌面的布局</li>
       <li>Fearless tweaking with snapshots</li>
       <li xml:lang="cs">Bezpečné úpravy díky snímkům</li>
+      <li xml:lang="ru">Не бойтесь ярких изменений со снимками состояния</li>
       <li xml:lang="uk">Безпечні зміни за допомогою знятків</li>
       <li xml:lang="zh-CN">使用快照进行无风险微调</li>
     </ul>
@@ -58,6 +65,7 @@
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/color-schemes-light.png</image>
       <caption>Color schemes page with light mode</caption>
       <caption xml:lang="cs">Stránka barevných schémat ve světlém režimu</caption>
+      <caption xml:lang="ru">Страница цветовых схем со светлой темой</caption>
       <caption xml:lang="uk">Сторінка кольорових схем у світлому режимі</caption>
       <caption xml:lang="zh-CN">亮模式颜色方案页面</caption>
     </screenshot>
@@ -65,6 +73,7 @@
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/color-schemes-dark.png</image>
       <caption>Color schemes page with dark mode</caption>
       <caption xml:lang="cs">Stránka barevných schémat v tmavém režimu</caption>
+      <caption xml:lang="ru">Страница цветовых схем с тёмной темой</caption>
       <caption xml:lang="uk">Сторінка кольорових схем у темному режимі</caption>
       <caption xml:lang="zh-CN">暗模式颜色方案页面</caption>
     </screenshot>
@@ -72,6 +81,7 @@
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/dock-light.png</image>
       <caption>Dock page with light mode</caption>
       <caption xml:lang="cs">Stránka doku ve světlém režimu</caption>
+      <caption xml:lang="ru">Страница дока со светлой темой</caption>
       <caption xml:lang="uk">Сторінка області завдань у світлому режимі</caption>
       <caption xml:lang="zh-CN">亮模式程序坞页面</caption>
     </screenshot>
@@ -79,6 +89,7 @@
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/dock-dark.png</image>
       <caption>Dock page with dark mode</caption>
       <caption xml:lang="cs">Stránka doku v tmavém režimu</caption>
+      <caption xml:lang="ru">Страница дока с тёмной темой</caption>
       <caption xml:lang="uk">Сторінка області завдань у темному режимі</caption>
       <caption xml:lang="zh-CN">暗模式程序坞页面</caption>
     </screenshot>
@@ -86,6 +97,7 @@
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/panel-light.png</image>
       <caption>Panel page with light mode</caption>
       <caption xml:lang="cs">Stránka panelu ve světlém režimu</caption>
+      <caption xml:lang="ru">Страница панели со светлой темой</caption>
       <caption xml:lang="uk">Сторінка панелі у світлому режимі</caption>
       <caption xml:lang="zh-CN">亮模式面板页面</caption>
     </screenshot>
@@ -93,6 +105,7 @@
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/panel-dark.png</image>
       <caption>Panel page with dark mode</caption>
       <caption xml:lang="cs">Stránka panelu v tmavém režimu</caption>
+      <caption xml:lang="ru">Страница панели с тёмной темой</caption>
       <caption xml:lang="uk">Сторінка панелі у темному режимі</caption>
       <caption xml:lang="zh-CN">暗模式面板页面</caption>
     </screenshot>
@@ -100,6 +113,7 @@
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/layouts-light.png</image>
       <caption>Layouts page with light mode</caption>
       <caption xml:lang="cs">Stránka rozložení ve světlém režimu</caption>
+      <caption xml:lang="ru">Страница макетов со светлой темой</caption>
       <caption xml:lang="uk">Сторінка макетів в світлому режимі</caption>
       <caption xml:lang="zh-CN">亮模式布局页面</caption>
     </screenshot>
@@ -107,6 +121,7 @@
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/layouts-dark.png</image>
       <caption>Layouts page with dark mode</caption>
       <caption xml:lang="cs">Stránka rozložení v tmavém režimu</caption>
+      <caption xml:lang="ru">Страница макетов с тёмной темой</caption>
       <caption xml:lang="uk">Сторінка макетів в темному режимі</caption>
       <caption xml:lang="zh-CN">暗模式布局页面</caption>
     </screenshot>
@@ -114,6 +129,7 @@
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/snapshots-light.png</image>
       <caption>Snapshots page with light mode</caption>
       <caption xml:lang="cs">Stránka snímků ve světlém režimu</caption>
+      <caption xml:lang="ru">Страница снимков состояния со светлой темой</caption>
       <caption xml:lang="uk">Сторінка знятків в світлому режимі</caption>
       <caption xml:lang="zh-CN">亮模式快照页面</caption>
     </screenshot>
@@ -121,6 +137,7 @@
       <image>https://raw.githubusercontent.com/cosmic-utils/tweaks/main/res/screenshots/snapshots-dark.png</image>
       <caption>Snapshots page with dark mode</caption>
       <caption xml:lang="cs">Stránka snímků v tmavém režimu</caption>
+      <caption xml:lang="ru">Страница снимков состояния с тёмной темой</caption>
       <caption xml:lang="uk">Сторінка знятків в темному режимі</caption>
       <caption xml:lang="zh-CN">暗模式快照页面</caption>
     </screenshot>
