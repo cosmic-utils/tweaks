@@ -128,8 +128,8 @@ dark = Dark
 light = Light
 
 # Menu
-view = View
-
+menu-settings = Settings...
+menu-about = About Tweaks...
 
 ## Shortcuts
 
