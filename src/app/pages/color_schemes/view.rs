@@ -33,8 +33,9 @@ impl ColorSchemes {
 
         v.push(
             search_input(fl!("search"), &self.query)
+                .on_clear(Message::Query(String::new()))
                 .on_input(Message::Query)
-                .width(200)
+                .width(240)
                 .into(),
         );
 

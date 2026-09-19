@@ -9,7 +9,6 @@ use crate::app::message::Message;
 use crate::app::page::Page;
 
 use super::Cosmic;
-use crate::icon_handle;
 
 impl Cosmic {
     pub fn header_start<'a>(app: &'a App) -> Vec<Element<'a, Message>> {
@@ -24,21 +23,21 @@ impl Cosmic {
                 &app.cosmic.key_binds,
                 vec![
                     menu::Item::Button(
-                        fl!("settings"),
-                        Some(icon_handle!("settings-symbolic", 14)),
+                        fl!("menu-settings"),
+                        None,
                         TweaksAction::Settings,
                     ),
                     menu::Item::Divider,
                     menu::Item::Button(
-                        fl!("about"),
-                        Some(icon_handle!("info-outline-symbolic", 14)),
+                        fl!("menu-about"),
+                        None,
                         TweaksAction::About,
                     ),
                 ],
             ),
         )])
         .item_height(ItemHeight::Dynamic(40))
-        .item_width(ItemWidth::Uniform(240))
+        .item_width(ItemWidth::Uniform(360))
         .spacing(4.0);
 
         vec![Element::from(menu_bar)]
