@@ -33,6 +33,9 @@ impl Cosmic {
             Message::ToggleContextDrawer => {
                 app.core_mut().window.show_context = !app.core().window.show_context;
             }
+            Message::DateTime(message) => {
+                tasks.push(app.date_time.update(message).map(cosmic::action::app))
+            }
             Message::Dock(message) => tasks.push(app.dock.update(message).map(cosmic::action::app)),
             Message::Panel(message) => {
                 tasks.push(app.panel.update(message).map(cosmic::action::app))

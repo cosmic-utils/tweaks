@@ -35,6 +35,7 @@ pub struct App {
     handler: cosmic::cosmic_config::Config,
     config: core::config::TweaksConfig,
     color_schemes: pages::ColorSchemes,
+    date_time: pages::DateTime,
     dock: pages::Dock,
     panel: pages::Panel,
     layouts: pages::Layouts,

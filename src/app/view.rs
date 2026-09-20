@@ -24,6 +24,7 @@ impl Cosmic {
                 .view()
                 .map(Box::new)
                 .map(Message::ColorSchemes),
+            Page::DateTime => app.date_time.view().map(Message::DateTime),
             Page::Dock => app.dock.view().map(Message::Dock),
             Page::Panel => app.panel.view().map(Message::Panel),
             Page::Layouts => app.layouts.view().map(Message::Layouts),
