@@ -22,17 +22,9 @@ impl Cosmic {
             menu::items(
                 &app.cosmic.key_binds,
                 vec![
-                    menu::Item::Button(
-                        fl!("menu-settings"),
-                        None,
-                        TweaksAction::Settings,
-                    ),
+                    menu::Item::Button(fl!("menu-settings"), None, TweaksAction::Settings),
                     menu::Item::Divider,
-                    menu::Item::Button(
-                        fl!("menu-about"),
-                        None,
-                        TweaksAction::About,
-                    ),
+                    menu::Item::Button(fl!("menu-about"), None, TweaksAction::About),
                 ],
             ),
         )])
