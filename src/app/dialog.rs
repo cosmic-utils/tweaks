@@ -47,7 +47,7 @@ impl Cosmic {
                 .title(fl!("create-snapshot"))
                 .body(fl!("create-snapshot-description"))
                 .primary_action(
-                    widget::button::standard(fl!("create")).on_press(Message::DialogComplete),
+                    widget::button::suggested(fl!("create")).on_press(Message::DialogComplete),
                 )
                 .secondary_action(
                     widget::button::standard(fl!("cancel")).on_press(Message::DialogCancel),
