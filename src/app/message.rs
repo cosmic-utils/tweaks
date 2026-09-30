@@ -12,6 +12,7 @@ use cosmic::{
 
 #[derive(Debug, Clone)]
 pub enum Message {
+    DateTime(pages::date_time::Message),
     Dock(pages::dock::Message),
     Panel(pages::panel::Message),
     Layouts(pages::layouts::Message),
