@@ -339,7 +339,12 @@ pub fn appearance(
             appearance.text_color = Some(cosmic.accent.base.into());
             corner_radii = &cosmic.corner_radii.radius_0;
         }
-
+        Button::LinkActive => {
+            appearance.background = Some(cosmic.accent.base.into());
+            appearance.icon_color = Some(cosmic.accent.base.into());
+            appearance.text_color = Some(cosmic.accent.base.into());
+            corner_radii = &cosmic.corner_radii.radius_0;
+        }
         Button::Custom { .. } => (),
         Button::AppletMenu => {
             let (background, _, _) = color(&cosmic.text_button);

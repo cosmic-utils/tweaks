@@ -5,28 +5,30 @@ edition = "2024"
 
 [dependencies]
 dirs = "6"
-env_logger = "0.11"
-i18n-embed-fl = "0.10"
-log = "0.4"
 open = "5"
-pretty_env_logger = "0.5"
-reqwest = { version = "0.13", features = ["json"] }
+log = "0.4"
 ron = "0.12"
-rust-embed = "8"
-chrono = { version = "0.4", features = ["serde"] }
-thiserror = "2"
-uuid = { version = "1", features = ["serde", "v4"] }
 anyhow = "1"
-serde_json = "1"
-nucleo = "0.5"
-icu_collator = "2"
-icu_provider = { version = "2", features = ["sync"] }
 url = "2.5.8"
-
-[dependencies.ashpd]
-version = "0.13"
-default-features = false
-features = ["async-io", "file_chooser"]
+nucleo = "0.5"
+thiserror = "2"
+serde_json = "1"
+rust-embed = "8"
+tracing = "0.1.44"
+icu_collator = "2"
+i18n-embed-fl = "0.10"
+chrono = { version = "0.4", features = ["serde"] }
+reqwest = { version = "0.13", features = ["json"] }
+uuid = { version = "1", features = ["serde", "v4"] }
+icu_provider = { version = "2", features = ["sync"] }
+serde = { version = "1", features = ["derive", "rc"] }
+tokio = { version = "1", features = ["macros", "fs", "rt"] }
+tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
+cosmic-panel-config = { git = "https://github.com/pop-os/cosmic-panel" }
+i18n-embed = { version = "0.16", features = ["fluent-system", "desktop-requester"] }
+cosmic-settings-config = { git = "https://github.com/pop-os/cosmic-settings-daemon" }
+ashpd = { version = "0.13", default-features = false, features = ["async-io", "file_chooser"] }
+cosmic-ext-config-templates = { git = "https://github.com/ryanabx/cosmic-ext-config-templates" }
 
 [dependencies.libcosmic]
 git = "https://github.com/pop-os/libcosmic.git"
@@ -50,27 +52,6 @@ features = [
     # Add Wayland support to winit
     "wayland",
 ]
-
-[dependencies.cosmic-ext-config-templates]
-git = "https://github.com/ryanabx/cosmic-ext-config-templates"
-
-[dependencies.i18n-embed]
-version = "0.16"
-features = ["fluent-system", "desktop-requester"]
-
-[dependencies.cosmic-panel-config]
-git = "https://github.com/pop-os/cosmic-panel"
-
-[dependencies.cosmic-settings-config]
-git = "https://github.com/pop-os/cosmic-settings-daemon"
-
-[dependencies.serde]
-version = "1"
-features = ["derive", "rc"]
-
-[dependencies.tokio]
-version = "1"
-features = ["macros", "fs", "rt"]
 
 # [patch."https://github.com/pop-os/libcosmic.git"]
 # libcosmic = { path = "../../edfloreshz/libcosmic" }

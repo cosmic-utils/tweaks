@@ -4,5 +4,4 @@ pub mod grid;
 pub mod icons;
 pub mod key_bindings;
 pub mod reset;
-pub mod settings;
 pub mod style;

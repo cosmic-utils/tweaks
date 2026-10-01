@@ -1,18 +1,33 @@
-// SPDX-License-Identifier: GPL-3.0-only
+// SPDX-License-Identifier: {{ license }}
+
+//! Provides localization support for this crate.
 
 use std::sync::LazyLock;
 
 use i18n_embed::{
     DefaultLocalizer, LanguageLoader, Localizer,
     fluent::{FluentLanguageLoader, fluent_language_loader},
+    unic_langid::LanguageIdentifier,
 };
-use icu_provider::prelude::icu_locale_core::Locale;
-use rust_embed::RustEmbed;
-
 use icu_collator::{
     Collator, CollatorBorrowed, CollatorPreferences, options::CollatorOptions,
     preferences::CollationNumericOrdering,
 };
+use icu_provider::prelude::icu_locale_core::Locale;
+use rust_embed::RustEmbed;
+
+/// Applies the requested language(s) to requested translations from the `fl!()` macro.
+pub fn init(requested_languages: &[LanguageIdentifier]) {
+    if let Err(why) = localizer().select(requested_languages) {
+        tracing::error!("error while loading fluent localizations: {why}");
+    }
+}
+
+// Get the `Localizer` to be used for localizing this library.
+#[must_use]
+pub fn localizer() -> Box<dyn Localizer> {
+    Box::from(DefaultLocalizer::new(&*LANGUAGE_LOADER, &Localizations))
+}
 
 #[derive(RustEmbed)]
 #[folder = "i18n/"]
@@ -27,31 +42,6 @@ pub static LANGUAGE_LOADER: LazyLock<FluentLanguageLoader> = LazyLock::new(|| {
 
     loader
 });
-
-#[macro_export]
-macro_rules! fl {
-    ($message_id:literal) => {{
-        i18n_embed_fl::fl!($crate::localize::LANGUAGE_LOADER, $message_id)
-    }};
-
-    ($message_id:literal, $($args:expr),*) => {{
-        i18n_embed_fl::fl!($crate::localize::LANGUAGE_LOADER, $message_id, $($args), *)
-    }};
-}
-
-// Get the `Localizer` to be used for localizing this library.
-pub fn localizer() -> Box<dyn Localizer> {
-    Box::from(DefaultLocalizer::new(&*LANGUAGE_LOADER, &Localizations))
-}
-
-pub fn localize() {
-    let localizer = localizer();
-    let requested_languages = i18n_embed::DesktopLanguageRequester::requested_languages();
-
-    if let Err(error) = localizer.select(&requested_languages) {
-        eprintln!("Error while loading language for App List {}", error);
-    }
-}
 
 pub static LANGUAGE_SORTER: LazyLock<CollatorBorrowed> = LazyLock::new(|| {
     let create_collator = |locale: Locale| {
@@ -74,3 +64,15 @@ pub static LANGUAGE_SORTER: LazyLock<CollatorBorrowed> = LazyLock::new(|| {
                     .expect("Creating a collator from the system's current language, the fallback language, or American English should succeed")
             })
 });
+
+/// Request a localized string by ID from the i18n/ directory.
+#[macro_export]
+macro_rules! fl {
+    ($message_id:literal) => {{
+        i18n_embed_fl::fl!($crate::i18n::LANGUAGE_LOADER, $message_id)
+    }};
+
+    ($message_id:literal, $($args:tt)*) => {{
+        i18n_embed_fl::fl!($crate::i18n::LANGUAGE_LOADER, $message_id, $($args)*)
+    }};
+}

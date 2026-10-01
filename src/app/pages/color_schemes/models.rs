@@ -5,7 +5,7 @@ use cosmic::cosmic_theme::ThemeBuilder;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::localize::LANGUAGE_SORTER;
+use crate::i18n::LANGUAGE_SORTER;
 
 #[derive(Debug, Clone, Default, PartialEq)]
 pub enum SortBy {
